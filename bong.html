@@ -1,0 +1,1468 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bong County – Our Home, Our Pride</title>
+<script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+<script src="https://unpkg.com/vue-router@4/dist/vue-router.global.js"></script>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<script>
+tailwind.config = {
+  theme: {
+    extend: {
+      colors: {
+        forest: { DEFAULT: '#C2410C', light: '#EA580C', pale: '#FEE2CC', dark: '#1a1a1a' },
+        gold:   { DEFAULT: '#000000', light: '#333333', pale: '#F5F5F5' },
+        ink:    { DEFAULT: '#1A1A1A', muted: '#555555', border: '#E5E5E5' }
+      },
+      fontFamily: {
+        display: ['"Playfair Display"', 'serif'],
+        body:    ['"DM Sans"', 'sans-serif'],
+      }
+    }
+  }
+}
+</script>
+<style>
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body { font-family: 'DM Sans', sans-serif; background: #F9FBF9; }
+  .page-enter-active, .page-leave-active { transition: opacity 0.22s ease, transform 0.22s ease; }
+  .page-enter-from { opacity: 0; transform: translateY(10px); }
+  .page-leave-to  { opacity: 0; transform: translateY(-6px); }
+  a { text-decoration: none; }
+  ::-webkit-scrollbar { width: 4px; }
+  ::-webkit-scrollbar-thumb { background: #C2410C; border-radius: 4px; }
+  .nav-active { color: #EA580C !important; background: rgba(255,255,255,0.1) !important; }
+  button { font-family: 'DM Sans', sans-serif; }
+  details summary { list-style: none; cursor: pointer; }
+  details summary::-webkit-details-marker { display: none; }
+</style>
+</head>
+<body>
+<div id="app">
+
+  <!-- ═══ NAV ═══ -->
+  <nav class="fixed top-0 left-0 right-0 z-50 bg-forest-dark border-b-2 border-forest" style="height:68px">
+    <div class="max-w-6xl mx-auto h-full flex items-center justify-between px-6">
+      <router-link to="/" class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-full bg-forest flex items-center justify-center font-display font-black text-white text-sm flex-shrink-0">BC</div>
+        <div>
+          <div class="font-display text-white font-bold text-base leading-tight">Bong County</div>
+          <div class="text-forest-light text-xs tracking-widest uppercase font-body font-light" style="font-size:0.6rem">Liberia · Digital Platform</div>
+        </div>
+      </router-link>
+      <div class="hidden md:flex items-center gap-0.5">
+        <router-link v-for="l in nav" :key="l.to" :to="l.to"
+          class="text-white/70 hover:text-white hover:bg-white/10 px-3 py-1.5 rounded-lg text-sm font-medium transition-all duration-200"
+          active-class="nav-active">{{ l.label }}</router-link>
+      </div>
+      <button class="md:hidden text-white text-2xl bg-transparent border-0 cursor-pointer leading-none" @click="mob=true">☰</button>
+    </div>
+  </nav>
+
+  <!-- ═══ MOBILE DRAWER ═══ -->
+  <transition name="page">
+    <div v-if="mob" class="fixed inset-0 z-50 bg-forest-dark flex flex-col px-8 pt-20 pb-8">
+      <button class="absolute top-5 right-6 text-white text-2xl bg-transparent border-0 cursor-pointer leading-none" @click="mob=false">✕</button>
+      <router-link v-for="l in nav" :key="l.to" :to="l.to"
+        class="font-display text-2xl text-white/80 hover:text-forest-light py-4 border-b border-white/10 transition-colors"
+        @click="mob=false">{{ l.label }}</router-link>
+    </div>
+  </transition>
+
+  <!-- ═══ PAGE CONTENT ═══ -->
+  <div style="padding-top:68px; min-height:calc(100vh - 68px)">
+    <router-view v-slot="{ Component }">
+      <transition name="page" mode="out-in">
+        <component :is="Component" />
+      </transition>
+    </router-view>
+  </div>
+
+  <!-- ═══ FOOTER ═══ -->
+  <footer class="bg-forest-dark pt-12 pb-6 px-6">
+    <div class="max-w-6xl mx-auto">
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-10 pb-10 border-b border-white/10 mb-6">
+        <div class="col-span-2 md:col-span-1">
+          <div class="flex items-center gap-3 mb-3">
+            <div class="w-9 h-9 rounded-full bg-forest flex items-center justify-center font-display font-black text-white text-xs">BC</div>
+            <div class="font-display text-white font-bold leading-tight">Bong County</div>
+          </div>
+          <p class="text-white/40 text-sm leading-relaxed max-w-xs">The Heartbeat of Liberia — connecting citizens, showcasing heritage, and powering development.</p>
+        </div>
+        <div v-for="col in footerCols" :key="col.title">
+          <h5 class="text-forest-light text-xs font-semibold tracking-widest uppercase mb-4">{{ col.title }}</h5>
+          <router-link v-for="l in col.links" :key="l.label" :to="l.to"
+            class="block text-white/45 hover:text-white text-sm mb-2 transition-colors">{{ l.label }}</router-link>
+        </div>
+      </div>
+      <div class="flex flex-col md:flex-row justify-between items-center gap-2">
+        <p class="text-white/25 text-xs">© 2025 Bong County Digital Platform · Built for the people of Bong County, Liberia.</p>
+        <p class="text-white/20 text-xs tracking-widest">UNITY · HERITAGE · PROGRESS</p>
+      </div>
+    </div>
+  </footer>
+</div>
+
+<script>
+const { createApp, ref, computed, watch, reactive } = Vue;
+const { createRouter, createWebHashHistory } = VueRouter;
+
+/* ══════════════════════════════════════
+   PAGE: HOME
+══════════════════════════════════════ */
+const PageHome = {
+  template: `<div>
+    <!-- HERO -->
+    <section class="bg-forest-dark flex flex-col items-center justify-center text-center px-6 py-16 relative overflow-hidden" style="background-image:url('Assests/Bong-County-Administrative-Building1.png'); background-size:cover; background-position:center; background-attachment:fixed; margin:0 auto 2rem auto; max-width:90%">
+      <div class="absolute inset-0 pointer-events-none" style="background:rgba(26,26,26,0.65)"></div>
+      <div class="absolute inset-0 pointer-events-none" style="background-image:linear-gradient(rgba(255,255,255,0.025) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,0.025) 1px,transparent 1px);background-size:40px 40px"></div>
+      <div class="relative z-10 flex flex-col items-center w-full max-w-3xl">
+        <h1 class="font-display font-black text-white mb-3" style="font-size:clamp(2rem,4vw,3rem)">Bong County</h1>
+        <h2 class="font-display font-bold text-orange-400 mb-4" style="font-size:clamp(1.8rem,5vw,3.5rem)">Our Home,<br>Our Pride.</h2>
+        <p class="text-white/70 text-base max-w-xl mb-8 leading-relaxed">A community united in progress. Celebrating heritage, empowering youth, and building prosperity together.</p>
+        <div class="w-full max-w-xl">
+          <div class="flex flex-col sm:flex-row gap-3 items-center">
+            <div class="flex-1 w-full relative">
+              <input v-model="q" @keyup.enter="search" class="w-full bg-white/95 backdrop-blur-sm border-0 outline-none text-forest-dark py-3 px-5 text-sm placeholder-ink-muted font-body rounded-xl transition-all focus:bg-white focus:shadow-lg" placeholder="Search places, schools, opportunities…"/>
+            </div>
+            <button @click="search" class="w-full sm:w-auto bg-gold hover:bg-forest-light text-white font-semibold text-sm px-6 py-3 rounded-xl transition-all cursor-pointer border-0 shadow-md hover:shadow-lg">Search</button>
+          </div>
+          <p class="text-white/50 text-xs mt-3 text-center sm:text-left">Try: "leadership", "tourism", "education", "opportunities"</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- QUICK ACCESS -->
+    <div class="bg-forest">
+      <div class="max-w-6xl mx-auto grid grid-cols-2 md:grid-cols-4">
+        <router-link v-for="h in highlights" :key="h.to" :to="h.to" class="flex flex-col px-6 py-5 border-r border-white/10 last:border-r-0 hover:bg-white/6 transition-colors group">
+          <span class="text-2xl mb-2"></span>
+          <span class="text-gold-light text-xs font-semibold tracking-widest uppercase mb-1">{{ h.label }}</span>
+          <span class="text-white/80 text-sm font-medium group-hover:text-white transition-colors">{{ h.title }}</span>
+        </router-link>
+      </div>
+    </div>
+
+    <!-- ABOUT TEASER -->
+    <section class="bg-white py-20 px-6 relative overflow-hidden" style="background-image:url('Assests/Banner2.webp'); background-size:cover; background-position:center; background-attachment:fixed">
+      <div class="absolute inset-0" style="background:rgba(255,255,255,0.92)"></div>
+      <div class="max-w-6xl mx-auto grid md:grid-cols-2 gap-16 items-center relative z-10">
+        <div>
+          <div class="text-gold text-xs font-semibold tracking-widest uppercase mb-2">About Bong County</div>
+          <h2 class="font-display font-bold text-forest-dark leading-tight mb-4" style="font-size:clamp(1.8rem,3vw,2.6rem)">The Heartbeat of Liberia</h2>
+          <p class="text-ink-muted leading-relaxed mb-4">Bong County is one of Liberia's major counties, composed of 12 administrative districts and 7 electoral districts. Its capital and largest city is <strong class="text-forest-dark">Gbarnga</strong>, which serves as a key regional hub for governance, education, and commerce.</p>
+          <p class="text-ink-muted leading-relaxed mb-6">Home to Cuttington University — one of the oldest private universities in Sub-Saharan Africa — and a generation of young people driving progress and unity.</p>
+          <router-link to="/about" class="inline-flex items-center gap-2 bg-forest text-white px-6 py-3 rounded-lg font-semibold text-sm hover:bg-forest-light transition-colors">Discover More →</router-link>
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div v-for="d in districtSnap" :key="d.name" class="bg-forest-pale border border-ink-border border-l-2 border-l-forest rounded-xl px-4 py-3">
+            <div class="font-semibold text-forest text-sm">{{ d.name }}</div>
+            <div class="text-ink-muted text-xs mt-0.5">{{ d.note }}</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TOURISM TEASER -->
+    <section class="bg-gray-50 py-20 px-6 relative overflow-hidden" style="background-image:url('Assests/Banner4.webp'); background-size:cover; background-position:center; background-attachment:fixed">
+      <div class="absolute inset-0" style="background:rgba(249,250,251,0.88)"></div>
+      <div class="max-w-6xl mx-auto relative z-10">
+        <div class="flex items-end justify-between mb-8 flex-wrap gap-4">
+          <div>
+            <div class="text-gold text-xs font-semibold tracking-widest uppercase mb-2">Tourism & Exploration</div>
+            <h2 class="font-display font-bold text-forest-dark" style="font-size:clamp(1.6rem,3vw,2.4rem)">Discover Bong County</h2>
+          </div>
+          <router-link to="/tourism" class="text-forest font-semibold text-sm hover:text-forest-light transition-colors">View All Sites →</router-link>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+          <div v-for="s in featuredSites" :key="s.name" class="bg-white rounded-2xl overflow-hidden border border-ink-border shadow-sm hover:-translate-y-1 hover:shadow-lg transition-all duration-300">
+            <div class="h-44 flex items-center justify-center text-5xl relative overflow-hidden" :style="{ background: s.image ? 'transparent' : s.bg }">
+              <img v-if="s.image" :src="s.image" :alt="s.name" class="w-full h-full object-cover"/>
+              <span class="absolute top-3 right-3 text-gold-light text-xs font-semibold px-2.5 py-1 rounded-full" style="background:rgba(26,26,26,0.85)">{{ s.cat }}</span>
+            </div>
+            <div class="p-5">
+              <h3 class="font-semibold text-forest-dark mb-1.5">{{ s.name }}</h3>
+              <p class="text-ink-muted text-sm leading-relaxed mb-3">{{ s.desc }}</p>
+              <div class="text-forest text-xs font-medium mb-3">{{ s.loc }}</div>
+              <div v-if="s.mapUrl" class="rounded-lg overflow-hidden border border-ink-border mb-2" style="height:120px">
+                <iframe :src="s.mapUrl" width="100%" height="100%" style="border:0" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+              </div>
+              <div class="flex items-center justify-between">
+                <span class="text-forest text-xs font-semibold">Details →</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- EDUCATION TEASER -->
+    <section class="bg-white py-20 px-6 relative overflow-hidden" style="background-image:url('Assests/Banner6.jpg'); background-size:cover; background-position:center; background-attachment:fixed">
+      <div class="absolute inset-0" style="background:rgba(255,255,255,0.90)"></div>
+      <div class="max-w-6xl mx-auto relative z-10">
+        <div class="flex items-end justify-between mb-8 flex-wrap gap-4">
+          <div>
+            <div class="text-gold text-xs font-semibold tracking-widest uppercase mb-2">Education</div>
+            <h2 class="font-display font-bold text-forest-dark" style="font-size:clamp(1.6rem,3vw,2.4rem)">Learning in Bong County</h2>
+          </div>
+          <router-link to="/education" class="text-forest font-semibold text-sm hover:text-forest-light transition-colors">See All Institutions →</router-link>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div v-for="e in eduSnap" :key="e.name" class="border border-ink-border rounded-xl p-5 hover:shadow-md hover:border-forest transition-all">
+            <div class="text-2xl mb-3">{{ e.icon }}</div>
+            <h3 class="font-semibold text-forest-dark text-sm mb-1">{{ e.name }}</h3>
+            <p class="text-ink-muted text-xs leading-relaxed mb-2">{{ e.desc }}</p>
+            <span class="bg-forest-pale text-forest text-xs font-medium px-2 py-0.5 rounded-full">{{ e.tag }}</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CTA BANNER -->
+    <section class="bg-forest py-20 px-6 text-center relative overflow-hidden" style="background-image:url('Assests/Banner image.jpg'); background-size:cover; background-position:center; background-attachment:fixed">
+      <div class="absolute inset-0" style="background:linear-gradient(135deg, rgba(26,26,26,0.35) 0%, rgba(194,65,12,0.40) 100%)"></div>
+      <div class="max-w-2xl mx-auto relative z-10">
+        <h2 class="font-display font-bold text-white text-3xl mb-4">Share Your Bong County Story</h2>
+        <p class="text-white/60 mb-8 leading-relaxed">Every voice matters. Your story is part of Bong County's living history.</p>
+        <router-link to="/stories" class="inline-flex items-center gap-2 bg-gold hover:bg-gold-light text-orange-600 font-semibold px-8 py-3 rounded-xl transition-colors">Read Stories →</router-link>
+      </div>
+    </section>
+  </div>`,
+  setup() {
+    const { useRouter } = VueRouter;
+    const router = useRouter();
+    const q = ref('');
+    const stats = [
+      { num:'12',   label:'Districts' },
+      { num:'7',    label:'Electoral Districts' },
+      { num:'1964', label:'Established' },
+      { num:'1889', label:'Cuttington Founded' },
+    ];
+    const highlights = [
+      { to:'/tourism',    icon:'', label:'Tourism',    title:'Historical & Natural Sites' },
+      { to:'/education',  icon:'', label:'Education',  title:'Universities & Schools' },
+      { to:'/leadership', icon:'', label:'Leadership', title:'Past & Present Leaders' },
+      { to:'/community',  icon:'', label:'Community',  title:'Events & Announcements' },
+    ];
+    const districtSnap = [
+      { name:'Gbarnga (Capital)', note:'Administrative hub' },
+      { name:'Suakoko',           note:'Cuttington University' },
+      { name:'Fuamah',            note:'Botoe Barclay H.S.' },
+      { name:'Salala',            note:'TAVTC & Highway' },
+      { name:'Zota',              note:'Forest & resources' },
+      { name:'Jorquelleh',        note:'Two sub-districts' },
+    ];
+    const featuredSites = [
+      { name:'Kpatawee Waterfall',    cat:'Nature',    emoji:'', bg:'#0A2E1E', image:'Assests/Kpatawee.webp', desc:'A stunning natural landmark used for recreation, deeply tied to local tradition.',        loc:'Bong County' },
+      { name:'Blue Lake – Bong Mines',cat:'Historical',emoji:'', bg:'#0D2035', image:null, desc:'A former German iron ore mine filled with water, creating a striking scenic blue lake.',  loc:'Bong Town' },
+      { name:'Bong Mining Area',      cat:'Historical',emoji:'', bg:'#1B3A2B', image:null, desc:'Remnants of the Bong Mining Company — a major German operation active until the 1990s.', loc:'Bong Mines' },
+    ];
+    const eduSnap = [
+      { icon:'', name:'Cuttington University',           desc:'Founded 1889 — one of the oldest private universities in Sub-Saharan Africa.',      tag:'University · Suakoko' },
+      { icon:'', name:'Bong County Technical College',   desc:'Transitioning into Bong County University. Engineering, Agriculture & Health.',      tag:'College · Gbarnga' },
+      { icon:'', name:'Tumutu Agric. Vocational Center', desc:'Agriculture, animal husbandry, and aquaculture training for youth in central Liberia.',tag:'Vocational · Salala' },
+    ];
+    function search() {
+      const map = { '/tourism':['tourism','site','nature','waterfall','mine','lake'], '/education':['school','edu','univ','college','learn','hospital','health'], '/leadership':['leader','senator','chief','official','history'], '/community':['event','community','update','news'], '/about':['district','town','about','gbarnga'] };
+      const qv = q.value.toLowerCase();
+      for (const [path, kws] of Object.entries(map)) { if (kws.some(k => qv.includes(k))) { router.push(path); return; } }
+      router.push('/about');
+    }
+    return { q, stats, highlights, districtSnap, featuredSites, eduSnap, search };
+  }
+};
+
+/* ══════════════════════════════════════
+   PAGE: ABOUT
+══════════════════════════════════════ */
+const PageAbout = {
+  template: `<div>
+    <div class="bg-forest-dark px-6 py-20 text-center relative overflow-hidden" style="background-image:url('Assests/Banner2.webp'); background-size:cover; background-position:center; background-attachment:fixed">
+      <div class="absolute inset-0" style="background:linear-gradient(rgba(26,26,26,0.35), rgba(26,26,26,0.40)), radial-gradient(circle at 50% 80%,rgba(194,65,12,0.15) 0%,transparent 60%)"></div>
+      <div class="relative z-10">
+        <div class="text-gold-light text-xs font-semibold tracking-widest uppercase mb-3">Our Story</div>
+        <h1 class="font-display font-black text-white mb-4" style="font-size:clamp(2.2rem,5vw,4rem)">About Bong County</h1>
+        <p class="text-white/55 max-w-xl mx-auto leading-relaxed">History, geography, and the communities that make Bong County the Heartbeat of Liberia.</p>
+      </div>
+    </div>
+
+    <!-- OVERVIEW -->
+    <section class="bg-white py-20 px-6">
+      <div class="max-w-6xl mx-auto grid md:grid-cols-2 gap-16 items-start">
+        <div>
+          <div class="text-gold text-xs font-semibold tracking-widest uppercase mb-2">Overview</div>
+          <h2 class="font-display font-bold text-forest-dark text-3xl mb-5">The Heartbeat of Liberia</h2>
+          <p class="text-ink-muted leading-relaxed mb-4">Bong County is one of Liberia's major counties, composed of <strong class="text-forest-dark">12 administrative districts</strong> and <strong class="text-forest-dark">7 electoral districts</strong>. Its capital and largest city is Gbarnga, which serves as a key regional hub for governance, education, and commerce.</p>
+          <p class="text-ink-muted leading-relaxed mb-4">Often referred to as the "Heartbeat of Liberia" due to its central location and historical significance, Bong County has been shaped since its creation in 1964 by political, traditional, and educational leaders who have defined its identity.</p>
+          <p class="text-ink-muted leading-relaxed">Home to diverse communities — including Kpelle, Loma, and Mandingo peoples — Bong County is a living tapestry of traditions, languages, and stories united by a shared pride in their land.</p>
+        </div>
+        <div class="space-y-4">
+          <div class="rounded-xl overflow-hidden border border-ink-border shadow-md">
+            <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d127266.8976867693!2d-10.309!3d7.65!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x7c69d7e1f7e0001%3A0x5e5e5e5e5e5e5e5e!2sBong%20County%2C%20Liberia!5e0!3m2!1sen!2sus!4v1234567890" width="100%" height="300" style="border:0" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade" class="w-full"></iframe>
+          </div>
+          <div class="space-y-2">
+            <div v-for="f in facts" :key="f.label" class="flex items-start gap-4 p-4 bg-forest-pale rounded-xl border border-ink-border">
+              <span class="text-2xl flex-shrink-0">{{ f.icon }}</span>
+              <div>
+                <div class="text-xs font-semibold text-ink-muted uppercase tracking-wider mb-0.5">{{ f.label }}</div>
+                <div class="font-semibold text-forest-dark">{{ f.value }}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- DISTRICTS (Accordion) -->
+    <section class="bg-gray-50 py-20 px-6">
+      <div class="max-w-6xl mx-auto">
+        <div class="text-gold text-xs font-semibold tracking-widest uppercase mb-2">Administrative Divisions</div>
+        <h2 class="font-display font-bold text-forest-dark text-3xl mb-3">12 Administrative Districts</h2>
+        <p class="text-ink-muted mb-10 max-w-lg">Bong County is divided into 12 administrative districts, each with its own character, communities, and resources.</p>
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 mb-10">
+          <div v-for="d in districts" :key="d.name" class="border border-ink-border border-l-4 border-l-forest rounded-xl p-5 bg-white hover:shadow-md transition-shadow">
+            <h3 class="font-semibold text-forest mb-1">{{ d.name }}</h3>
+            <p class="text-ink-muted text-sm mb-3">{{ d.desc }}</p>
+            <div class="flex flex-wrap gap-1.5">
+              <span v-for="tag in d.tags" :key="tag" class="bg-forest-pale text-forest text-xs font-medium px-2 py-0.5 rounded-full">{{ tag }}</span>
+            </div>
+          </div>
+        </div>
+        <div class="bg-forest-pale rounded-xl p-4 border border-ink-border text-sm text-ink-muted">
+          <strong class="text-forest-dark">Electoral Districts:</strong> Bong County also has 7 electoral districts for national legislative representation.
+        </div>
+      </div>
+    </section>
+
+    <!-- MAJOR TOWNS -->
+    <section class="bg-white py-20 px-6">
+      <div class="max-w-6xl mx-auto">
+        <div class="text-gold text-xs font-semibold tracking-widest uppercase mb-2">Key Towns & Communities</div>
+        <h2 class="font-display font-bold text-forest-dark text-3xl mb-3">Towns & Settlements</h2>
+        <p class="text-ink-muted mb-10 max-w-lg">From major towns to vibrant local communities, Bong County is alive with settlement and culture.</p>
+
+        <h3 class="font-semibold text-forest-dark mb-4 text-lg">Key Towns</h3>
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-10">
+          <div v-for="t in towns" :key="t.name" class="rounded-xl p-4 border border-ink-border hover:shadow-md hover:border-forest transition-all">
+            <div class="text-2xl mb-2"></div>
+            <div class="font-semibold text-forest-dark text-sm mb-1">{{ t.name }}</div>
+            <div class="text-ink-muted text-xs">{{ t.desc }}</div>
+          </div>
+        </div>
+
+        <h3 class="font-semibold text-forest-dark mb-4 text-lg">Local Communities in Gbarnga</h3>
+        <div class="flex flex-wrap gap-2 mb-8">
+          <span v-for="c in communities" :key="c" class="bg-forest-pale text-forest text-sm font-medium px-3 py-1.5 rounded-full border border-ink-border">{{ c }}</span>
+        </div>
+
+        <h3 class="font-semibold text-forest-dark mb-4 text-lg">Notable Settlements by Area</h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div v-for="area in settlements" :key="area.area" class="bg-forest-pale rounded-xl p-4 border border-ink-border">
+            <div class="font-semibold text-forest text-sm mb-2">{{ area.area }}</div>
+            <div class="flex flex-wrap gap-1.5">
+              <span v-for="s in area.places" :key="s" class="bg-white text-ink-muted text-xs px-2 py-0.5 rounded-full border border-ink-border">{{ s }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- HISTORY TIMELINE -->
+    <section class="bg-forest py-20 px-6">
+      <div class="max-w-4xl mx-auto">
+        <div class="text-gold-light/70 text-xs font-semibold tracking-widest uppercase mb-2">History</div>
+        <h2 class="font-display font-bold text-white text-3xl mb-12">A Timeline of Bong County</h2>
+        <div class="relative">
+          <div class="absolute top-0 bottom-0 bg-white/15" style="left:16px;width:1px"></div>
+          <div v-for="e in timeline" :key="e.year" class="pl-12 pb-10 relative">
+            <div class="absolute top-1 w-8 h-8 rounded-full bg-forest border-2 border-gold/40 flex items-center justify-center" style="left:0">
+              <div class="w-2 h-2 rounded-full bg-gold"></div>
+            </div>
+            <div class="text-gold text-xs font-bold tracking-widest mb-1">{{ e.year }}</div>
+            <h3 class="font-semibold text-white mb-1">{{ e.title }}</h3>
+            <p class="text-white/55 text-sm leading-relaxed">{{ e.desc }}</p>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>`,
+  setup() {
+    const facts = [
+      { icon:'', label:'Location',             value:'North-Central Liberia' },
+      { icon:'', label:'County Seat',           value:'Gbarnga City' },
+      { icon:'', label:'Administrative Districts', value:'12 Districts' },
+      { icon:'', label:'Electoral Districts',   value:'7 Electoral Districts' },
+      { icon:'', label:'Named After',           value:'The Bong Mountain Range' },
+      { icon:'', label:'Established',           value:'1964' },
+    ];
+    const districts = [
+      { name:'Boinsen',       desc:'Northern district with agricultural communities.',           tags:['Agriculture'] },
+      { name:'Fuamah',        desc:'Home to Botoe Barclay High School.',                        tags:['Education','Heritage'] },
+      { name:'Jorquelleh',    desc:'Divided into Jorquelleh One & Two sub-districts.',          tags:['Rural','Two Sub-Districts'] },
+      { name:'Kokoyah',       desc:'Known for rice farming and community life.',                tags:['Rice Farming'] },
+      { name:'Kpaai',         desc:'Includes the important towns of Palala and Zowienta.',      tags:['Palala City','Zowienta'] },
+      { name:'Panta (Panta-Kpa)', desc:'Northern border district.',                            tags:['Border','Agriculture'] },
+      { name:'Salala',        desc:'Located along the Monrovia–Gbarnga highway. Home to TAVTC.',tags:['Highway','Vocational'] },
+      { name:'Sanoyea',       desc:'Headquarters of Sanoyea District.',                        tags:['Growing District'] },
+      { name:'Suakoko',       desc:'Home to Cuttington University and CARI.',                  tags:['University','Research'] },
+      { name:'Tukpahblee',    desc:'Rural district in the county interior.',                   tags:['Rural'] },
+      { name:'Yeallequellah', desc:'Area includes Gbartala, Garyea, and Fenutoli towns.',      tags:['Gbartala','Garyea'] },
+      { name:'Zota',          desc:'Mineral-rich district with forest reserves.',              tags:['Mining','Forestry'] },
+    ];
+    const towns = [
+      { icon:'', name:'Gbarnga',    desc:'Capital city & regional hub' },
+      { icon:'', name:'Suakoko',    desc:'Cuttington University & CARI' },
+      { icon:'', name:'Bong Mines', desc:'Historic mining town' },
+      { icon:'', name:'Palala',     desc:'Important town, Kpaai area' },
+      { icon:'', name:'Salala',     desc:'Along Monrovia–Gbarnga highway' },
+      { icon:'', name:'Totota',     desc:'Major transit town, Lower Bong' },
+      { icon:'', name:'Zowienta',   desc:'Key town in Kpaai District' },
+      { icon:'', name:'Sanoyea',    desc:'Sanoyea District headquarters' },
+    ];
+    const communities = ['Civil Compound','Sugar Hill Community','Lelekpahyee Community','Rubber Factory Community','Iron Gate Community','V.I. Community','Bible Quarter Community','Brooklyn Community'];
+    const settlements = [
+      { area:'Jorquelleh Area',    places:['Garmu','Gbenequelleh','Samay','Mano-Weasue'] },
+      { area:'Suakoko Area',       places:['Sgt. Kollie Town','Sinyea','Gokai'] },
+      { area:'Yeallequellah Area', places:['Gbartala','Garyea','Fenutoli'] },
+      { area:'Additional Locations',places:['Gold Camp','Botota','Beletanda','Palala City'] },
+    ];
+    const timeline = [
+      { year:'Pre-1964',   title:'Indigenous Roots',         desc:'Kpelle, Loma, and Mandingo peoples built rich traditions of farming, trade, and governance. Chieftainess Suah Koko was a powerful traditional leader who expanded the territory\'s influence in the early 20th century.' },
+      { year:'1964',       title:'County Established',       desc:'Bong County was officially created, with Gbarnga designated as county seat. James Y. Gbarbea became the first Superintendent (1964–1968).' },
+      { year:'1960s–90s',  title:'Iron Ore Era',             desc:'The Bong Mining Company — a major German operation — was one of the largest iron ore extractions in West Africa, shaping the county\'s economy and infrastructure until the 1990s.' },
+      { year:'1889',       title:'Cuttington University Founded', desc:'One of the oldest private coeducational colleges in Sub-Saharan Africa opened in Suakoko, establishing Bong County as a center of learning.' },
+      { year:'1989–2003',  title:'Civil War Impact',         desc:'Communities showed remarkable resilience through Liberia\'s civil conflicts, preserving cultural identity and community bonds.' },
+      { year:'2003–2010s', title:'Reconstruction Era',       desc:'Post-war rebuilding: roads, schools, health facilities, and governance restored. Leaders like Ranney Banama Jackson Sr. and Selena Polson Mappy led recovery.' },
+      { year:'2018–Now',   title:'Modern Leadership',        desc:'Jewel Howard-Taylor served as VP of Liberia (2018–2024). Hawa Loleyah Norris appointed Superintendent in 2024. Bong County enters a new era of youth-led development.' },
+    ];
+    return { facts, districts, towns, communities, settlements, timeline };
+  }
+};
+
+/* ══════════════════════════════════════
+   PAGE: TOURISM
+══════════════════════════════════════ */
+const PageTourism = {
+  template: `<div>
+    <div class="bg-forest-dark px-6 py-20 text-center relative overflow-hidden" style="background-image:url('Assests/Banner4.webp'); background-size:cover; background-position:center; background-attachment:fixed">
+      <div class="absolute inset-0" style="background:linear-gradient(rgba(26,26,26,0.35), rgba(26,26,26,0.40)), radial-gradient(circle at 30% 70%,rgba(194,65,12,0.15) 0%,transparent 60%)"></div>
+      <div class="relative z-10">
+        <div class="text-gold-light text-xs font-semibold tracking-widest uppercase mb-3">Tourism & Exploration</div>
+        <h1 class="font-display font-black text-white mb-4" style="font-size:clamp(2.2rem,5vw,4rem)">Discover Bong County</h1>
+        <p class="text-white/55 max-w-xl mx-auto leading-relaxed">Historical landmarks, natural wonders, and cultural treasures across Bong County.</p>
+      </div>
+    </div>
+
+    <section class="py-16 px-6 bg-gray-50">
+      <div class="max-w-6xl mx-auto">
+        <div class="flex gap-2 flex-wrap mb-8">
+          <button v-for="cat in cats" :key="cat" @click="active=cat"
+            :class="active===cat?'bg-forest text-white border-forest':'bg-white text-ink-muted border-ink-border hover:border-forest hover:text-forest'"
+            class="px-4 py-2 rounded-full border text-sm font-medium transition-all cursor-pointer">{{ cat }}</button>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+          <div v-for="s in filtered" :key="s.name"
+            class="bg-white rounded-2xl overflow-hidden border border-ink-border shadow-sm hover:-translate-y-1.5 hover:shadow-xl transition-all duration-300 cursor-pointer"
+            @click="sel=s">
+            <div class="h-52 flex items-center justify-center text-6xl relative overflow-hidden" :style="{ background:s.images && s.images.length > 0 ? 'transparent' : s.bg }">
+              <img v-if="s.images && s.images.length > 0" :src="s.images[0]" :alt="s.name" class="w-full h-full object-cover"/>
+              <span v-else-if="s.image" :src="s.image" :alt="s.name" class="w-full h-full object-cover"></span>
+              <span class="absolute top-3 right-3 text-gold-light text-xs font-semibold px-2.5 py-1 rounded-full" style="background:rgba(26,26,26,0.85)">{{ s.cat }}</span>
+              <div v-if="s.images && s.images.length > 1" class="absolute bottom-2 right-2 bg-black/60 text-white text-xs px-2 py-1 rounded-full">{{ s.images.length }} photos</div>
+            </div>
+            <div class="p-5">
+              <h3 class="font-semibold text-forest-dark mb-1.5">{{ s.name }}</h3>
+              <p class="text-ink-muted text-sm leading-relaxed mb-3">{{ s.desc }}</p>
+              <div class="flex items-center justify-between">
+                <div class="text-forest text-xs font-medium">{{ s.loc }}</div>
+                <span class="text-forest text-xs font-semibold">Details →</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Modal -->
+    <div v-if="sel" class="fixed inset-0 z-50 flex items-center justify-center px-4" style="background:rgba(26,26,26,0.75)" @click.self="sel=null">
+      <div class="bg-white rounded-2xl overflow-hidden max-w-lg w-full shadow-2xl">
+        <div class="h-56 flex items-center justify-center text-7xl relative overflow-hidden group" :style="{ background:sel.images && sel.images.length > 0 ? 'transparent' : (sel.image ? 'transparent' : sel.bg) }">
+          <img v-if="sel.images && sel.images.length > 0" :key="selImageIdx" :src="sel.images[selImageIdx]" :alt="sel.name" class="w-full h-full object-cover transition-all duration-300"/>
+          <img v-else-if="sel.image" :src="sel.image" :alt="sel.name" class="w-full h-full object-cover"/>
+          <span v-else></span>
+          <button @click="sel=null" class="absolute top-4 right-4 text-white rounded-full w-8 h-8 flex items-center justify-center border-0 cursor-pointer text-lg z-10" style="background:rgba(255,255,255,0.2)">✕</button>
+          <template v-if="sel.images && sel.images.length > 1">
+            <button @click="selImageIdx = (selImageIdx - 1 + sel.images.length) % sel.images.length" class="absolute left-2 top-1/2 -translate-y-1/2 bg-white/20 hover:bg-white/40 text-white rounded-full w-8 h-8 flex items-center justify-center border-0 cursor-pointer text-lg opacity-0 group-hover:opacity-100 transition-opacity">‹</button>
+            <button @click="selImageIdx = (selImageIdx + 1) % sel.images.length" class="absolute right-2 top-1/2 -translate-y-1/2 bg-white/20 hover:bg-white/40 text-white rounded-full w-8 h-8 flex items-center justify-center border-0 cursor-pointer text-lg opacity-0 group-hover:opacity-100 transition-opacity">›</button>
+            <div class="absolute bottom-3 left-1/2 -translate-x-1/2 bg-black/60 text-white text-xs px-3 py-1 rounded-full">{{ selImageIdx + 1 }} / {{ sel.images.length }}</div>
+          </template>
+        </div>
+        <div class="p-6">
+          <span class="bg-forest-pale text-forest text-xs font-semibold px-3 py-1 rounded-full">{{ sel.cat }}</span>
+          <h2 class="font-display font-bold text-forest-dark text-2xl mt-3 mb-2">{{ sel.name }}</h2>
+          <div class="text-forest text-sm font-medium mb-4">{{ sel.loc }}</div>
+          <p class="text-ink-muted leading-relaxed mb-4">{{ sel.extra }}</p>
+          <div v-if="sel.mapUrl" class="rounded-lg overflow-hidden border border-ink-border" style="height:200px">
+            <iframe :src="sel.mapUrl" width="100%" height="100%" style="border:0" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <section class="bg-gray-50 py-16 px-6">
+      <div class="max-w-6xl mx-auto">
+        <div class="text-gold text-xs font-semibold tracking-widest uppercase mb-2">Accommodation</div>
+        <h2 class="font-display font-bold text-forest-dark text-3xl mb-8">Hotels & Resorts in Bong County</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+          <div v-for="h in accommodations" :key="h.name" 
+            class="bg-white rounded-2xl overflow-hidden border border-ink-border shadow-sm hover:-translate-y-1.5 hover:shadow-xl transition-all duration-300 cursor-pointer"
+            @click="selHotel=h; selHotelImageIdx=0">
+            <div class="h-48 flex items-center justify-center relative overflow-hidden group bg-forest-pale">
+              <img v-if="h.images && h.images.length > 0" :src="h.images[0]" :alt="h.name" class="w-full h-full object-cover"/>
+              <span v-else class="text-4xl"></span>
+              <span class="absolute top-3 right-3 text-gold-light text-xs font-semibold px-2.5 py-1 rounded-full" style="background:rgba(26,26,26,0.85)">Hotel</span>
+              <div v-if="h.images && h.images.length > 1" class="absolute bottom-2 right-2 bg-black/60 text-white text-xs px-2 py-1 rounded-full">{{ h.images.length }} photos</div>
+            </div>
+            <div class="p-5">
+              <h3 class="font-semibold text-forest-dark mb-1.5">{{ h.name }}</h3>
+              <p class="text-ink-muted text-sm leading-relaxed mb-3">{{ h.desc }}</p>
+              <div class="text-forest text-xs font-medium">{{ h.location }}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Hotels Modal -->
+    <div v-if="selHotel" class="fixed inset-0 z-50 flex items-center justify-center px-4" style="background:rgba(26,26,26,0.75)" @click.self="selHotel=null">
+      <div class="bg-white rounded-2xl overflow-hidden max-w-lg w-full shadow-2xl">
+        <div class="h-56 flex items-center justify-center text-7xl relative overflow-hidden group bg-forest-pale">
+          <img v-if="selHotel.images && selHotel.images.length > 0" :key="selHotelImageIdx" :src="selHotel.images[selHotelImageIdx]" :alt="selHotel.name" class="w-full h-full object-cover transition-all duration-300"/>
+          <span v-else class="text-5xl">{{ selHotel.icon }}</span>
+          <button @click="selHotel=null" class="absolute top-4 right-4 text-white rounded-full w-8 h-8 flex items-center justify-center border-0 cursor-pointer text-lg z-10" style="background:rgba(255,255,255,0.2)">✕</button>
+          <template v-if="selHotel.images && selHotel.images.length > 1">
+            <button @click="selHotelImageIdx = (selHotelImageIdx - 1 + selHotel.images.length) % selHotel.images.length" class="absolute left-2 top-1/2 -translate-y-1/2 bg-white/20 hover:bg-white/40 text-white rounded-full w-8 h-8 flex items-center justify-center border-0 cursor-pointer text-lg opacity-0 group-hover:opacity-100 transition-opacity">‹</button>
+            <button @click="selHotelImageIdx = (selHotelImageIdx + 1) % selHotel.images.length" class="absolute right-2 top-1/2 -translate-y-1/2 bg-white/20 hover:bg-white/40 text-white rounded-full w-8 h-8 flex items-center justify-center border-0 cursor-pointer text-lg opacity-0 group-hover:opacity-100 transition-opacity">›</button>
+            <div class="absolute bottom-3 left-1/2 -translate-x-1/2 bg-black/60 text-white text-xs px-3 py-1 rounded-full">{{ selHotelImageIdx + 1 }} / {{ selHotel.images.length }}</div>
+          </template>
+        </div>
+        <div class="p-6">
+          <h2 class="font-display font-bold text-forest-dark text-2xl mt-3 mb-2">{{ selHotel.name }}</h2>
+          <div class="text-forest text-sm font-medium mb-4">{{ selHotel.location }}</div>
+          <p class="text-ink-muted leading-relaxed">{{ selHotel.desc }}</p>
+        </div>
+      </div>
+    </div>
+
+    <section class="bg-white py-16 px-6">
+      <div class="max-w-6xl mx-auto">
+        <div class="text-gold text-xs font-semibold tracking-widest uppercase mb-2">Recreation</div>
+        <h2 class="font-display font-bold text-forest-dark text-3xl mb-8">Sports & Recreation Facilities</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+          <div v-for="s in sports" :key="s.name" 
+            class="bg-gray-50 rounded-2xl overflow-hidden border border-ink-border shadow-sm hover:-translate-y-1.5 hover:shadow-xl transition-all duration-300 cursor-pointer"
+            @click="selSport=s; selSportImageIdx=0">
+            <div class="h-52 flex items-center justify-center relative overflow-hidden group bg-forest">
+              <img v-if="s.images && s.images.length > 0" :src="s.images[0]" :alt="s.name" class="w-full h-full object-cover"/>
+              <span v-else class="text-5xl">{{ s.icon }}</span>
+              <div v-if="s.images && s.images.length > 1" class="absolute bottom-2 right-2 bg-black/60 text-white text-xs px-2 py-1 rounded-full">{{ s.images.length }} photos</div>
+            </div>
+            <div class="p-5">
+              <h3 class="font-semibold text-forest-dark mb-1.5">{{ s.name }}</h3>
+              <p class="text-ink-muted text-sm leading-relaxed mb-3">{{ s.desc }}</p>
+              <div class="text-forest text-xs font-medium">{{ s.location }}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Sports Modal -->
+    <div v-if="selSport" class="fixed inset-0 z-50 flex items-center justify-center px-4" style="background:rgba(26,26,26,0.75)" @click.self="selSport=null">
+      <div class="bg-white rounded-2xl overflow-hidden max-w-lg w-full shadow-2xl">
+        <div class="h-56 flex items-center justify-center text-7xl relative overflow-hidden group bg-forest">
+          <img v-if="selSport.images && selSport.images.length > 0" :key="selSportImageIdx" :src="selSport.images[selSportImageIdx]" :alt="selSport.name" class="w-full h-full object-cover transition-all duration-300"/>
+          <span v-else class="text-5xl"></span>
+          <button @click="selSport=null" class="absolute top-4 right-4 text-white rounded-full w-8 h-8 flex items-center justify-center border-0 cursor-pointer text-lg z-10" style="background:rgba(255,255,255,0.2)">✕</button>
+          <template v-if="selSport.images && selSport.images.length > 1">
+            <button @click="selSportImageIdx = (selSportImageIdx - 1 + selSport.images.length) % selSport.images.length" class="absolute left-2 top-1/2 -translate-y-1/2 bg-white/20 hover:bg-white/40 text-white rounded-full w-8 h-8 flex items-center justify-center border-0 cursor-pointer text-lg opacity-0 group-hover:opacity-100 transition-opacity">‹</button>
+            <button @click="selSportImageIdx = (selSportImageIdx + 1) % selSport.images.length" class="absolute right-2 top-1/2 -translate-y-1/2 bg-white/20 hover:bg-white/40 text-white rounded-full w-8 h-8 flex items-center justify-center border-0 cursor-pointer text-lg opacity-0 group-hover:opacity-100 transition-opacity">›</button>
+            <div class="absolute bottom-3 left-1/2 -translate-x-1/2 bg-black/60 text-white text-xs px-3 py-1 rounded-full">{{ selSportImageIdx + 1 }} / {{ selSport.images.length }}</div>
+          </template>
+        </div>
+        <div class="p-6">
+          <h2 class="font-display font-bold text-forest-dark text-2xl mt-3 mb-2">{{ selSport.name }}</h2>
+          <div class="text-forest text-sm font-medium mb-4">{{ selSport.location }}</div>
+          <p class="text-ink-muted leading-relaxed">{{ selSport.desc }}</p>
+        </div>
+      </div>
+    </div>
+
+    <section class="bg-white py-16 px-6">
+      <div class="max-w-6xl mx-auto">
+        <div class="text-gold text-xs font-semibold tracking-widest uppercase mb-2">Before You Go</div>
+        <h2 class="font-display font-bold text-forest-dark text-3xl mb-8">Travel Tips for Bong County</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div v-for="tip in tips" :key="tip.title" class="bg-forest-pale rounded-xl p-5 border border-ink-border">
+            <div class="text-2xl mb-3"></div>
+            <h4 class="font-semibold text-forest-dark text-sm mb-1.5">{{ tip.title }}</h4>
+            <p class="text-ink-muted text-xs leading-relaxed">{{ tip.desc }}</p>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>`,
+  setup() {
+    const active = ref('All');
+    const sel = ref(null);
+    const selImageIdx = ref(0);
+    const selHotel = ref(null);
+    const selHotelImageIdx = ref(0);
+    const selSport = ref(null);
+    const selSportImageIdx = ref(0);
+    const cats = ['All','Nature','Historical','Educational','Cultural'];
+    const sites = [
+      { name:'Kpatawee Waterfall',       cat:'Nature',  emoji:'', bg:'#0A2E1E', images:['Assests/Kpatawee.webp','Assests/Kpatawee1.jpg','Assests/Kpatawee2.jpg','Assests/Kpatawee3.webp','Assests/Kpatawee4.webp','Assests/Kpatawee5.webp'], mapUrl:'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3963.8247937745956!2d-10.2467!3d7.6567!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x7c6a7d5c3d5c3d5d%3A0x5e5e5e5e5e5e5e5e!2sKpatawee%20Waterfall!5e0!3m2!1sen!2sus!4v1234567890', desc:'A scenic natural landmark used for recreation, deeply tied to local tradition and the natural beauty of Bong County.', extra:'Kpatawee Waterfall is one of Bong County\'s most beloved natural attractions. Set within a lush tropical landscape, it is popular with locals and visitors for swimming, picnics, and photography. Best visited in the rainy season when water flow is at its peak.', loc:'Bong County' },
+      { name:'Blue Lake – Bong Mines',   cat:'Historical',  emoji:'', bg:'#0D2035', images:null, mapUrl:'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3963.8247937745956!2d-10.3167!3d7.8333!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x7c6a8e8e8e8e8e8e%3A0x5e5e5e5e5e5e5e5e!2sBlue%20Lake%20Bong%20Mines!5e0!3m2!1sen!2sus!4v1234567890', desc:'A former German iron ore mine that has filled with water, creating a stunning scenic blue lake.', extra:'This remarkable geological feature was created from the open-pit mining operations of the Bong Mining Company. The vivid blue water surrounded by red earth makes it one of the most visually striking locations in Liberia. A reminder of the county\'s industrial history and natural transformation.', loc:'Bong Town' },
+      { name:'Bong Mining Area',         cat:'Historical',  emoji:'', bg:'#1B3A2B', image:null, mapUrl:'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3963.8247937745956!2d-10.3!3d7.85!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x7c6a8d8d8d8d8d8d%3A0x5e5e5e5e5e5e5e5e!2sBong%20Mining!5e0!3m2!1sen!2sus!4v1234567890', desc:'Remnants of the Bong Mining Company — one of the largest German mining operations in West Africa, active until the 1990s.', extra:'The former Bong Mining Company area offers a fascinating window into Liberia\'s industrial past. Massive iron ore extraction facilities, railway lines, and a former workers\' settlement tell the story of an era that shaped the county\'s economy and demographics for decades.', loc:'Bong Mines District' },
+      { name:'Cuttington University',    cat:'Educational', emoji:'', bg:'#0D2040', images:['Assests/CuttingTon University1.jpg','Assests/CuttingTon University1.avif'], mapUrl:'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3963.8247937745956!2d-10.3333!3d7.4833!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x7c6a5c5c5c5c5c5c%3A0x5e5e5e5e5e5e5e5e!2sCuttington%20University!5e0!3m2!1sen!2sus!4v1234567890', desc:'Established in 1889 — one of the oldest private coeducational colleges in West Africa.', extra:'Founded in 1889 by the Episcopal Church, Cuttington University in Suakoko holds the distinction of being one of the oldest private coeducational universities in Sub-Saharan Africa. Its historic campus includes St. John\'s Chapel, beautiful gardens, and over 130 years of academic heritage. A landmark of education in Liberia.', loc:'Suakoko District' },
+      { name:'Gbarnga City – County Capital', cat:'Cultural', emoji:'', bg:'#1A1A0A', image:'Assests/Bong-County-Administrative-Building.jpg', mapUrl:'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3963.8247937745956!2d-10.2833!3d7.3!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x7c6a3c3c3c3c3c3c%3A0x5e5e5e5e5e5e5e5e!2sGbarnga!5e0!3m2!1sen!2sus!4v1234567890', desc:'The administrative hub created in 1964, holding significance in Liberia\'s political and social history.', extra:'As the county seat since 1964, Gbarnga is the political, commercial, and educational heart of Bong County. The city is home to multiple high schools, government institutions, markets, and community centers. It was also an important location during Liberia\'s civil war period and subsequent reconstruction.', loc:'Gbarnga City' },
+      { name:'Sicken Town Waterfall',    cat:'Nature',      emoji:'', bg:'#062A1A', image:null, mapUrl:null, desc:'Another of Bong County\'s natural waterfall sites, offering a scenic retreat close to local communities.', extra:'Sicken Town Waterfall is a natural feature located near local communities in Bong County. Like Kpatawee, it serves as a gathering point for recreation and is part of the county\'s broader natural landscape that draws visitors and residents alike.', loc:'Bong County' },
+    ];
+    const filtered = computed(() => active.value === 'All' ? sites : sites.filter(s => s.cat === active.value));
+    const tips = [
+      { icon:'', title:'Best Time to Visit', desc:'Dry season (Nov–Apr) for most sites. Waterfalls are best in rainy season (May–Oct).' },
+      { icon:'', title:'Getting Around',     desc:'Hire local transport in Gbarnga. Motorbike taxis (keke) for shorter distances within towns.' },
+      { icon:'', title:'Respect Local Culture',  desc:'Always ask before photographing people or entering traditional community spaces.' },
+      { icon:'', title:'Where to Stay',     desc:'Guesthouses available in Gbarnga. Contact local tourism representatives for rural homestays.' },
+    ];
+    const accommodations = [
+      { icon:'', name:'Alvino Hotel', location:'Gbarnga', images:['Assests/Alvino Hotel.jpg'], desc:'Comfortable accommodation in the heart of Gbarnga city.' },
+      { icon:'', name:'Passion Hotel', location:'Gbarnga', images:['Assests/Passion Hotel1.webp','Assests/Passion Hotel2.webp'], desc:'Modern hotel with excellent amenities and service in central Gbarnga.' },
+      { icon:'', name:'Menina Resort', location:'Bong County', images:['Assests/Menina Resort.jpg'], desc:'Scenic resort offering peaceful retreat in natural surroundings.' },
+      { icon:'', name:'Hotel in Rural Bong County', location:'Rural Area', images:['Assests/Hotel in Rural Bong County.webp'], desc:'Authentic experience staying in a rural hotel away from the city.' },
+    ];
+    const sports = [
+      { icon:'', name:'David Kuyon Sport Stadium', location:'Gbarnga', images:['Assests/David Kuyon Sport Stadium front.jpg','Assests/David Kuyon Sport Stadium.jpg'], desc:'Premier sports venue hosting football matches, athletic events, and community gatherings.' },
+    ];
+    watch(() => sel.value, () => { selImageIdx.value = 0; });
+    watch(() => selHotel.value, () => { selHotelImageIdx.value = 0; });
+    watch(() => selSport.value, () => { selSportImageIdx.value = 0; });
+    return { active, sel, selImageIdx, selHotel, selHotelImageIdx, selSport, selSportImageIdx, cats, filtered, tips, accommodations, sports };
+  }
+};
+
+/* ══════════════════════════════════════
+   PAGE: LEADERSHIP
+══════════════════════════════════════ */
+const PageLeadership = {
+  template: `<div>
+    <div class="bg-forest-dark px-6 py-20 text-center relative overflow-hidden" style="background-image:url('Assests/Banner6.jpg'); background-size:cover; background-position:center; background-attachment:fixed">
+      <div class="absolute inset-0" style="background:linear-gradient(rgba(26,26,26,0.35), rgba(26,26,26,0.42)), radial-gradient(circle at 70% 30%,rgba(0,0,0,0.08) 0%,transparent 50%)"></div>
+      <div class="relative z-10">
+        <div class="text-gold-light text-xs font-semibold tracking-widest uppercase mb-3">Leadership & Legacy</div>
+        <h1 class="font-display font-black text-white mb-4" style="font-size:clamp(2.2rem,5vw,4rem)">Those Who Shaped Bong County</h1>
+        <p class="text-white/55 max-w-xl mx-auto leading-relaxed">From the county's first Superintendent to its current representatives — the people who have led Bong County forward.</p>
+      </div>
+    </div>
+
+    <section class="bg-gray-50 py-16 px-6">
+      <div class="max-w-6xl mx-auto">
+        <div class="flex gap-2 flex-wrap mb-10">
+          <button v-for="era in eras" :key="era" @click="activeEra=era"
+            :class="activeEra===era?'bg-forest text-white border-forest':'bg-white text-ink-muted border-ink-border hover:border-forest hover:text-forest'"
+            class="px-4 py-2 rounded-full border text-sm font-medium transition-all cursor-pointer">{{ era }}</button>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+          <div v-for="l in filtered" :key="l.name"
+            class="bg-white rounded-2xl p-6 border border-ink-border hover:shadow-lg hover:-translate-y-1 transition-all duration-300">
+            <div class="flex items-start gap-4 mb-4">
+              <div v-if="l.image" class="w-14 h-14 rounded-full bg-forest flex items-center justify-center font-display font-bold text-gold-light text-lg flex-shrink-0 border-2 border-gold/25 overflow-hidden">
+                <img :src="l.image" :alt="l.name" class="w-full h-full object-cover"/>
+              </div>
+              <div v-else class="w-14 h-14 rounded-full bg-forest flex items-center justify-center font-display font-bold text-gold-light text-lg flex-shrink-0 border-2 border-gold/25">{{ l.initials }}</div>
+              <div>
+                <h3 class="font-semibold text-forest-dark leading-tight">{{ l.name }}</h3>
+                <div class="text-gold text-xs font-semibold mt-0.5">{{ l.role }}</div>
+                <div class="text-ink-muted text-xs mt-0.5">{{ l.period }}</div>
+              </div>
+            </div>
+            <p class="text-ink-muted text-sm leading-relaxed mb-4">{{ l.bio }}</p>
+            <div class="flex flex-wrap gap-1.5">
+              <span v-for="tag in l.tags" :key="tag" class="bg-forest-pale text-forest text-xs font-medium px-2 py-0.5 rounded-full">{{ tag }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- LAWMAKERS -->
+    <section class="bg-white py-20 px-6">
+      <div class="max-w-6xl mx-auto">
+        <div class="text-gold text-xs font-semibold tracking-widest uppercase mb-2">Legislative Branch</div>
+        <h2 class="font-display font-bold text-forest-dark text-3xl mb-1">Bong County Lawmakers</h2>
+        <h3 class="text-ink-muted text-lg font-semibold mb-3">House of Representatives</h3>
+        <p class="text-ink-muted mb-12 max-w-2xl leading-relaxed">Meet the representatives serving Bong County's electoral districts in the National Legislature. Each brings unique expertise and commitment to advancing the county's development and prosperity.</p>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div v-for="r in reps" :key="r.name" class="border border-ink-border rounded-2xl p-6 hover:shadow-lg hover:border-forest transition-all duration-300 flex gap-4">
+            <!-- Profile Photo -->
+            <div v-if="r.image" class="w-20 h-20 rounded-xl bg-forest-pale border border-forest flex items-center justify-center flex-shrink-0 overflow-hidden">
+              <img :src="r.image" :alt="r.name" class="w-full h-full object-cover"/>
+            </div>
+            <div v-else class="w-20 h-20 rounded-xl bg-forest-pale border border-forest flex items-center justify-center font-display font-bold text-forest text-sm flex-shrink-0">{{ r.initials }}</div>
+            
+            <!-- Content -->
+            <div class="flex-1">
+              <div class="flex items-start justify-between gap-3 mb-2">
+                <div>
+                  <h3 class="font-semibold text-forest-dark text-lg leading-tight">{{ r.name }}</h3>
+                  <div class="text-gold text-xs font-semibold mt-1">District {{ r.district }} Representative</div>
+                </div>
+              </div>
+              <div v-if="r.affiliation" class="inline-block bg-forest-pale text-forest text-xs font-semibold px-2.5 py-1 rounded-full mb-3">{{ r.affiliation }}</div>
+              <p class="text-ink-muted text-sm leading-relaxed mb-3">{{ r.bio }}</p>
+              <div v-if="r.role" class="text-forest text-xs font-semibold flex items-center gap-1">
+                <span class="inline-block w-1.5 h-1.5 bg-forest rounded-full"></span>
+                {{ r.role }}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- QUOTE -->
+    <section class="bg-forest py-16 px-6">
+      <div class="max-w-3xl mx-auto text-center">
+            <div class="text-gold-light font-display mb-6" style="font-size:3.5rem"></div>
+        <p class="font-display text-white text-2xl font-medium leading-relaxed mb-6">Bong County, the Heartbeat of Liberia — shaped by those who served with dedication, and built on the shoulders of all who came before.</p>
+        <div class="text-white/45 text-xs tracking-widest uppercase">Bong County, Est. 1964</div>
+      </div>
+    </section>
+  </div>`,
+  setup() {
+    const activeEra = ref('All');
+    const eras = ['All','Current & Recent','Historical & Traditional','Past Leaders'];
+    const leaders = [
+      // Current & Recent
+      { initials:'HN', name:'Hawa Loleyah Norris',  role:'County Superintendent',     period:'2024 – Present',   eraTag:'Current & Recent',          bio:'Appointed as Superintendent of Bong County in 2024, leading county administration and development programs.',                                                    image:'Assests/Leaders/Hawa Loleyah Morris.jpg', tags:['Superintendent','Administration'] },
+      { initials:'PM', name:'Prince Kermue Moye Sr.',role:'Senator',                   period:'2020 – Present',   eraTag:'Current & Recent',          bio:'Highly influential figure who served as Representative before winning a senatorial seat in 2020. Recognized as a major political power in current-day Bong County.', image:'Assests/Leaders/Hon. Prince Kermue Moye Sr..jpg', tags:['Senator','Politics'] },
+      { initials:'JK', name:'Johnny K. Kpehe Sr.',   role:'Senator',                   period:'2023 – Present',   eraTag:'Current & Recent',          bio:'Elected as a Senator for Bong County in 2023, representing county interests at the national level.',                                                             image:'Assests/Leaders/Hon Johnny K. Kpehe Sr..jpg', tags:['Senator','Legislature'] },
+      { initials:'EW', name:'Esther Y. Walker',      role:'Former County Superintendent',period:'2018 – 2024',    eraTag:'Current & Recent',          bio:'Served as Superintendent of Bong County for six years, overseeing administration during a critical period of national development.',                              image:'', tags:['Superintendent','Administration'] },
+      // Historical & Traditional
+      { initials:'JH', name:'Jewel Howard-Taylor',   role:'Former VP of Liberia / Senator',period:'2005 – 2024', eraTag:'Historical & Traditional',  bio:'Served as Senator for Bong County from 2005 and later became Vice President of Liberia (2018–2024), maintaining immense political influence in the county.',       image:'Assests/Leaders/Madam Jewel Howard Taylor.jpg', tags:['Vice President','Senator'] },
+      { initials:'SK', name:'Suah Koko',             role:'Traditional Leader (Chieftainess)',period:'Early 1900s',eraTag:'Historical & Traditional', bio:'A legendary figure — a powerful traditional chieftainess who helped expand the territory\'s influence in the early 20th century.',                               image:'Assests/Leaders/Suah Koko.jpg', tags:['Traditional Leader','Heritage'] },
+      { initials:'ML', name:'Mary Larteh',           role:'Paramount Chief, Jorquelleh Chiefdom',period:'Current',eraTag:'Historical & Traditional', bio:'A prominent female traditional leader serving as the Paramount Chief of the Jorquelleh Chiefdom.',                                                              image:'Assests/Leaders/Mary Larteh.jpg', tags:['Paramount Chief','Traditional'] },
+      { initials:'AG', name:'Chief Arthur Goah',     role:'National Chiefs & Elders Council',period:'Elected 2025',eraTag:'Historical & Traditional', bio:'Elected in 2025 as the new Chairperson of the National Chiefs and Elders Council.',                                                                           image:'Assests/Leaders/Chief Arthur Goah.jpg', tags:['Chief','National Council'] },
+      { initials:'ZK', name:'Zanzar Kawor',          role:'Former Chairperson, Chiefs & Elders Council',period:'Past',eraTag:'Historical & Traditional',bio:'Former long-serving Chairperson of the National Chiefs and Elders Council, an influential traditional leadership figure.',                                  image:'', tags:['Traditional Leadership'] },
+      // Past Leaders
+      { initials:'HT', name:'Henrique Flomo Tokpa',  role:'Senator / Former Minister',  period:'2018 – recent',  eraTag:'Past Leaders',              bio:'Former President of Cuttington University and Minister of Internal Affairs. Elected Senator in 2018.',                                                            image:'Assests/Leaders/Henrique Flomo Tokpa.jpg', tags:['Senator','Education','Minister'] },
+      { initials:'SM', name:'Selena Polson Mappy',   role:'Former Superintendent',      period:'2012 – 2018',    eraTag:'Past Leaders',              bio:'Served as Superintendent of Bong County from 2012 to 2018.',                                                                                                    image:'Assests/Leaders/Selena Polson Mappy.jpg', tags:['Superintendent'] },
+      { initials:'RJ', name:'Ranney Banama Jackson Sr.', role:'Former Superintendent',  period:'2006 – 2011',    eraTag:'Past Leaders',              bio:'Served as Superintendent and was instrumental in the Maryland Sister States Program, forging international connections for Bong County.',                      image:'Assests/Leaders/Ranney Banama Jackson Sr..jpg', tags:['Superintendent','International Relations'] },
+      { initials:'JG', name:'James Y. Gbarbea',      role:'First County Superintendent',period:'1964 – 1968',    eraTag:'Past Leaders',              bio:'The first Superintendent of Bong County, appointed at the county\'s founding in 1964.',                                                                          image:'Assests/Leaders/James Y. Gbarbea.jpg', tags:['First Superintendent','Founding'] },
+      { initials:'AK', name:'Augustus W. Korkoryah', role:'County Superintendent',      period:'1968 – 1971',    eraTag:'Past Leaders',              bio:'Second Superintendent of Bong County, leading the county in its early years of establishment.',                                                                 image:'', tags:['Superintendent'] },
+      { initials:'HG', name:'Harry Augustus Greaves Sr.', role:'County Superintendent', period:'1971 – 1976',    eraTag:'Past Leaders',              bio:'Served as Superintendent during a formative period of Bong County\'s development in the early 1970s.',                                                          image:'Assests/Leaders/Harry Augustus Greaves Sr.jpg', tags:['Superintendent'] },
+    ];
+    const filtered = computed(() => activeEra.value === 'All' ? leaders : leaders.filter(l => l.eraTag === activeEra.value));
+    const reps = [
+      { initials:'PK', name:'Prince K. Koinah',        district:'1', affiliation:'Independent (IND)', image:'Assests/Leaders/Prince K. Koinah.jpg', bio:'Serves as the Representative of Bong County District #1. An independent lawmaker recognized for his active engagement in county-related legislative matters and constituent services.' },
+      { initials:'JM', name:'James M. Kolleh',         district:'2', image:'Assests/Leaders/James M. Kolleh.jpg', bio:'Serves as the Representative of Bong County District #2. Currently serves as Chair of the House Committee on Rules, Order, and Administration within the Liberian Legislature.', role:'House Committee Chair - Rules, Order & Administration' },
+      { initials:'JC', name:'Josiah Marvin Cole',      district:'3', affiliation:'Citizens Movement for Change (CMC)', image:'Assests/Leaders/J. Marvin Cole.jpg', bio:'Serves as Representative of Bong County District #3. In 2025, he joined the Citizens Movement for Change (CMC), where he serves as National Vice-Chair for Operations. Remains active in youth and county development discussions.', role:'CMC National Vice-Chair for Operations' },
+      { initials:'RW', name:'Robert Flomo Womba',       district:'4', image:'Assests/Leaders/Robert Womba.jpg', bio:'Represents Bong County District #4. Recognized as a key political figure within the county known for coalition-building and community-based political engagement.' },
+      { initials:'EK', name:'Eugene J. M. Kollie',     district:'5', image:'Assests/Leaders/Eugine J. M. Kollie.jpeg', bio:'Serves as Representative of Bong County District #5. Known for his involvement in county legislative activities and regional political engagements.' },
+      { initials:'MB', name:'Moima Briggs-Mensah',     district:'6', image:'Assests/Leaders/Moima Briggs Mensah.jpg', bio:'Serves as the Representative of Bong County District #6. Active in promoting educational opportunities and youth-centered initiatives within the county.', role:'Youth & Education Advocate' },
+      { initials:'FF', name:'Foday E. Fahnbulleh',     district:'7', image:'Assests/Leaders/Foday E. Fahnbulleh.jpg', bio:'Serves as the Representative of Bong County District #7. Committed to legislative representation and county development.' },
+    ];
+    return { activeEra, eras, filtered, reps };
+  }
+};
+
+/* ══════════════════════════════════════
+   PAGE: EDUCATION
+══════════════════════════════════════ */
+const PageEducation = {
+  template: `<div>
+    <div class="bg-forest-dark px-6 py-20 text-center relative overflow-hidden" style="background-image:url('Assests/Banner7.jpg'); background-size:cover; background-position:center; background-attachment:fixed">
+      <div class="absolute inset-0" style="background:linear-gradient(rgba(26,26,26,0.35), rgba(26,26,26,0.40)), radial-gradient(circle at 50% 100%,rgba(194,65,12,0.15) 0%,transparent 55%)"></div>
+      <div class="relative z-10">
+        <div class="text-gold-light text-xs font-semibold tracking-widest uppercase mb-3">Education & Healthcare</div>
+        <h1 class="font-display font-black text-white mb-4" style="font-size:clamp(2.2rem,5vw,4rem)">Foundations of Progress</h1>
+        <p class="text-white/55 max-w-xl mx-auto leading-relaxed">Bong County serves as a central hub for education and healthcare in Liberia, with Gbarnga as its academic and medical center.</p>
+      </div>
+    </div>
+
+    <div class="bg-white border-b border-ink-border sticky top-[68px] z-40">
+      <div class="max-w-6xl mx-auto px-6 flex gap-0 overflow-x-auto">
+        <button v-for="t in tabs" :key="t.id" @click="tab=t.id"
+          :class="tab===t.id?'border-b-2 border-forest text-forest':'text-ink-muted hover:text-forest'"
+          class="px-6 py-4 text-sm font-medium transition-colors border-b-2 border-transparent cursor-pointer bg-transparent whitespace-nowrap">
+          {{ t.icon }} {{ t.label }}</button>
+      </div>
+    </div>
+
+    <section class="py-16 px-6 bg-gray-50">
+      <div class="max-w-6xl mx-auto">
+
+        <!-- UNIVERSITIES TAB -->
+        <template v-if="tab==='universities'">
+          <div class="text-gold text-xs font-semibold tracking-widest uppercase mb-2">Higher Education</div>
+          <h2 class="font-display font-bold text-forest-dark text-3xl mb-3">Universities & Colleges</h2>
+          <p class="text-ink-muted mb-10 max-w-lg">Bong County hosts institutions that have shaped generations of Liberian professionals and leaders.</p>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-14">
+            <div v-for="i in universities" :key="i.name" class="bg-white rounded-2xl p-6 border border-ink-border hover:shadow-md transition-shadow flex gap-4">
+              <div v-if="i.image" class="w-32 h-24 rounded-xl bg-forest-pale flex items-center justify-center text-2xl flex-shrink-0 overflow-hidden">
+                <img :src="i.image" :alt="i.name" class="w-full h-full object-cover"/>
+              </div>
+              <div v-else class="w-12 h-12 rounded-xl bg-forest-pale flex items-center justify-center text-2xl flex-shrink-0">{{ i.icon }}</div>
+              <div>
+                <h3 class="font-semibold text-forest-dark mb-0.5">{{ i.name }}</h3>
+                <div class="text-forest text-xs font-medium mb-2">{{ i.location }}</div>
+                <p class="text-ink-muted text-sm leading-relaxed mb-2">{{ i.desc }}</p>
+                <span class="bg-forest-pale text-forest text-xs font-semibold px-2.5 py-0.5 rounded-full">{{ i.tag }}</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="text-gold text-xs font-semibold tracking-widest uppercase mb-2">Vocational Training</div>
+          <h2 class="font-display font-bold text-forest-dark text-3xl mb-8">Vocational & Technical Centers</h2>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+            <div v-for="v in vocational" :key="v.name" class="bg-white rounded-2xl p-6 border border-ink-border hover:shadow-md transition-shadow">
+              <div v-if="v.image" class="w-full h-32 rounded-lg mb-3 overflow-hidden">
+                <img :src="v.image" :alt="v.name" class="w-full h-full object-cover"/>
+              </div>
+              <div v-else class="text-3xl mb-3">{{ v.icon }}</div>
+              <h3 class="font-semibold text-forest-dark mb-0.5">{{ v.name }}</h3>
+              <div class="text-forest text-xs font-medium mb-2">{{ v.location }}</div>
+              <p class="text-ink-muted text-sm leading-relaxed mb-3">{{ v.desc }}</p>
+              <div class="flex flex-wrap gap-1.5">
+                <span v-for="c in v.courses" :key="c" class="bg-gold-pale text-gold text-xs font-medium px-2.5 py-0.5 rounded-full border border-yellow-200">{{ c }}</span>
+              </div>
+            </div>
+          </div>
+        </template>
+
+        <!-- HIGH SCHOOLS TAB -->
+        <template v-if="tab==='schools'">
+          <div class="text-gold text-xs font-semibold tracking-widest uppercase mb-2">Secondary Education</div>
+          <h2 class="font-display font-bold text-forest-dark text-3xl mb-3">High Schools in Bong County</h2>
+          <p class="text-ink-muted mb-10 max-w-lg">Bong County hosts a mix of public, private, and mission-based high schools across all districts.</p>
+
+          <h3 class="font-semibold text-forest-dark text-lg mb-4 flex items-center gap-2"><span class="text-xl"></span> High Schools in Gbarnga</h3>
+          <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 mb-10">
+            <div v-for="s in gbarngaSchools" :key="s.name" class="bg-white rounded-xl p-5 border border-ink-border hover:border-forest hover:shadow-md transition-all">
+              <div v-if="s.image" class="w-full h-32 rounded-lg mb-3 overflow-hidden">
+                <img :src="s.image" :alt="s.name" class="w-full h-full object-cover"/>
+              </div>
+              <div v-else class="text-xl mb-2">{{ s.icon }}</div>
+              <h4 class="font-semibold text-forest-dark text-sm mb-1 leading-tight">{{ s.name }}</h4>
+              <span class="bg-forest-pale text-forest text-xs font-medium px-2 py-0.5 rounded-full">{{ s.type }}</span>
+            </div>
+          </div>
+
+          <h3 class="font-semibold text-forest-dark text-lg mb-4 flex items-center gap-2"><span class="text-xl"></span> Schools in Other Districts</h3>
+          <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 mb-10">
+            <div v-for="s in otherSchools" :key="s.name" class="bg-white rounded-xl p-5 border border-ink-border hover:border-forest hover:shadow-md transition-all">
+              <div v-if="s.image" class="w-full h-32 rounded-lg mb-3 overflow-hidden">
+                <img :src="s.image" :alt="s.name" class="w-full h-full object-cover"/>
+              </div>
+              <div v-else class="text-xl mb-2">{{ s.icon }}</div>
+              <h4 class="font-semibold text-forest-dark text-sm mb-1 leading-tight">{{ s.name }}</h4>
+              <div class="text-ink-muted text-xs mb-1.5">{{ s.district }}</div>
+              <span class="bg-forest-pale text-forest text-xs font-medium px-2 py-0.5 rounded-full">{{ s.type }}</span>
+            </div>
+          </div>
+
+          <h3 class="font-semibold text-forest-dark text-lg mb-4 flex items-center gap-2"><span class="text-xl"></span> Additional Secondary Institutions</h3>
+          <div class="flex flex-wrap gap-3">
+            <div v-for="s in additionalSchools" :key="s" class="bg-white rounded-lg px-4 py-2.5 border border-ink-border text-sm font-medium text-forest-dark hover:border-forest transition-colors">{{ s }}</div>
+          </div>
+        </template>
+
+        <!-- HEALTHCARE TAB -->
+        <template v-if="tab==='health'">
+          <div class="text-gold text-xs font-semibold tracking-widest uppercase mb-2">Healthcare</div>
+          <h2 class="font-display font-bold text-forest-dark text-3xl mb-3">Medical Centers & Hospitals</h2>
+          <p class="text-ink-muted mb-10 max-w-lg">Bong County's hospitals and clinics serving residents across all 12 districts.</p>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-10">
+            <div v-for="h in hospitals" :key="h.name" class="bg-white rounded-2xl p-6 border border-ink-border hover:shadow-md transition-shadow">
+              <div class="flex items-start gap-4">
+                <div v-if="h.image" class="w-24 h-20 rounded-xl bg-forest-pale flex items-center justify-center text-2xl flex-shrink-0 overflow-hidden">
+                  <img :src="h.image" :alt="h.name" class="w-full h-full object-cover"/>
+                </div>
+                <div v-else class="w-12 h-12 rounded-xl bg-forest-pale flex items-center justify-center text-2xl flex-shrink-0"></div>
+                <div>
+                  <h3 class="font-semibold text-forest-dark mb-0.5">{{ h.name }}</h3>
+                  <div class="text-forest text-xs font-medium mb-1.5">{{ h.location }}</div>
+                  <span class="text-xs font-semibold px-2.5 py-0.5 rounded-full mb-2 inline-block bg-forest-pale text-forest">{{ h.tag }}</span>
+                  <p class="text-ink-muted text-sm leading-relaxed mt-2 mb-3">{{ h.desc }}</p>
+                  <div class="flex flex-wrap gap-1.5">
+                    <span v-for="s in h.services" :key="s" class="bg-forest-pale text-forest text-xs px-2 py-0.5 rounded-full">{{ s }}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="text-gold text-xs font-semibold tracking-widest uppercase mb-2">Other Facilities</div>
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div v-for="h in otherHealth" :key="h.name" class="bg-white rounded-xl p-4 border border-ink-border hover:border-forest transition-colors">
+              <div class="text-xl mb-2"></div>
+              <h4 class="font-semibold text-forest-dark text-sm mb-1">{{ h.name }}</h4>
+              <p class="text-ink-muted text-xs">{{ h.desc }}</p>
+            </div>
+          </div>
+        </template>
+
+      </div>
+    </section>
+  </div>`,
+  setup() {
+    const tab = ref('universities');
+    const tabs = [
+      { id:'universities', icon:'', label:'Universities & Vocational' },
+      { id:'schools',      icon:'', label:'High Schools' },
+      { id:'health',       icon:'', label:'Healthcare' },
+    ];
+    const universities = [
+      { icon:'', name:'Cuttington University',                 location:'Suakoko District',    image:'Assests/CuttingTon University1.jpg', desc:'Founded in 1889 — one of the oldest private coeducational colleges in Sub-Saharan Africa. Offers programs in Agriculture, Health Sciences, and Liberal Arts.',     tag:'University · Est. 1889' },
+      { icon:'', name:'Bong County Technical College (BCTC)', location:'Gboveh Hill, Gbarnga', image:'Assests/Bong County University.jpg', desc:'Transitioning into Bong County University. Offers degrees in Engineering, Agriculture, and Health Sciences.',                                                     tag:'Technical College' },
+      { icon:'', name:'Lutheran University of Liberia',       location:'Bong County',          image:null, desc:'A private higher education institution providing quality academic programs within the county.',                                                                     tag:'Private University' },
+      { icon:'', name:'Sumo Moye Technical College',          location:'Bong County',          image:null, desc:'Provides technical and vocational education, serving as an important skills development center in the county.',                                                    tag:'Technical College' },
+      { icon:'', name:'Baptist College of Missionary Physicians', location:'Bong County',      image:null, desc:'Specialized institution focused on medical education, training healthcare professionals to serve communities.',                                                    tag:'Medical Education' },
+    ];
+    const vocational = [
+      { icon:'', name:'Tumutu Agricultural Vocational Training Center (TAVTC)', location:'Salala District', image:null, desc:'Focuses on agriculture, animal husbandry, and aquaculture. Serves as a major youth training hub in central Liberia.',                          courses:['Agriculture','Animal Husbandry','Aquaculture','Youth Training'] },
+      { icon:'', name:'Gbarnga Lutheran Training Center (GLTC)',                location:'Deanville, Gbarnga', image:null, desc:'Offers both vocational and academic training programs, combining practical skills with academic development.',                              courses:['Vocational Skills','Academic Programs'] },
+      { icon:'', name:'Phebe Hospital Paramedical Training Program',            location:'Suakoko District',   image:null, desc:'Trains healthcare professionals including nurses, midwives, and lab technicians at the Phebe Hospital campus.', courses:['Nursing','Midwifery','Lab Technicians','Paramedical'] },
+    ];
+    const gbarngaSchools = [
+      { icon:'', name:'Dolokelen Gboveh High School',                    image:'Assests/Dolokeleh Gboveh High School.jpg', type:'Public' },
+      { icon:'', name:'St. Martin\'s Catholic High School',              image:'Assests/St. Martin High school.jpg', type:'Catholic Mission' },
+      { icon:'', name:'St. Peter Episcopal High School',                 image:null, type:'Episcopal Mission' },
+      { icon:'', name:'William V.S. Tubman-Gray United Methodist H.S.',  image:null, type:'Methodist Mission' },
+      { icon:'', name:'St. Mark\'s Lutheran High School',                image:null, type:'Lutheran Mission' },
+      { icon:'', name:'Alexandria A. Andrews Academy',                   image:'Assests/Newly-constructed-Secondary-School-in-Gbarnga-Bong-County.jpg', type:'Private' },
+      { icon:'', name:'Nathaniel V. Massaquoi High School',              image:null, type:'Public' },
+      { icon:'', name:'Arthur B. Francis SDA High School',               image:null, type:'Adventist Mission' },
+    ];
+    const otherSchools = [
+      { icon:'', name:'Botoe Barclay High School',              image:null, district:'Fuamah District',  type:'Public' },
+      { icon:'', name:'John Gowans Junior & Senior High School', image:null, district:'Salala',           type:'Public' },
+      { icon:'', name:'Cuttington Campus School',               image:null, district:'Suakoko',          type:'University Campus' },
+      { icon:'', name:'Phebe Community Lutheran High School',   image:null, district:'Suakoko',          type:'Lutheran Mission' },
+      { icon:'', name:'Gorpu Dolo Boi High School',             image:null, district:'Belefanai',        type:'Public' },
+      { icon:'', name:'Belefanai Lutheran Mission School',      image:null, district:'Belefanai',        type:'Lutheran Mission' },
+      { icon:'', name:'William R. Tolbert High School',         image:null, district:'Gbaltuah',         type:'Public' },
+      { icon:'', name:'Suakoko Central High School',            image:null, district:'Suakoko',          type:'Public' },
+    ];
+    const additionalSchools = ['Sumo Moye Memorial Institute','Nyakoi Bee High School','E.J. Yancy High School','Flehla High School','World Overcomers Academy'];
+    const hospitals = [
+      { icon:'', name:'Phebe Hospital & School of Nursing', location:'Suakoko District', image:'Assests/Phebe Hospital1.jpg', tag:'Referral Hospital · Est. 1965', desc:'A 200-bed referral hospital serving Bong, Lofa, and Nimba Counties. Provides medical, surgical, and emergency care. Founded in 1965.',           services:['Medical Care','Surgery','Emergency','Nursing School','Maternity'] },
+      { icon:'', name:'C.B. Dunbar Maternity Hospital',     location:'Gbarnga',           image:'Assests/CB-Dunbar-Hospital.jpeg', tag:'Maternity Hospital · 69 Beds', desc:'A 69-bed specialized maternal hospital focusing on obstetrics, gynecology, and pediatrics for Gbarnga and surrounding communities.', services:['Obstetrics','Gynecology','Pediatrics','Maternity'] },
+    ];
+    const otherHealth = [
+      { icon:'', name:'Bong Mines Hospital',  desc:'Serves the Bong Mines community in Bong Town.' },
+      { icon:'', name:'Salala Hospital',      desc:'Public hospital serving southern Bong County.' },
+      { icon:'', name:'GW Health Group',      desc:'Private healthcare provider operating within the county.' },
+    ];
+    return { tab, tabs, universities, vocational, gbarngaSchools, otherSchools, additionalSchools, hospitals, otherHealth };
+  }
+};
+
+/* ══════════════════════════════════════
+   PAGE: OPPORTUNITIES
+══════════════════════════════════════ */
+const PageOpportunities = {
+  template: `<div>
+    <div class="bg-forest-dark px-6 py-20 text-center relative overflow-hidden" style="background-image:url('Assests/banner5.avif'); background-size:cover; background-position:center; background-attachment:fixed">
+      <div class="absolute inset-0" style="background:linear-gradient(rgba(13,40,24,0.35), rgba(13,40,24,0.42)), radial-gradient(circle at 50% 50%,rgba(200,150,12,0.10) 0%,transparent 55%)"></div>
+      <div class="relative z-10">
+        <div class="text-gold-light text-xs font-semibold tracking-widest uppercase mb-3">Opportunities</div>
+        <h1 class="font-display font-black text-white mb-4" style="font-size:clamp(2.2rem,5vw,4rem)">Open Doors for Bong Youth</h1>
+        <p class="text-white/55 max-w-xl mx-auto leading-relaxed">Scholarships, training programs, internships, and grants available to Bong County residents.</p>
+      </div>
+    </div>
+
+    <div class="bg-white border-b border-ink-border py-4 px-6 sticky top-[68px] z-40">
+      <div class="max-w-6xl mx-auto flex gap-2 flex-wrap">
+        <button v-for="t in types" :key="t" @click="activeType=t"
+          :class="activeType===t?'bg-gold text-white border-gold':'bg-white text-ink-muted border-ink-border hover:border-gold hover:text-gold'"
+          class="px-4 py-1.5 rounded-full border text-sm font-medium transition-all cursor-pointer">{{ t }}</button>
+      </div>
+    </div>
+
+    <section class="py-16 px-6" style="background:#FFFBF0">
+      <div class="max-w-6xl mx-auto">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+          <div v-for="o in filtered" :key="o.title"
+            class="bg-white rounded-2xl p-6 border border-yellow-100 hover:-translate-y-1 hover:shadow-xl transition-all duration-300">
+            <div class="flex items-center justify-between mb-3">
+              <span class="text-gold text-xs font-bold tracking-widest uppercase">{{ o.type }}</span>
+              <span class="text-xs text-white font-semibold px-2.5 py-1 rounded-full" :style="{ background: o.urg==='Open'?'#1B5E35':o.urg==='Closing Soon'?'#C8960C':'#5A7260' }">{{ o.urg }}</span>
+            </div>
+            <h3 class="font-semibold text-forest-dark mb-2 leading-tight">{{ o.title }}</h3>
+            <p class="text-ink-muted text-sm leading-relaxed mb-4">{{ o.desc }}</p>
+            <div class="flex flex-wrap gap-1.5 mb-4">
+              <span v-for="tag in o.tags" :key="tag" class="bg-forest-pale text-forest text-xs font-medium px-2 py-0.5 rounded-full">{{ tag }}</span>
+            </div>
+            <div class="border-t border-ink-border pt-3 flex items-center justify-between">
+              <div class="text-xs text-ink-muted flex items-center gap-1.5"><span class="w-1.5 h-1.5 rounded-full bg-gold flex-shrink-0"></span>Deadline: {{ o.dl }}</div>
+              <span class="text-forest text-xs font-semibold cursor-pointer hover:text-forest-light">Apply →</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="bg-white py-16 px-6">
+      <div class="max-w-4xl mx-auto text-center">
+        <div class="text-gold text-xs font-semibold tracking-widest uppercase mb-2">How It Works</div>
+        <h2 class="font-display font-bold text-forest-dark text-3xl mb-10">Steps to Apply</h2>
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+          <div v-for="(step,i) in steps" :key="step.title" class="text-center">
+            <div class="w-12 h-12 rounded-full bg-forest text-white font-display font-bold text-lg flex items-center justify-center mx-auto mb-3">{{ i+1 }}</div>
+            <h4 class="font-semibold text-forest-dark text-sm mb-1">{{ step.title }}</h4>
+            <p class="text-ink-muted text-xs leading-relaxed">{{ step.desc }}</p>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>`,
+  setup() {
+    const activeType = ref('All');
+    const types = ['All','Scholarship','Training','Internship','Fellowship','Grant'];
+    const opps = [
+      { type:'Scholarship', title:'Bong County Higher Education Grant',       desc:'Full and partial scholarships for Bong County students pursuing undergraduate degrees at institutions including Cuttington University and BCTC.',          dl:'March 31, 2026',    urg:'Closing Soon', tags:['University','All Districts'] },
+      { type:'Training',    title:'Youth Digital Skills Bootcamp',            desc:'3-month intensive in web development, graphic design, and digital marketing at the Gbarnga Digital Skills Center. Monthly stipend provided.',             dl:'Rolling Admissions', urg:'Open',         tags:['Tech','Youth','Stipend Included'] },
+      { type:'Internship',  title:'County Government Internship',             desc:'Work alongside county officials and administrators. Open to final-year students from Bong County institutions including BCTC and Cuttington.',             dl:'June 15, 2026',     urg:'Open',         tags:['Governance','University Students'] },
+      { type:'Fellowship',  title:'Community Leaders Fellowship',             desc:'6-month leadership development for ages 18–30. Project management, community mobilization, and civic leadership skills.',                                  dl:'April 30, 2026',    urg:'Closing Soon', tags:['Leadership','Ages 18–30'] },
+      { type:'Grant',       title:'Small Business Development Fund',          desc:'Micro-grants of $200–$1,000 for entrepreneurs in Bong County starting businesses in agriculture, trade, or services.',                                    dl:'Open Year-Round',   urg:'Open',         tags:['Business','Agriculture'] },
+      { type:'Training',    title:'TAVTC Agricultural Skills Program',        desc:'Free training in modern farming, animal husbandry, and aquaculture at the Tumutu Agricultural Vocational Training Center in Salala.',                      dl:'Rolling Admissions', urg:'Open',         tags:['Farming','Salala','Free'] },
+      { type:'Scholarship', title:'STEM Excellence Award',                    desc:'Full tuition for top-performing students in science and mathematics, covering tuition at BCTC or Cuttington University. GPA 3.5+ required.',               dl:'May 20, 2026',      urg:'Open',         tags:['STEM','Merit-Based','Full Tuition'] },
+      { type:'Fellowship',  title:'Women in Leadership Program',              desc:'Mentorship and skills program for women aged 20–35 aspiring to leadership in governance, business, or community development in Bong County.',              dl:'July 1, 2026',      urg:'Open',         tags:['Women','Leadership','Mentorship'] },
+      { type:'Internship',  title:'Phebe Hospital Health Internship',         desc:'6-week clinical rotations for nursing and paramedical students at Phebe Hospital & School of Nursing in Suakoko. 200-bed referral facility.',              dl:'May 1, 2026',       urg:'Closing Soon', tags:['Health','Phebe Hospital','Suakoko'] },
+    ];
+    const filtered = computed(() => activeType.value === 'All' ? opps : opps.filter(o => o.type === activeType.value));
+    const steps = [
+      { title:'Browse Listings',    desc:'Filter opportunities by type to find what matches your goals.' },
+      { title:'Check Eligibility',  desc:'Read requirements and confirm you qualify before applying.' },
+      { title:'Prepare Documents',  desc:'Gather needed ID, certificates, references, or business plan.' },
+      { title:'Submit Application', desc:'Follow the specific instructions for each opportunity.' },
+    ];
+    return { activeType, types, filtered, steps };
+  }
+};
+
+/* ══════════════════════════════════════
+   PAGE: STORIES
+══════════════════════════════════════ */
+const PageStories = {
+  template: `<div>
+    <div class="bg-forest-dark px-6 py-20 text-center relative overflow-hidden" style="background-image:url('Assests/Banner image3.webp'); background-size:cover; background-position:center; background-attachment:fixed">
+      <div class="absolute inset-0" style="background:linear-gradient(rgba(13,40,24,0.35), rgba(13,40,24,0.40)), radial-gradient(circle at 80% 50%,rgba(27,94,53,0.15) 0%,transparent 50%)"></div>
+      <div class="relative z-10">
+        <div class="text-gold-light text-xs font-semibold tracking-widest uppercase mb-3">Stories & Voices</div>
+        <h1 class="font-display font-black text-white mb-4" style="font-size:clamp(2.2rem,5vw,4rem)">Voices from Bong County</h1>
+        <p class="text-white/55 max-w-xl mx-auto leading-relaxed">Real stories from real people — building, dreaming, and thriving in Bong County.</p>
+      </div>
+    </div>
+
+    <section class="py-16 px-6 bg-gray-50">
+      <div class="max-w-6xl mx-auto">
+        <div class="bg-white rounded-2xl overflow-hidden border border-ink-border shadow-sm mb-10">
+          <div class="md:flex">
+            <div class="md:w-2/5 flex items-center justify-center text-8xl bg-forest" style="min-height:220px"></div>
+            <div class="md:w-3/5 p-8">
+              <span class="bg-gold-pale text-gold text-xs font-bold px-3 py-1 rounded-full tracking-wider uppercase">Featured · Youth Spotlight</span>
+              <h2 class="font-display font-bold text-forest-dark text-3xl mt-4 mb-3 leading-tight">From Gbarnga to Global: How One Student's Determination Changed Everything</h2>
+              <p class="text-ink-muted leading-relaxed mb-4">Growing up near Gbarnga, this student never imagined studying engineering abroad. With determination, community support from Bong County institutions, and a local scholarship, she became a symbol of what's possible for Bong County youth.</p>
+              <div class="flex items-center gap-3 pt-4 border-t border-ink-border">
+                <div class="w-9 h-9 rounded-full bg-forest-pale border-2 border-forest flex items-center justify-center font-bold text-forest text-xs">FK</div>
+                <div>
+                  <div class="font-semibold text-forest-dark text-sm">Fatu Kollie</div>
+                  <div class="text-ink-muted text-xs">Gbarnga · Engineering Student</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="flex gap-2 flex-wrap mb-8">
+          <button v-for="cat in cats" :key="cat" @click="activeCat=cat"
+            :class="activeCat===cat?'bg-forest text-white border-forest':'bg-white text-ink-muted border-ink-border hover:border-forest hover:text-forest'"
+            class="px-4 py-1.5 rounded-full border text-sm font-medium transition-all cursor-pointer">{{ cat }}</button>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+          <div v-for="s in filtered" :key="s.title"
+            class="bg-white rounded-2xl overflow-hidden border border-ink-border hover:shadow-lg hover:-translate-y-1 transition-all duration-300 cursor-pointer"
+            @click="selectedStory=s">
+          <div class="h-40 flex items-center justify-center text-5xl" :style="{ background:s.bg }"></div>
+            <div class="p-5">
+              <span class="text-xs font-bold tracking-widest uppercase mb-2 inline-block" :style="{ color:s.tagColor }">{{ s.tag }}</span>
+              <h3 class="font-semibold text-forest-dark mb-2 leading-snug">{{ s.title }}</h3>
+              <p class="text-ink-muted text-sm leading-relaxed mb-4">{{ s.preview }}</p>
+              <div class="flex items-center justify-between pt-3 border-t border-ink-border">
+                <div class="flex items-center gap-2.5">
+                  <div class="w-7 h-7 rounded-full bg-forest-pale border border-forest flex items-center justify-center text-forest font-bold text-xs">{{ s.author[0] }}</div>
+                  <div>
+                    <div class="text-forest-dark text-xs font-semibold">{{ s.author }}</div>
+                    <div class="text-ink-muted text-xs">{{ s.role }}</div>
+                  </div>
+                </div>
+                <span class="text-forest text-xs font-semibold hover:text-forest-light">Read More →</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="bg-forest py-16 px-6 text-center">
+      <div class="max-w-2xl mx-auto">
+        <h2 class="font-display font-bold text-white text-3xl mb-4">Share Your Story</h2>
+        <p class="text-white/60 mb-8 leading-relaxed">Your experience of living, working, and building in Bong County is part of our shared history.</p>
+        <button @click="showStoryModal=true" class="inline-flex items-center gap-2 bg-ink hover:bg-ink-muted text-white font-semibold px-8 py-3 rounded-xl transition-colors">Submit Your Story →</button>
+      </div>
+    </section>
+
+    <!-- STORY DETAIL MODAL -->
+    <div v-if="selectedStory" class="fixed inset-0 z-50 flex items-center justify-center px-4" style="background:rgba(26,26,26,0.75)" @click.self="selectedStory=null">
+      <div class="bg-white rounded-2xl overflow-hidden max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl">
+        <div class="h-56 flex items-center justify-center text-7xl relative overflow-hidden" :style="{ background:selectedStory.bg }">
+          <button @click="selectedStory=null" class="absolute top-4 right-4 text-white rounded-full w-8 h-8 flex items-center justify-center border-0 cursor-pointer text-lg z-10" style="background:rgba(255,255,255,0.2)">✕</button>
+        </div>
+        <div class="p-8">
+          <div class="flex items-center justify-between mb-3">
+            <span class="text-xs font-bold tracking-widest uppercase" :style="{ color:selectedStory.tagColor }">{{ selectedStory.tag }}</span>
+            <span class="text-ink-muted text-xs" v-if="selectedStory.submittedAt">{{ selectedStory.submittedAt }}</span>
+          </div>
+          <h2 class="font-display font-bold text-forest-dark text-3xl mb-4 leading-tight">{{ selectedStory.title }}</h2>
+          <div class="flex items-center gap-3 pb-4 border-b border-ink-border mb-6">
+            <div class="w-10 h-10 rounded-full bg-forest-pale border-2 border-forest flex items-center justify-center text-forest font-bold text-sm">{{ selectedStory.author[0] }}</div>
+            <div>
+              <div class="text-forest-dark text-sm font-semibold">{{ selectedStory.author }}</div>
+              <div class="text-ink-muted text-xs">{{ selectedStory.role }}</div>
+            </div>
+          </div>
+          <p class="text-ink-muted leading-relaxed whitespace-pre-wrap">{{ selectedStory.fullStory || selectedStory.preview }}</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- STORY SUBMISSION MODAL -->
+    <div v-if="showStoryModal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+      <div class="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+        <div class="sticky top-0 bg-forest px-6 py-4 flex items-center justify-between border-b border-ink-border">
+          <h2 class="font-display font-bold text-white text-2xl">Share Your Story</h2>
+          <button @click="showStoryModal=false" class="text-white hover:text-white/70 text-2xl">&times;</button>
+        </div>
+        
+        <!-- Success Message -->
+        <div v-if="submitSuccess" class="bg-green-50 border-l-4 border-green-500 p-6 m-6">
+          <div class="flex items-start gap-3">
+            <div class="text-green-600 text-2xl">✓</div>
+            <div>
+              <h3 class="font-semibold text-green-800 mb-1">Story Published Successfully!</h3>
+              <p class="text-green-700 text-sm leading-relaxed">Your story is now live on the website and we've sent you a confirmation email. Thank you for sharing your voice with Bong County!</p>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Form -->
+        <div v-if="!submitSuccess" class="p-6 space-y-4">
+          <div>
+            <label class="block text-sm font-semibold text-forest-dark mb-2">Your Name</label>
+            <input v-model="storyForm.name" type="text" placeholder="Your name" class="w-full px-4 py-2 border border-ink-border rounded-lg focus:outline-none focus:border-forest"/>
+          </div>
+          <div>
+            <label class="block text-sm font-semibold text-forest-dark mb-2">Your Role/Location</label>
+            <input v-model="storyForm.role" type="text" placeholder="e.g., Teacher in Gbarnga, Farmer in Salala" class="w-full px-4 py-2 border border-ink-border rounded-lg focus:outline-none focus:border-forest"/>
+          </div>
+          <div>
+            <label class="block text-sm font-semibold text-forest-dark mb-2">Story Category</label>
+            <select v-model="storyForm.category" class="w-full px-4 py-2 border border-ink-border rounded-lg focus:outline-none focus:border-forest">
+              <option value="">Select a category</option>
+              <option value="Youth">Youth</option>
+              <option value="Agriculture">Agriculture</option>
+              <option value="Culture">Culture</option>
+              <option value="Education">Education</option>
+              <option value="Community">Community</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-sm font-semibold text-forest-dark mb-2">Your Story Title</label>
+            <input v-model="storyForm.title" type="text" placeholder="Give your story a title" class="w-full px-4 py-2 border border-ink-border rounded-lg focus:outline-none focus:border-forest"/>
+          </div>
+          <div>
+            <label class="block text-sm font-semibold text-forest-dark mb-2">Your Story (Share your experience)</label>
+            <textarea v-model="storyForm.story" placeholder="Tell us your story... (minimum 100 characters)" rows="6" class="w-full px-4 py-2 border border-ink-border rounded-lg focus:outline-none focus:border-forest resize-none"></textarea>
+            <div class="text-xs text-ink-muted mt-1">{{ storyForm.story.length }} characters</div>
+          </div>
+          <div>
+            <label class="block text-sm font-semibold text-forest-dark mb-2">Email (for contact)</label>
+            <input v-model="storyForm.email" type="email" placeholder="your.email@example.com" class="w-full px-4 py-2 border border-ink-border rounded-lg focus:outline-none focus:border-forest"/>
+          </div>
+          <div class="flex gap-3 pt-4">
+            <button @click="submitStory" class="flex-1 bg-forest hover:bg-forest-light text-white font-semibold py-2.5 rounded-lg transition-colors">Publish Story</button>
+            <button @click="showStoryModal=false" class="flex-1 bg-ink-border hover:bg-ink-muted text-forest-dark font-semibold py-2.5 rounded-lg transition-colors">Cancel</button>
+          </div>
+          <p class="text-xs text-ink-muted text-center">Your story will be published immediately and we'll send you a confirmation email.</p>
+        </div>
+      </div>
+    </div>
+  </div>`,
+  setup() {
+    const activeCat = ref('All');
+    const cats = ['All','Youth','Agriculture','Culture','Education','Community'];
+    
+    // Default stories
+    const defaultStories = [
+      { tag:'Education',   tagColor:'#185FA5', emoji:'', bg:'#0A1525', title:'Cuttington\'s Legacy: 135 Years of Learning in Bong County',     preview:'How the oldest private university in Sub-Saharan Africa has shaped thousands of Liberian leaders since 1889.',         author:'Community Voices', role:'Suakoko, Bong County', isPublished: true, fullStory:'Founded in 1889, Cuttington University stands as a beacon of educational excellence in Liberia and across Sub-Saharan Africa. For 135 years, nestled in the quiet town of Suakoko in Bong County, this institution has nurtured generations of leaders, scholars, and changemakers who have gone on to shape not just Liberia, but the broader West African region.\n\nFrom its humble beginnings as a missionary school to its current status as a co-educational university offering degrees in agriculture, business, education, engineering, and the sciences, Cuttington has remained steadfast in its mission: to educate young minds and develop leaders of character and competence.\n\nThe university has produced senators, government officials, business leaders, healthcare professionals, and educators. What makes Cuttington special is not just its academic rigor, but its commitment to community. Students engage in service learning projects across Bong County, working with farmers, health centers, and local schools. The Agricultural Research and Innovation Center (CARI) at Cuttington has revolutionized farming practices across the county, introducing new crop varieties and sustainable techniques that have boosted productivity and food security.\n\nToday, as Cuttington celebrates over a century of service, it remains a source of pride for Bong County—a living testament to the transformative power of education and the vision of those who believed that quality learning could flourish in rural Liberia.' },
+      { tag:'Agriculture', tagColor:'#1B5E35', emoji:'', bg:'#0D2E12', title:'The Farmer Who Brought Irrigation to His Village in Zota',        preview:'How one determined farmer transformed food security for 200 families using techniques from TAVTC training.',          author:'Emmanuel Kollie',  role:'Zota District Farmer', isPublished: true, fullStory:'Emmanuel Kollie was born in Zota District, where farming was a way of life but also a constant struggle against the seasons. For generations, farmers in his village relied entirely on rainfall, which meant crop failures were common. When the rains came late or the dry season stretched longer than expected, families went hungry.\n\nIn 2019, Emmanuel attended a six-month training program at the Tumutu Agricultural Vocational Training Center (TAVTC) in Salala. There, he learned about drip irrigation—a technique that could transform agriculture in his region. Armed with new knowledge and determination, he returned to his village with a vision: to build an irrigation system that would allow farmers to grow year-round.\n\nWith his own savings and a small loan from a community microfinance group, Emmanuel began constructing a simple drip irrigation system using locally available materials. He started with just half an acre, growing vegetables during the dry season. The results were remarkable—his yields tripled, and he earned enough income to expand the system to a full acre.\n\nWord spread quickly through the village. Other farmers, seeing Emmanuel\'s success, asked for help. Over the next three years, Emmanuel trained 47 farmers in his village in irrigation techniques. Today, 200 families in his community—directly or indirectly—benefit from the irrigation systems that Emmanuel pioneered. The village that once faced food insecurity now produces a surplus, selling vegetables to markets in Gbarnga.\n\nEmmanuel\'s story is a powerful reminder that one person\'s determination and willingness to learn can transform an entire community. He continues to train young farmers and is now working with TAVTC to expand irrigation initiatives across Zota District.' },
+      { tag:'Youth',       tagColor:'#C8960C', emoji:'', bg:'#2C1500', title:'Growing Up Near Bong Mines: Between History and Opportunity',     preview:'Young people in Bong Town reflect on growing up beside one of Liberia\'s most iconic industrial landmarks.',           author:'Daniel Sumo',      role:'Bong Town', isPublished: true, fullStory:'The Bong Mining Area, including the iconic Blue Lake—a former German iron ore mine now filled with crystalline water—is more than just a historical landmark. For young people like Daniel Sumo, it\'s the backdrop of their childhood, a symbol of both Bong County\'s industrial past and its uncertain future.\n\n"I grew up in the shadow of these mines," Daniel recalls. "As a child, I didn\'t fully understand the history, but I knew this place was important. It represented something grand—a time when Bong County was a powerhouse of West African industry."\n\nThe Bong Mining Company operated from the 1960s through the 1990s, extracting iron ore and shaping the economic and physical landscape of the region. At its peak, it employed thousands of workers and generated significant revenue for Liberia. But as the mines closed and economic conditions changed, the area faced challenges—unemployment, aging infrastructure, and a sense of lost opportunity.\n\nYet for young people like Daniel, growing up near Bong Mines has also sparked ambition. "We see what was built here. We ask ourselves: what can we build? What opportunities can we create?" Many youth have been inspired to pursue careers in engineering, geology, business management, and environmental science.\n\nToday, young people in Bong Town are exploring how to revitalize their region. Some are studying renewable energy, imagining how solar and hydroelectric projects could power the county\'s future. Others are starting tourism initiatives around the Blue Lake, sharing the story of Bong County\'s mining heritage with visitors. The mines may no longer extract ore, but they continue to extract something more valuable from young people: inspiration, determination, and a vision for renewal.\n\n"History isn\'t just what happened in the past," Daniel says. "It\'s also a foundation for what we can build tomorrow."' },
+      { tag:'Culture',     tagColor:'#5A7260', emoji:'', bg:'#1A0D00', title:'The Traditional Leaders Who Keep Bong County\'s Soul Alive',      preview:'From Paramount Chief Mary Larteh to village elders — how traditional leadership shapes modern Bong County.',          author:'Community Story',  role:'Jorquelleh Chiefdom', isPublished: true, fullStory:'In a rapidly modernizing world, traditional leaders in Bong County remain the backbone of community cohesion, conflict resolution, and cultural preservation. They are custodians of history, advocates for justice, and bridges between past and future.\n\nParamount Chief Mary Larteh of the Jorquelleh Chiefdom is one such leader. For decades, she has served her people with wisdom, compassion, and an unwavering commitment to justice. She settles land disputes with fairness, counsels families through conflicts, and ensures that traditional customs are honored while embracing positive change.\n\n"A paramount chief is not just a title," Chief Larteh explains. "It is a responsibility to the land, to the ancestors, and to the generations that will come after us. We must preserve our culture while our people benefit from progress."\n\nTraditional leaders like Chief Larteh work closely with county administrators, health workers, and educators. When the county launched a health education campaign about malaria prevention, it was traditional leaders who helped explain the importance of bed nets to their people. When schools needed community support, it was the chiefs who mobilized resources and encouraged parents to send their children to class.\n\nBeyond governance, traditional leaders are keepers of history. They recount stories of the Kpelle, Loma, and Mandingo peoples who have inhabited Bong County for centuries. Through their narratives, youth learn about ancestral wisdom, values of community, and the struggles and triumphs that shaped their identity.\n\nIn 2025, Chief Arthur Goah was elected as the new Chairperson of the National Chiefs and Elders Council—a testament to the respect and significance accorded to Bong County\'s traditional leadership. Meanwhile, village elders in communities across the county continue their quiet, essential work: teaching young people respect for the land, mediating disputes, and ensuring that Bong County\'s cultural soul remains vibrant even as it moves forward.' },
+      { tag:'Community',   tagColor:'#1B5E35', emoji:'', bg:'#0D1A10', title:'Life in Sugar Hill: Community, Resilience & Progress in Gbarnga', preview:'A portrait of one of Gbarnga\'s most vibrant communities — from market women to youth leaders.',                      author:'Agnes Kollie',     role:'Sugar Hill, Gbarnga', isPublished: true, fullStory:'Sugar Hill is more than just a neighborhood in Gbarnga—it\'s a living embodiment of Bong County\'s spirit: resilient, vibrant, and full of hope. Agnes Kollie, who has lived in Sugar Hill for 20 years, paints a vivid picture of community life.\n\n"Every morning, the market women are up before dawn. They prepare their goods, arrange their stalls, and by 6 AM, Sugar Hill comes alive," Agnes describes. These women—traders, farmers, mothers—are the economic heartbeat of the community. They sell vegetables, rice, palm oil, textiles, and countless other goods. Many of them send their children to school through the income they earn.\n\nBut Sugar Hill is not just about commerce. It\'s about connection. Community members gather for naming ceremonies, weddings, and funerals. When a house burns down, neighbors help rebuild. When a child is sick, the community contributes to medical care. When a young person gets accepted to university, the celebration is shared by everyone.\n\nIn recent years, Sugar Hill has seen youth-led initiatives flourish. A group of young entrepreneurs started a community learning center where children receive after-school tutoring. A women\'s savings group has grown to 45 members, providing microfinance and economic support. Youth have organized community cleanup drives and sports tournaments that bring neighbors together.\n\n"What strikes me most about Sugar Hill is that despite challenges—poverty, limited infrastructure, limited job opportunities—people have not lost their hope or their sense of community," Agnes reflects. "We celebrate small victories. We support each other. We believe that together, we can build something better."\n\nSugar Hill represents thousands of communities across Bong County where ordinary people do extraordinary things—where resilience and unity are not just ideals but daily practices.' },
+      { tag:'Youth',       tagColor:'#C8960C', emoji:'', bg:'#251200', title:'Learning to Code at BCTC: Bong County\'s Tech Generation',        preview:'Students at Bong County Technical College are writing software that could serve their communities — and the world.',   author:'Junior Morris',    role:'BCTC Student, Gbarnga', isPublished: true, fullStory:'In a computer lab at Bong County Technical College (BCTC) in Gbarnga, a group of young people are typing lines of code, debugging programs, and building applications. They are part of a new generation of tech entrepreneurs and developers who are proving that cutting-edge technology is not exclusive to Silicon Valley or Lagos—it belongs right here in Bong County.\n\nJunior Morris, a third-year student in BCTC\'s Information Technology program, discovered his passion for coding almost by accident. "I came to BCTC thinking I\'d study general IT, but when I took my first programming course, something clicked. I realized I could create solutions to real problems."\n\nWith guidance from his instructors and collaboration with peers, Junior led a team to develop a mobile app that helps farmers in Bong County access market prices for their produce in real-time. The app was born from frustration: farmers often didn\'t know the fair market value of their crops, leading to exploitation by middlemen. The app, called "Market Voice," has been downloaded over 500 times and is helping farmers make better economic decisions.\n\nJunior\'s story is not unique at BCTC. Across the college, students are working on projects addressing real challenges: an app to help health centers manage patient records, a software system for schools to track student performance, a platform connecting youth to job opportunities in Bong County.\n\n"What\'s exciting is that we\'re not just learning theory," Junior explains. "We\'re applying our learning to solve problems in our own communities. We\'re creating technology that reflects our context and our values."\n\nThe college has partnered with tech organizations and international mentors to provide students with world-class training. Students have access to modern equipment, coding bootcamps, and internship opportunities. Some graduates have started their own tech companies; others have moved to positions with international organizations; all are contributing to Africa\'s digital transformation.\n\nAs Junior looks to the future, his ambition is clear: "I want to show young people in Bong County that technology is for us too. That we can be innovators, not just consumers. That our ideas matter."' },
+    ];
+    
+    // Load submitted stories from localStorage
+    const loadSubmittedStories = () => {
+      try {
+        const saved = localStorage.getItem('bongCountySubmittedStories');
+        return saved ? JSON.parse(saved) : [];
+      } catch (e) {
+        return [];
+      }
+    };
+    
+    // Initialize stories array with defaults + submitted stories
+    const stories = ref([...defaultStories, ...loadSubmittedStories()]);
+    const filtered = computed(() => activeCat.value === 'All' ? stories.value : stories.value.filter(s => s.tag === activeCat.value));
+    
+    const showStoryModal = ref(false);
+    const submitSuccess = ref(false);
+    const storyForm = reactive({
+      name: '',
+      role: '',
+      category: '',
+      title: '',
+      story: '',
+      email: ''
+    });
+    
+    const submitStory = () => {
+      if (!storyForm.name || !storyForm.email || !storyForm.story || !storyForm.title || !storyForm.category) {
+        alert('Please fill in all required fields');
+        return;
+      }
+      if (storyForm.story.length < 100) {
+        alert('Please write at least 100 characters for your story');
+        return;
+      }
+      
+      // Create new story object
+      const categoryColors = {
+        'Youth': { color: '#C8960C', bg: '#251200' },
+        'Agriculture': { color: '#1B5E35', bg: '#0D2E12' },
+        'Culture': { color: '#5A7260', bg: '#1A0D00' },
+        'Education': { color: '#185FA5', bg: '#0A1525' },
+        'Community': { color: '#1B5E35', bg: '#0D1A10' },
+        'Other': { color: '#555555', bg: '#1A1A1A' }
+      };
+      const colors = categoryColors[storyForm.category] || categoryColors['Other'];
+      
+      const newStory = {
+        tag: storyForm.category,
+        tagColor: colors.color,
+        emoji: '',
+        bg: colors.bg,
+        title: storyForm.title,
+        preview: storyForm.story.substring(0, 150) + (storyForm.story.length > 150 ? '...' : ''),
+        author: storyForm.name,
+        role: storyForm.role,
+        isPublished: false,
+        submittedAt: new Date().toLocaleDateString(),
+        fullStory: storyForm.story
+      };
+      
+      // Add to stories array
+      stories.value.unshift(newStory);
+      
+      // Save to localStorage
+      try {
+        const submitted = loadSubmittedStories();
+        submitted.unshift(newStory);
+        localStorage.setItem('bongCountySubmittedStories', JSON.stringify(submitted));
+      } catch (e) {
+        console.log('Could not save to localStorage');
+      }
+      
+      // Send email notification
+      const mailtoBody = `Name: ${storyForm.name}%0ARole/Location: ${storyForm.role}%0ACategory: ${storyForm.category}%0ASubmitter Email: ${storyForm.email}%0A%0AStory Title: ${storyForm.title}%0A%0AStory:%0A${storyForm.story}%0A%0A----%0AThis story has been automatically published on the website at bongcounty.lr/stories`;
+      window.open(`mailto:sumobequizzy@gmail.com?subject=New Story Submitted: ${encodeURIComponent(storyForm.title)}&body=${mailtoBody}`);
+      
+      // Show success message
+      submitSuccess.value = true;
+      setTimeout(() => {
+        submitSuccess.value = false;
+        showStoryModal.value = false;
+      }, 3000);
+      
+      // Reset form
+      storyForm.name = '';
+      storyForm.role = '';
+      storyForm.category = '';
+      storyForm.title = '';
+      storyForm.story = '';
+      storyForm.email = '';
+    };
+    
+    return { activeCat, cats, filtered, selectedStory: ref(null), showStoryModal, submitSuccess, storyForm, submitStory };
+  }
+};
+
+/* ══════════════════════════════════════
+   PAGE: COMMUNITY
+══════════════════════════════════════ */
+const PageCommunity = {
+  template: `<div>
+    <div class="bg-forest px-6 py-20 text-center relative overflow-hidden" style="background-image:url('Assests/Banner image.jpg'); background-size:cover; background-position:center; background-attachment:fixed">
+      <div class="absolute inset-0" style="background:linear-gradient(rgba(13,40,24,0.35), rgba(27,94,53,0.40)), radial-gradient(circle at 50% 100%,rgba(0,0,0,0.15) 0%,transparent 60%)"></div>
+      <div class="relative z-10">
+        <div class="text-gold-light/80 text-xs font-semibold tracking-widest uppercase mb-3">Community & Updates</div>
+        <h1 class="font-display font-black text-white mb-4" style="font-size:clamp(2.2rem,5vw,4rem)">What's Happening in Bong County</h1>
+        <p class="text-white/60 max-w-xl mx-auto leading-relaxed">Stay connected with announcements, events, youth initiatives, and community news.</p>
+      </div>
+    </div>
+
+    <div class="bg-white border-b border-ink-border sticky top-[68px] z-40">
+      <div class="max-w-6xl mx-auto px-6 flex gap-0 overflow-x-auto">
+        <button v-for="t in types" :key="t.id" @click="activeType=t.id"
+          :class="activeType===t.id?'border-b-2 border-forest text-forest':'text-ink-muted hover:text-forest'"
+          class="px-5 py-4 text-sm font-medium transition-colors border-b-2 border-transparent cursor-pointer bg-transparent whitespace-nowrap">
+          {{ t.icon }} {{ t.label }}</button>
+      </div>
+    </div>
+
+    <section class="py-16 px-6 bg-gray-50">
+      <div class="max-w-6xl mx-auto">
+        <div class="bg-forest-dark rounded-2xl p-6 mb-10 flex items-start gap-5">
+          <div>
+            <div class="text-forest-light text-xs font-semibold tracking-widest uppercase mb-1">Latest Update</div>
+            <h3 class="font-semibold text-white text-lg mb-1">Bong County Technical College Transitioning to University Status</h3>
+            <p class="text-white/55 text-sm leading-relaxed">BCTC on Gboveh Hill, Gbarnga is officially transitioning into Bong County University — a major milestone for higher education in the county.</p>
+            <div class="text-white/30 text-xs mt-2">Announced: 2025</div>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+          <div v-for="u in filtered" :key="u.title"
+            class="bg-white rounded-2xl p-5 border border-ink-border hover:shadow-md hover:-translate-y-0.5 transition-all duration-200">
+            <div class="flex items-center gap-2 mb-3">
+              <span class="text-xs font-bold tracking-widest uppercase" :style="{ color:u.tc }">{{ u.type }}</span>
+            </div>
+            <h3 class="font-semibold text-forest-dark mb-2 leading-tight">{{ u.title }}</h3>
+            <p class="text-ink-muted text-sm leading-relaxed mb-4">{{ u.desc }}</p>
+            <div class="flex items-center justify-between border-t border-ink-border pt-3">
+              <div class="text-ink-muted text-xs">{{ u.date }}</div>
+              <div v-if="u.loc" class="text-xs text-forest font-medium">{{ u.loc }}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="bg-white py-16 px-6">
+      <div class="max-w-6xl mx-auto">
+        <div class="text-gold text-xs font-semibold tracking-widest uppercase mb-2">Youth Hub</div>
+        <h2 class="font-display font-bold text-forest-dark text-3xl mb-3">Youth Initiatives in Action</h2>
+        <p class="text-ink-muted mb-10 max-w-lg">Young people in Bong County are leading change across education, environment, and community development.</p>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+          <div v-for="yi in youthInits" :key="yi.title" class="border border-ink-border rounded-2xl p-6 flex gap-5 items-start hover:border-forest transition-colors">
+            <div>
+              <h4 class="font-semibold text-forest-dark mb-1.5">{{ yi.title }}</h4>
+              <p class="text-ink-muted text-sm leading-relaxed mb-2">{{ yi.desc }}</p>
+              <div class="text-forest text-xs font-semibold">{{ yi.stat }}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>`,
+  setup() {
+    const activeType = ref('all');
+    const types = [
+      { id:'all',          icon:'', label:'All Updates' },
+      { id:'announcement', icon:'', label:'Announcements' },
+      { id:'event',        icon:'', label:'Events' },
+      { id:'youth',        icon:'', label:'Youth' },
+    ];
+    const updates = [
+      { icon:'', type:'Announcement', tc:'#185FA5', title:'BCTC Transitioning to Bong County University',        desc:'Bong County Technical College on Gboveh Hill is officially transitioning into a full university offering expanded degree programs.',                    date:'2025', loc:'Gbarnga' },
+      { icon:'', type:'Event',        tc:'#1B5E35', title:'Bong County Youth Summit 2026',                        desc:'Annual gathering of young leaders, innovators, and change-makers from all 12 districts. Registration open.',                                       date:'June 2026', loc:'Gbarnga' },
+      { icon:'', type:'Announcement', tc:'#185FA5', title:'Phebe Hospital Free Health Screening Campaign',        desc:'Phebe Hospital & School of Nursing launches county-wide free health screening including malaria testing and maternal health.',                        date:'May 2026', loc:'All Districts' },
+      { icon:'', type:'Youth',        tc:'#C2410C', title:'Bong Reads: Community Library Network',                desc:'Youth volunteers launching mini-libraries across Bong County communities, with trained reading coaches serving children and adults.',               date:'Ongoing 2026' },
+      { icon:'', type:'Event',        tc:'#1B5E35', title:'TAVTC Agriculture Expo – Salala',                      desc:'The Tumutu Agricultural Vocational Training Center hosts its annual agriculture expo, showcasing training outcomes and produce.',                    date:'July 2026', loc:'Salala' },
+      { icon:'', type:'Youth',        tc:'#C2410C', title:'Women in Tech Mentorship – BCTC Partnership',          desc:'BCTC Digital program mentors 50 young women in coding and design, supported by tech industry partners.',                                            date:'May 2026', loc:'Gbarnga' },
+      { icon:'', type:'Announcement', tc:'#185FA5', title:'New Health Post Opens in Tukpahblee District',         desc:'A new community health post brings primary care to residents of Tukpahblee District, reducing travel time for medical services.',                   date:'March 2026', loc:'Tukpahblee' },
+      { icon:'', type:'Event',        tc:'#1B5E35', title:'Cuttington University Alumni Homecoming 2026',         desc:'Cuttington University in Suakoko celebrates 137 years with a major alumni homecoming event welcoming graduates from across Liberia.',               date:'September 2026', loc:'Suakoko' },
+      { icon:'', type:'Youth',        tc:'#C2410C', title:'Green Bong: Tree Planting Initiative',                 desc:'Youth environmental group targets 5,000 trees planted across all 12 districts by end of 2026. Community volunteers welcome.',                      date:'Ongoing 2026' },
+    ];
+    const typeMap = { announcement:'Announcement', event:'Event', youth:'Youth' };
+    const filtered = computed(() => activeType.value === 'all' ? updates : updates.filter(u => u.type === typeMap[activeType.value]));
+    const youthInits = [
+      { icon:'📚', title:'Bong Reads Community Libraries',            desc:'Youth-led mini-libraries across communities in Gbarnga, Salala, Suakoko and beyond — supporting literacy for all ages.',               stat:'6 communities · 1,200+ readers' },
+      { icon:'💻', title:'Code Bong: Digital Skills at BCTC',         desc:'Peer-led coding workshops at Bong County Technical College expanding digital skills for secondary and post-secondary students.',    stat:'200+ students trained' },
+      { icon:'🌿', title:'Green Bong Environmental Initiative',        desc:'Youth-led tree planting campaigns and river cleanups across Bong County\'s 12 districts, in partnership with schools.',             stat:'3,000+ trees planted' },
+      { icon:'🎙️', title:'Youth Radio: Voice of Bong County',          desc:'Youth-led radio program broadcasting stories, interviews, and community news from Gbarnga FM, reaching all parts of the county.',  stat:'Weekly broadcast · 10,000+ listeners' },
+    ];
+    return { activeType, types, filtered, youthInits };
+  }
+};
+
+/* ══════════════════════════════════════
+   ROUTER + APP SHELL
+══════════════════════════════════════ */
+const router = createRouter({
+  history: createWebHashHistory(),
+  routes: [
+    { path:'/',              component:PageHome },
+    { path:'/about',         component:PageAbout },
+    { path:'/tourism',       component:PageTourism },
+    { path:'/leadership',    component:PageLeadership },
+    { path:'/education',     component:PageEducation },
+    { path:'/opportunities', component:PageOpportunities },
+    { path:'/stories',       component:PageStories },
+    { path:'/community',     component:PageCommunity },
+  ],
+  scrollBehavior() { return { top:0 }; }
+});
+
+createApp({
+  setup() {
+    const mob = ref(false);
+    const nav = [
+      { to:'/about',         label:'About' },
+      { to:'/tourism',       label:'Tourism' },
+      { to:'/leadership',    label:'Leadership' },
+      { to:'/education',     label:'Education' },
+      { to:'/opportunities', label:'Opportunities' },
+      { to:'/stories',       label:'Stories' },
+      { to:'/community',     label:'Community' },
+    ];
+    const footerCols = [
+      { title:'Explore',   links:[{ to:'/tourism', label:'Tourist Sites' }, { to:'/about', label:'Districts & Towns' }, { to:'/leadership', label:'Leadership' }, { to:'/stories', label:'Stories' }] },
+      { title:'Resources', links:[{ to:'/education', label:'Universities' }, { to:'/education', label:'High Schools' }, { to:'/education', label:'Healthcare' }, { to:'/opportunities', label:'Scholarships' }] },
+      { title:'Community', links:[{ to:'/community', label:'Announcements' }, { to:'/community', label:'Events' }, { to:'/community', label:'Youth Hub' }, { to:'/stories', label:'Voices' }] },
+    ];
+    return { mob, nav, footerCols };
+  }
+}).use(router).mount('#app');
+</script>
+</body>
+</html>
