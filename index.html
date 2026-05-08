@@ -51,6 +51,79 @@
         opacity: 0;
       }
     }
+
+    /* Slideshow Styles */
+    .slideshow-container {
+      position: relative;
+      width: 100%;
+      background-color: #000;
+      border-radius: 0.75rem;
+      overflow: hidden;
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+    }
+
+    @media (min-width: 640px) {
+      .slideshow-container {
+        border-radius: 1rem;
+      }
+    }
+
+    @media (min-width: 1024px) {
+      .slideshow-container {
+        border-radius: 1.5rem;
+      }
+    }
+
+    .slide {
+      display: none;
+      width: 100%;
+      height: 100%;
+      animation: slideIn 2s ease-in-out;
+    }
+
+    .slide.active {
+      display: block;
+    }
+
+    .slide img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    @keyframes slideIn {
+      from {
+        opacity: 0;
+        transform: scale(1.05);
+      }
+      to {
+        opacity: 1;
+        transform: scale(1);
+      }
+    }
+
+    .slide-indicators {
+      position: absolute;
+      bottom: 15px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 8px;
+      z-index: 10;
+    }
+
+    .indicator {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background-color: rgba(255, 255, 255, 0.5);
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+
+    .indicator.active {
+      background-color: #dc2626;
+    }
   </style>
 </head>
 <body>
@@ -70,11 +143,11 @@
 
         <!-- Desktop Menu -->
         <nav class="hidden md:flex items-center gap-8 text-white font-medium">
-          <a href="#home" class="hover:text-yellow-400 transition">Home</a>
-          <a href="#counties" class="hover:text-yellow-400 transition">Counties</a>
-          <a href="#tourism" class="hover:text-yellow-400 transition">Tourism</a>
-          <a href="#investment" class="hover:text-yellow-400 transition">Investment</a>
-          <a href="#about" class="hover:text-yellow-400 transition">About</a>
+          <a href="#home" class="hover:text-blue-700 transition">Home</a>
+          <a href="#counties" class="hover:text-blue-700 transition">Counties</a>
+          <a href="#tourism" class="hover:text-blue-700 transition">Tourism</a>
+          <a href="#investment" class="hover:text-blue-700 transition">Investment</a>
+          <a href="#about" class="hover:text-blue-700 transition">About</a>
         </nav>
 
         <!-- Button -->
@@ -721,11 +794,22 @@
 
 
         <div class="order-first lg:order-last">
-          <img
-            src="https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?q=80&w=1400&auto=format&fit=crop"
-            class="rounded-2xl sm:rounded-3xl shadow-2xl w-full"
-            alt="Bong County"
-          />
+          <div class="slideshow-container rounded-2xl sm:rounded-3xl" style="aspect-ratio: 4/3;">
+            <div class="slide active">
+              <img src="Assests/Bong high way1.jpg" alt="Bong Highway 1" />
+            </div>
+            <div class="slide">
+              <img src="Assests/Bong high way2.jpg" alt="Bong Highway 2" />
+            </div>
+            <div class="slide">
+              <img src="Assests/Bong high way3.webp" alt="Bong Highway 3" />
+            </div>
+            <div class="slide-indicators">
+              <span class="indicator active" onclick="currentSlide(0)"></span>
+              <span class="indicator" onclick="currentSlide(1)"></span>
+              <span class="indicator" onclick="currentSlide(2)"></span>
+            </div>
+          </div>
         </div>
 
       </div>
@@ -942,13 +1026,51 @@
   <script>
 
     // Mobile Menu Toggle
-
     const menuBtn = document.getElementById('menuBtn');
     const mobileMenu = document.getElementById('mobileMenu');
 
     menuBtn.addEventListener('click', () => {
       mobileMenu.classList.toggle('hidden');
     });
+
+    // Slideshow Functionality
+    let currentSlideIndex = 0;
+    const slides = document.querySelectorAll('.slide');
+    const indicators = document.querySelectorAll('.indicator');
+    const totalSlides = slides.length;
+
+    function showSlide(index) {
+      if (index >= totalSlides) {
+        currentSlideIndex = 0;
+      } else if (index < 0) {
+        currentSlideIndex = totalSlides - 1;
+      } else {
+        currentSlideIndex = index;
+      }
+
+      slides.forEach(slide => slide.classList.remove('active'));
+      indicators.forEach(indicator => indicator.classList.remove('active'));
+
+      slides[currentSlideIndex].classList.add('active');
+      indicators[currentSlideIndex].classList.add('active');
+    }
+
+    function currentSlide(index) {
+      showSlide(index);
+      clearInterval(slideshowInterval);
+      startSlideshow();
+    }
+
+    function nextSlide() {
+      showSlide(currentSlideIndex + 1);
+    }
+
+    function startSlideshow() {
+      slideshowInterval = setInterval(nextSlide, 6000);
+    }
+
+    let slideshowInterval;
+    startSlideshow();
 
   </script>
 
