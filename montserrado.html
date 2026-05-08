@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Montserrado County | Liberia Counties Portal</title>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <style>
+    * {
+      font-family: 'Poppins', sans-serif;
+    }
+
+    body {
+      background: #f8fafc;
+      overflow-x: hidden;
+    }
+
+    .overlay {
+      background: linear-gradient(to right, rgba(0,0,0,0.88), rgba(0,0,0,0.45));
+    }
+
+    .glass-nav {
+      backdrop-filter: blur(12px);
+      background: rgba(0,0,0,0.45);
+    }
+
+    .card:hover {
+      transform: translateY(-8px);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ================= NAVBAR ================= -->
+
+  <header class="fixed top-0 left-0 w-full z-50 glass-nav border-b border-white/10">
+    <div class="max-w-7xl mx-auto px-6 lg:px-10">
+
+      <div class="flex items-center justify-between h-20">
+
+        <a href="../index.html" class="text-2xl font-extrabold text-white">
+          Liberia<span class="text-blue-400">Counties</span>
+        </a>
+
+        <nav class="hidden md:flex items-center gap-8 text-white font-medium">
+          <a href="#home" class="hover:text-blue-400 transition">Home</a>
+          <a href="#about" class="hover:text-blue-400 transition">About</a>
+          <a href="#districts" class="hover:text-blue-400 transition">Districts</a>
+          <a href="#tourism" class="hover:text-blue-400 transition">Tourism</a>
+          <a href="#economy" class="hover:text-blue-400 transition">Economy</a>
+        </nav>
+
+        <a href="../index.html"
+          class="hidden md:inline-block bg-blue-500 hover:bg-blue-400 transition px-6 py-3 rounded-full text-white font-semibold">
+          Back Home
+        </a>
+
+        <button id="menuBtn" class="md:hidden text-white text-3xl">
+          ☰
+        </button>
+
+      </div>
+    </div>
+
+    <!-- Mobile Menu -->
+
+    <div id="mobileMenu" class="hidden md:hidden bg-black/90 border-t border-white/10">
+      <div class="flex flex-col px-6 py-6 gap-5 text-white font-medium">
+        <a href="#home">Home</a>
+        <a href="#about">About</a>
+        <a href="#districts">Districts</a>
+        <a href="#tourism">Tourism</a>
+        <a href="#economy">Economy</a>
+      </div>
+    </div>
+  </header>
+
+
+  <!-- ================= HERO ================= -->
+
+  <section id="home"
+    class="relative h-screen bg-cover bg-center flex items-center"
+    style="background-image: url('https://images.unsplash.com/photo-1493558103817-58b2924bce98?q=80&w=1600&auto=format&fit=crop');">
+
+    <div class="absolute inset-0 overlay"></div>
+
+    <div class="relative z-10 max-w-7xl mx-auto px-6 lg:px-10 text-white">
+
+      <div class="max-w-3xl">
+
+        <span class="bg-blue-500 text-white px-5 py-2 rounded-full font-semibold text-sm inline-block mb-6">
+          Montserrado County • Liberia
+        </span>
+
+        <h1 class="text-5xl md:text-7xl font-extrabold leading-tight mb-6">
+          The Political,
+          Economic & Urban
+          Heart of Liberia
+        </h1>
+
+        <p class="text-lg md:text-xl text-gray-200 leading-relaxed mb-10">
+          Home to Liberia's capital city, Monrovia, Montserrado County serves as the country's major center for government, commerce, education, transportation, and urban development.
+        </p>
+
+        <div class="flex flex-wrap gap-5">
+          <a href="#about"
+            class="bg-blue-500 hover:bg-blue-400 transition px-8 py-4 rounded-full text-white font-bold">
+            Explore County
+          </a>
+
+          <a href="#tourism"
+            class="border border-white hover:bg-white hover:text-black transition px-8 py-4 rounded-full font-semibold">
+            Tourist Attractions
+          </a>
+        </div>
+
+      </div>
+
+    </div>
+  </section>
+
+
+  <!-- ================= QUICK FACTS ================= -->
+
+  <section class="py-20 bg-white">
+
+    <div class="max-w-7xl mx-auto px-6 lg:px-10">
+
+      <div class="grid grid-cols-2 lg:grid-cols-4 gap-8 text-center">
+
+        <div class="bg-gray-50 rounded-3xl p-8 shadow-sm">
+          <h2 class="text-5xl font-extrabold text-blue-600">1M+</h2>
+          <p class="mt-4 text-gray-600 font-medium">Population</p>
+        </div>
+
+        <div class="bg-gray-50 rounded-3xl p-8 shadow-sm">
+          <h2 class="text-5xl font-extrabold text-blue-600">Bensonville</h2>
+          <p class="mt-4 text-gray-600 font-medium">Capital City</p>
+        </div>
+
+        <div class="bg-gray-50 rounded-3xl p-8 shadow-sm">
+          <h2 class="text-5xl font-extrabold text-blue-600">Monrovia</h2>
+          <p class="mt-4 text-gray-600 font-medium">Largest City</p>
+        </div>
+
+        <div class="bg-gray-50 rounded-3xl p-8 shadow-sm">
+          <h2 class="text-5xl font-extrabold text-blue-600">1847</h2>
+          <p class="mt-4 text-gray-600 font-medium">County Established</p>
+        </div>
+
+      </div>
+
+    </div>
+  </section>
+
+
+  <!-- ================= ABOUT ================= -->
+
+  <section id="about" class="py-24 bg-gray-100">
+
+    <div class="max-w-7xl mx-auto px-6 lg:px-10">
+
+      <div class="grid lg:grid-cols-2 gap-16 items-center">
+
+        <div>
+          <img
+            src="https://images.unsplash.com/photo-1480714378408-67cf0d13bc1b?q=80&w=1400&auto=format&fit=crop"
+            class="rounded-3xl shadow-2xl"
+            alt="Montserrado County"
+          />
+        </div>
+
+
+        <div>
+
+          <span class="text-blue-600 font-semibold uppercase tracking-widest">
+            About Montserrado
+          </span>
+
+          <h2 class="text-5xl font-extrabold text-gray-900 mt-4 mb-8 leading-tight">
+            Liberia's Most Populated County
+          </h2>
+
+          <p class="text-lg text-gray-600 leading-relaxed mb-6">
+            Montserrado County is located in the northwestern region of Liberia and is the smallest county by land area but the largest by population. The county hosts Monrovia, the capital city of Liberia, making it the center of national administration and economic activity.
+          </p>
+
+          <p class="text-lg text-gray-600 leading-relaxed mb-6">
+            The county is known for its urban development, seaport access, universities, businesses, entertainment centers, beaches, and historical significance in Liberia's modern history.
+          </p>
+
+          <p class="text-lg text-gray-600 leading-relaxed mb-10">
+            Montserrado plays a major role in transportation, governance, finance, education, media, and telecommunications within Liberia.
+          </p>
+
+          <div class="grid grid-cols-2 gap-6">
+
+            <div class="bg-white rounded-2xl p-6 shadow-md">
+              <h3 class="text-3xl font-extrabold text-blue-600">17</h3>
+              <p class="text-gray-500 mt-2">Administrative Districts</p>
+            </div>
+
+            <div class="bg-white rounded-2xl p-6 shadow-md">
+              <h3 class="text-3xl font-extrabold text-blue-600">Atlantic</h3>
+              <p class="text-gray-500 mt-2">Coastal County</p>
+            </div>
+
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+  </section>
+
+
+  <!-- ================= DISTRICTS ================= -->
+
+  <section id="districts" class="py-24 bg-white">
+
+    <div class="max-w-7xl mx-auto px-6 lg:px-10">
+
+      <div class="text-center max-w-3xl mx-auto mb-16">
+
+        <span class="text-blue-600 font-semibold uppercase tracking-widest">
+          Administrative Areas
+        </span>
+
+        <h2 class="text-5xl font-extrabold text-gray-900 mt-4 mb-6">
+          Major Districts & Communities
+        </h2>
+
+        <p class="text-lg text-gray-600 leading-relaxed">
+          Montserrado County contains several urban and suburban districts that contribute to Liberia's political and economic activities.
+        </p>
+
+      </div>
+
+
+      <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+
+        <div class="card bg-gray-50 rounded-3xl p-8 shadow-sm transition duration-300">
+          <h3 class="text-2xl font-bold text-gray-900 mb-4">Monrovia</h3>
+          <p class="text-gray-600 leading-relaxed">
+            Liberia's capital city and major commercial center known for governance, business, ports, education, and media.
+          </p>
+        </div>
+
+        <div class="card bg-gray-50 rounded-3xl p-8 shadow-sm transition duration-300">
+          <h3 class="text-2xl font-bold text-gray-900 mb-4">Paynesville</h3>
+          <p class="text-gray-600 leading-relaxed">
+            One of Liberia's fastest-growing urban communities with residential, educational, and commercial developments.
+          </p>
+        </div>
+
+        <div class="card bg-gray-50 rounded-3xl p-8 shadow-sm transition duration-300">
+          <h3 class="text-2xl font-bold text-gray-900 mb-4">Bensonville</h3>
+          <p class="text-gray-600 leading-relaxed">
+            The official capital city of Montserrado County with historical and administrative importance.
+          </p>
+        </div>
+
+        <div class="card bg-gray-50 rounded-3xl p-8 shadow-sm transition duration-300">
+          <h3 class="text-2xl font-bold text-gray-900 mb-4">Bushrod Island</h3>
+          <p class="text-gray-600 leading-relaxed">
+            Industrial and port area hosting major shipping, petroleum, and commercial facilities.
+          </p>
+        </div>
+
+        <div class="card bg-gray-50 rounded-3xl p-8 shadow-sm transition duration-300">
+          <h3 class="text-2xl font-bold text-gray-900 mb-4">New Kru Town</h3>
+          <p class="text-gray-600 leading-relaxed">
+            Coastal fishing community known for maritime culture and local seafood activities.
+          </p>
+        </div>
+
+        <div class="card bg-gray-50 rounded-3xl p-8 shadow-sm transition duration-300">
+          <h3 class="text-2xl font-bold text-gray-900 mb-4">Sinkor</h3>
+          <p class="text-gray-600 leading-relaxed">
+            A major urban district with hotels, restaurants, embassies, businesses, and entertainment centers.
+          </p>
+        </div>
+
+      </div>
+
+    </div>
+  </section>
+
+
+  <!-- ================= TOURISM ================= -->
+
+  <section id="tourism" class="py-24 bg-gray-900 text-white">
+
+    <div class="max-w-7xl mx-auto px-6 lg:px-10">
+
+      <div class="text-center max-w-3xl mx-auto mb-16">
+
+        <span class="text-blue-400 font-semibold uppercase tracking-widest">
+          Tourism & Attractions
+        </span>
+
+        <h2 class="text-5xl font-extrabold mt-4 mb-6">
+          Places To Explore
+        </h2>
+
+        <p class="text-lg text-gray-300 leading-relaxed">
+          Montserrado County offers beaches, nightlife, history, culture, entertainment, and urban experiences.
+        </p>
+
+      </div>
+
+
+      <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+
+        <div class="bg-white/5 rounded-3xl overflow-hidden border border-white/10">
+          <img
+            src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?q=80&w=1200&auto=format&fit=crop"
+            class="h-64 w-full object-cover"
+            alt="Beach"
+          />
+
+          <div class="p-8">
+            <h3 class="text-2xl font-bold mb-4">Silver Beach</h3>
+            <p class="text-gray-300 leading-relaxed">
+              One of the popular coastal destinations in Monrovia known for relaxation, events, and ocean views.
+            </p>
+          </div>
+        </div>
+
+
+        <div class="bg-white/5 rounded-3xl overflow-hidden border border-white/10">
+          <img
+            src="https://images.unsplash.com/photo-1511818966892-d7d671e672a2?q=80&w=1200&auto=format&fit=crop"
+            class="h-64 w-full object-cover"
+            alt="Providence Island"
+          />
+
+          <div class="p-8">
+            <h3 class="text-2xl font-bold mb-4">Providence Island</h3>
+            <p class="text-gray-300 leading-relaxed">
+              Historic site connected to Liberia's founding and settlement history near central Monrovia.
+            </p>
+          </div>
+        </div>
+
+
+        <div class="bg-white/5 rounded-3xl overflow-hidden border border-white/10">
+          <img
+            src="https://images.unsplash.com/photo-1519501025264-65ba15a82390?q=80&w=1200&auto=format&fit=crop"
+            class="h-64 w-full object-cover"
+            alt="City Life"
+          />
+
+          <div class="p-8">
+            <h3 class="text-2xl font-bold mb-4">Urban Entertainment</h3>
+            <p class="text-gray-300 leading-relaxed">
+              Experience restaurants, nightlife, shopping areas, cultural events, and business centers across Monrovia.
+            </p>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </section>
+
+
+  <!-- ================= ECONOMY ================= -->
+
+  <section id="economy" class="py-24 bg-white">
+
+    <div class="max-w-7xl mx-auto px-6 lg:px-10">
+
+      <div class="grid lg:grid-cols-2 gap-16 items-center">
+
+        <div>
+
+          <span class="text-blue-600 font-semibold uppercase tracking-widest">
+            Economy & Development
+          </span>
+
+          <h2 class="text-5xl font-extrabold text-gray-900 mt-4 mb-8 leading-tight">
+            Liberia's Commercial Hub
+          </h2>
+
+          <p class="text-lg text-gray-600 leading-relaxed mb-6">
+            Montserrado County is Liberia's primary economic center, hosting banks, telecommunications companies, government ministries, universities, shipping activities, and major commercial markets.
+          </p>
+
+          <p class="text-lg text-gray-600 leading-relaxed mb-10">
+            The county also supports transportation systems, seaport operations, hospitality services, and digital innovation sectors that contribute to national growth.
+          </p>
+
+          <div class="space-y-5">
+
+            <div class="flex items-center gap-4">
+              <div class="w-4 h-4 bg-blue-500 rounded-full"></div>
+              <p class="text-lg text-gray-700 font-medium">Government & Administration</p>
+            </div>
+
+            <div class="flex items-center gap-4">
+              <div class="w-4 h-4 bg-blue-500 rounded-full"></div>
+              <p class="text-lg text-gray-700 font-medium">Commerce & Banking</p>
+            </div>
+
+            <div class="flex items-center gap-4">
+              <div class="w-4 h-4 bg-blue-500 rounded-full"></div>
+              <p class="text-lg text-gray-700 font-medium">Port & Shipping Operations</p>
+            </div>
+
+            <div class="flex items-center gap-4">
+              <div class="w-4 h-4 bg-blue-500 rounded-full"></div>
+              <p class="text-lg text-gray-700 font-medium">Education & Technology</p>
+            </div>
+
+          </div>
+
+        </div>
+
+
+        <div>
+          <img
+            src="https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=1400&auto=format&fit=crop"
+            class="rounded-3xl shadow-2xl"
+            alt="Economy"
+          />
+        </div>
+
+      </div>
+
+    </div>
+  </section>
+
+
+  <!-- ================= FOOTER ================= -->
+
+  <footer class="bg-black text-white py-16">
+
+    <div class="max-w-7xl mx-auto px-6 lg:px-10">
+
+      <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-10">
+
+        <div>
+          <h2 class="text-3xl font-extrabold mb-5">
+            Montserrado
+          </h2>
+
+          <p class="text-gray-400 leading-relaxed">
+            Discover Liberia's most populated county and the center of governance, commerce, and urban development.
+          </p>
+        </div>
+
+
+        <div>
+          <h4 class="text-xl font-bold mb-5">Quick Links</h4>
+
+          <ul class="space-y-3 text-gray-400">
+            <li><a href="#home" class="hover:text-white">Home</a></li>
+            <li><a href="#about" class="hover:text-white">About</a></li>
+            <li><a href="#districts" class="hover:text-white">Districts</a></li>
+            <li><a href="#tourism" class="hover:text-white">Tourism</a></li>
+          </ul>
+        </div>
+
+
+        <div>
+          <h4 class="text-xl font-bold mb-5">Major Cities</h4>
+
+          <ul class="space-y-3 text-gray-400">
+            <li>Monrovia</li>
+            <li>Paynesville</li>
+            <li>Bensonville</li>
+            <li>Brewerville</li>
+          </ul>
+        </div>
+
+
+        <div>
+          <h4 class="text-xl font-bold mb-5">National Portal</h4>
+
+          <p class="text-gray-400 mb-5">
+            Part of the Liberia Counties Multi‑Tenant Platform.
+          </p>
+
+          <a href="../index.html"
+            class="inline-block bg-blue-500 hover:bg-blue-400 transition px-6 py-4 rounded-2xl text-white font-semibold">
+            Back To Main Portal
+          </a>
+        </div>
+
+      </div>
+
+
+      <div class="border-t border-white/10 mt-14 pt-8 text-center text-gray-500">
+        © 2026 Montserrado County • Liberia Counties Portal
+      </div>
+
+    </div>
+  </footer>
+
+
+  <!-- ================= JAVASCRIPT ================= -->
+
+  <script>
+
+    const menuBtn = document.getElementById('menuBtn');
+    const mobileMenu = document.getElementById('mobileMenu');
+
+    menuBtn.addEventListener('click', () => {
+      mobileMenu.classList.toggle('hidden');
+    });
+
+  </script>
+
+</body>
+</html>
