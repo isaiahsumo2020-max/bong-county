@@ -1098,18 +1098,22 @@ const PageStories = {
 
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
           <div v-for="s in filtered" :key="s.title"
-            class="bg-white rounded-2xl overflow-hidden border border-ink-border hover:shadow-lg hover:-translate-y-1 transition-all duration-300">
+            class="bg-white rounded-2xl overflow-hidden border border-ink-border hover:shadow-lg hover:-translate-y-1 transition-all duration-300 cursor-pointer"
+            @click="selectedStory=s">
           <div class="h-40 flex items-center justify-center text-5xl" :style="{ background:s.bg }"></div>
             <div class="p-5">
               <span class="text-xs font-bold tracking-widest uppercase mb-2 inline-block" :style="{ color:s.tagColor }">{{ s.tag }}</span>
               <h3 class="font-semibold text-forest-dark mb-2 leading-snug">{{ s.title }}</h3>
               <p class="text-ink-muted text-sm leading-relaxed mb-4">{{ s.preview }}</p>
-              <div class="flex items-center gap-2.5 pt-3 border-t border-ink-border">
-                <div class="w-7 h-7 rounded-full bg-forest-pale border border-forest flex items-center justify-center text-forest font-bold text-xs">{{ s.author[0] }}</div>
-                <div>
-                  <div class="text-forest-dark text-xs font-semibold">{{ s.author }}</div>
-                  <div class="text-ink-muted text-xs">{{ s.role }}</div>
+              <div class="flex items-center justify-between pt-3 border-t border-ink-border">
+                <div class="flex items-center gap-2.5">
+                  <div class="w-7 h-7 rounded-full bg-forest-pale border border-forest flex items-center justify-center text-forest font-bold text-xs">{{ s.author[0] }}</div>
+                  <div>
+                    <div class="text-forest-dark text-xs font-semibold">{{ s.author }}</div>
+                    <div class="text-ink-muted text-xs">{{ s.role }}</div>
+                  </div>
                 </div>
+                <span class="text-forest text-xs font-semibold hover:text-forest-light">Read More →</span>
               </div>
             </div>
           </div>
@@ -1125,6 +1129,30 @@ const PageStories = {
       </div>
     </section>
 
+    <!-- STORY DETAIL MODAL -->
+    <div v-if="selectedStory" class="fixed inset-0 z-50 flex items-center justify-center px-4" style="background:rgba(26,26,26,0.75)" @click.self="selectedStory=null">
+      <div class="bg-white rounded-2xl overflow-hidden max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl">
+        <div class="h-56 flex items-center justify-center text-7xl relative overflow-hidden" :style="{ background:selectedStory.bg }">
+          <button @click="selectedStory=null" class="absolute top-4 right-4 text-white rounded-full w-8 h-8 flex items-center justify-center border-0 cursor-pointer text-lg z-10" style="background:rgba(255,255,255,0.2)">✕</button>
+        </div>
+        <div class="p-8">
+          <div class="flex items-center justify-between mb-3">
+            <span class="text-xs font-bold tracking-widest uppercase" :style="{ color:selectedStory.tagColor }">{{ selectedStory.tag }}</span>
+            <span class="text-ink-muted text-xs" v-if="selectedStory.submittedAt">{{ selectedStory.submittedAt }}</span>
+          </div>
+          <h2 class="font-display font-bold text-forest-dark text-3xl mb-4 leading-tight">{{ selectedStory.title }}</h2>
+          <div class="flex items-center gap-3 pb-4 border-b border-ink-border mb-6">
+            <div class="w-10 h-10 rounded-full bg-forest-pale border-2 border-forest flex items-center justify-center text-forest font-bold text-sm">{{ selectedStory.author[0] }}</div>
+            <div>
+              <div class="text-forest-dark text-sm font-semibold">{{ selectedStory.author }}</div>
+              <div class="text-ink-muted text-xs">{{ selectedStory.role }}</div>
+            </div>
+          </div>
+          <p class="text-ink-muted leading-relaxed whitespace-pre-wrap">{{ selectedStory.fullStory || selectedStory.preview }}</p>
+        </div>
+      </div>
+    </div>
+
     <!-- STORY SUBMISSION MODAL -->
     <div v-if="showStoryModal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
       <div class="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
@@ -1132,7 +1160,20 @@ const PageStories = {
           <h2 class="font-display font-bold text-white text-2xl">Share Your Story</h2>
           <button @click="showStoryModal=false" class="text-white hover:text-white/70 text-2xl">&times;</button>
         </div>
-        <div class="p-6 space-y-4">
+        
+        <!-- Success Message -->
+        <div v-if="submitSuccess" class="bg-green-50 border-l-4 border-green-500 p-6 m-6">
+          <div class="flex items-start gap-3">
+            <div class="text-green-600 text-2xl">✓</div>
+            <div>
+              <h3 class="font-semibold text-green-800 mb-1">Story Published Successfully!</h3>
+              <p class="text-green-700 text-sm leading-relaxed">Your story is now live on the website and we've sent you a confirmation email. Thank you for sharing your voice with Bong County!</p>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Form -->
+        <div v-if="!submitSuccess" class="p-6 space-y-4">
           <div>
             <label class="block text-sm font-semibold text-forest-dark mb-2">Your Name</label>
             <input v-model="storyForm.name" type="text" placeholder="Your name" class="w-full px-4 py-2 border border-ink-border rounded-lg focus:outline-none focus:border-forest"/>
@@ -1160,16 +1201,17 @@ const PageStories = {
           <div>
             <label class="block text-sm font-semibold text-forest-dark mb-2">Your Story (Share your experience)</label>
             <textarea v-model="storyForm.story" placeholder="Tell us your story... (minimum 100 characters)" rows="6" class="w-full px-4 py-2 border border-ink-border rounded-lg focus:outline-none focus:border-forest resize-none"></textarea>
+            <div class="text-xs text-ink-muted mt-1">{{ storyForm.story.length }} characters</div>
           </div>
           <div>
             <label class="block text-sm font-semibold text-forest-dark mb-2">Email (for contact)</label>
             <input v-model="storyForm.email" type="email" placeholder="your.email@example.com" class="w-full px-4 py-2 border border-ink-border rounded-lg focus:outline-none focus:border-forest"/>
           </div>
           <div class="flex gap-3 pt-4">
-            <button @click="submitStory" class="flex-1 bg-forest hover:bg-forest-light text-white font-semibold py-2.5 rounded-lg transition-colors">Send Story</button>
+            <button @click="submitStory" class="flex-1 bg-forest hover:bg-forest-light text-white font-semibold py-2.5 rounded-lg transition-colors">Publish Story</button>
             <button @click="showStoryModal=false" class="flex-1 bg-ink-border hover:bg-ink-muted text-forest-dark font-semibold py-2.5 rounded-lg transition-colors">Cancel</button>
           </div>
-          <p class="text-xs text-ink-muted text-center">Your story will be reviewed before publication on our website.</p>
+          <p class="text-xs text-ink-muted text-center">Your story will be published immediately and we'll send you a confirmation email.</p>
         </div>
       </div>
     </div>
@@ -1177,16 +1219,33 @@ const PageStories = {
   setup() {
     const activeCat = ref('All');
     const cats = ['All','Youth','Agriculture','Culture','Education','Community'];
-    const stories = [
-      { tag:'Education',   tagColor:'#185FA5', emoji:'', bg:'#0A1525', title:'Cuttington\'s Legacy: 135 Years of Learning in Bong County',     preview:'How the oldest private university in Sub-Saharan Africa has shaped thousands of Liberian leaders since 1889.',         author:'Community Voices', role:'Suakoko, Bong County' },
-      { tag:'Agriculture', tagColor:'#1B5E35', emoji:'', bg:'#0D2E12', title:'The Farmer Who Brought Irrigation to His Village in Zota',        preview:'How one determined farmer transformed food security for 200 families using techniques from TAVTC training.',          author:'Emmanuel Kollie',  role:'Zota District Farmer' },
-      { tag:'Youth',       tagColor:'#C8960C', emoji:'', bg:'#2C1500', title:'Growing Up Near Bong Mines: Between History and Opportunity',     preview:'Young people in Bong Town reflect on growing up beside one of Liberia\'s most iconic industrial landmarks.',           author:'Daniel Sumo',      role:'Bong Town' },
-      { tag:'Culture',     tagColor:'#5A7260', emoji:'', bg:'#1A0D00', title:'The Traditional Leaders Who Keep Bong County\'s Soul Alive',      preview:'From Paramount Chief Mary Larteh to village elders — how traditional leadership shapes modern Bong County.',          author:'Community Story',  role:'Jorquelleh Chiefdom' },
-      { tag:'Community',   tagColor:'#1B5E35', emoji:'', bg:'#0D1A10', title:'Life in Sugar Hill: Community, Resilience & Progress in Gbarnga', preview:'A portrait of one of Gbarnga\'s most vibrant communities — from market women to youth leaders.',                      author:'Agnes Kollie',     role:'Sugar Hill, Gbarnga' },
-      { tag:'Youth',       tagColor:'#C8960C', emoji:'', bg:'#251200', title:'Learning to Code at BCTC: Bong County\'s Tech Generation',        preview:'Students at Bong County Technical College are writing software that could serve their communities — and the world.',   author:'Junior Morris',    role:'BCTC Student, Gbarnga' },
+    
+    // Default stories
+    const defaultStories = [
+      { tag:'Education',   tagColor:'#185FA5', emoji:'', bg:'#0A1525', title:'Cuttington\'s Legacy: 135 Years of Learning in Bong County',     preview:'How the oldest private university in Sub-Saharan Africa has shaped thousands of Liberian leaders since 1889.',         author:'Community Voices', role:'Suakoko, Bong County', isPublished: true, fullStory:'Founded in 1889, Cuttington University stands as a beacon of educational excellence in Liberia and across Sub-Saharan Africa. For 135 years, nestled in the quiet town of Suakoko in Bong County, this institution has nurtured generations of leaders, scholars, and changemakers who have gone on to shape not just Liberia, but the broader West African region.\n\nFrom its humble beginnings as a missionary school to its current status as a co-educational university offering degrees in agriculture, business, education, engineering, and the sciences, Cuttington has remained steadfast in its mission: to educate young minds and develop leaders of character and competence.\n\nThe university has produced senators, government officials, business leaders, healthcare professionals, and educators. What makes Cuttington special is not just its academic rigor, but its commitment to community. Students engage in service learning projects across Bong County, working with farmers, health centers, and local schools. The Agricultural Research and Innovation Center (CARI) at Cuttington has revolutionized farming practices across the county, introducing new crop varieties and sustainable techniques that have boosted productivity and food security.\n\nToday, as Cuttington celebrates over a century of service, it remains a source of pride for Bong County—a living testament to the transformative power of education and the vision of those who believed that quality learning could flourish in rural Liberia.' },
+      { tag:'Agriculture', tagColor:'#1B5E35', emoji:'', bg:'#0D2E12', title:'The Farmer Who Brought Irrigation to His Village in Zota',        preview:'How one determined farmer transformed food security for 200 families using techniques from TAVTC training.',          author:'Emmanuel Kollie',  role:'Zota District Farmer', isPublished: true, fullStory:'Emmanuel Kollie was born in Zota District, where farming was a way of life but also a constant struggle against the seasons. For generations, farmers in his village relied entirely on rainfall, which meant crop failures were common. When the rains came late or the dry season stretched longer than expected, families went hungry.\n\nIn 2019, Emmanuel attended a six-month training program at the Tumutu Agricultural Vocational Training Center (TAVTC) in Salala. There, he learned about drip irrigation—a technique that could transform agriculture in his region. Armed with new knowledge and determination, he returned to his village with a vision: to build an irrigation system that would allow farmers to grow year-round.\n\nWith his own savings and a small loan from a community microfinance group, Emmanuel began constructing a simple drip irrigation system using locally available materials. He started with just half an acre, growing vegetables during the dry season. The results were remarkable—his yields tripled, and he earned enough income to expand the system to a full acre.\n\nWord spread quickly through the village. Other farmers, seeing Emmanuel\'s success, asked for help. Over the next three years, Emmanuel trained 47 farmers in his village in irrigation techniques. Today, 200 families in his community—directly or indirectly—benefit from the irrigation systems that Emmanuel pioneered. The village that once faced food insecurity now produces a surplus, selling vegetables to markets in Gbarnga.\n\nEmmanuel\'s story is a powerful reminder that one person\'s determination and willingness to learn can transform an entire community. He continues to train young farmers and is now working with TAVTC to expand irrigation initiatives across Zota District.' },
+      { tag:'Youth',       tagColor:'#C8960C', emoji:'', bg:'#2C1500', title:'Growing Up Near Bong Mines: Between History and Opportunity',     preview:'Young people in Bong Town reflect on growing up beside one of Liberia\'s most iconic industrial landmarks.',           author:'Daniel Sumo',      role:'Bong Town', isPublished: true, fullStory:'The Bong Mining Area, including the iconic Blue Lake—a former German iron ore mine now filled with crystalline water—is more than just a historical landmark. For young people like Daniel Sumo, it\'s the backdrop of their childhood, a symbol of both Bong County\'s industrial past and its uncertain future.\n\n"I grew up in the shadow of these mines," Daniel recalls. "As a child, I didn\'t fully understand the history, but I knew this place was important. It represented something grand—a time when Bong County was a powerhouse of West African industry."\n\nThe Bong Mining Company operated from the 1960s through the 1990s, extracting iron ore and shaping the economic and physical landscape of the region. At its peak, it employed thousands of workers and generated significant revenue for Liberia. But as the mines closed and economic conditions changed, the area faced challenges—unemployment, aging infrastructure, and a sense of lost opportunity.\n\nYet for young people like Daniel, growing up near Bong Mines has also sparked ambition. "We see what was built here. We ask ourselves: what can we build? What opportunities can we create?" Many youth have been inspired to pursue careers in engineering, geology, business management, and environmental science.\n\nToday, young people in Bong Town are exploring how to revitalize their region. Some are studying renewable energy, imagining how solar and hydroelectric projects could power the county\'s future. Others are starting tourism initiatives around the Blue Lake, sharing the story of Bong County\'s mining heritage with visitors. The mines may no longer extract ore, but they continue to extract something more valuable from young people: inspiration, determination, and a vision for renewal.\n\n"History isn\'t just what happened in the past," Daniel says. "It\'s also a foundation for what we can build tomorrow."' },
+      { tag:'Culture',     tagColor:'#5A7260', emoji:'', bg:'#1A0D00', title:'The Traditional Leaders Who Keep Bong County\'s Soul Alive',      preview:'From Paramount Chief Mary Larteh to village elders — how traditional leadership shapes modern Bong County.',          author:'Community Story',  role:'Jorquelleh Chiefdom', isPublished: true, fullStory:'In a rapidly modernizing world, traditional leaders in Bong County remain the backbone of community cohesion, conflict resolution, and cultural preservation. They are custodians of history, advocates for justice, and bridges between past and future.\n\nParamount Chief Mary Larteh of the Jorquelleh Chiefdom is one such leader. For decades, she has served her people with wisdom, compassion, and an unwavering commitment to justice. She settles land disputes with fairness, counsels families through conflicts, and ensures that traditional customs are honored while embracing positive change.\n\n"A paramount chief is not just a title," Chief Larteh explains. "It is a responsibility to the land, to the ancestors, and to the generations that will come after us. We must preserve our culture while our people benefit from progress."\n\nTraditional leaders like Chief Larteh work closely with county administrators, health workers, and educators. When the county launched a health education campaign about malaria prevention, it was traditional leaders who helped explain the importance of bed nets to their people. When schools needed community support, it was the chiefs who mobilized resources and encouraged parents to send their children to class.\n\nBeyond governance, traditional leaders are keepers of history. They recount stories of the Kpelle, Loma, and Mandingo peoples who have inhabited Bong County for centuries. Through their narratives, youth learn about ancestral wisdom, values of community, and the struggles and triumphs that shaped their identity.\n\nIn 2025, Chief Arthur Goah was elected as the new Chairperson of the National Chiefs and Elders Council—a testament to the respect and significance accorded to Bong County\'s traditional leadership. Meanwhile, village elders in communities across the county continue their quiet, essential work: teaching young people respect for the land, mediating disputes, and ensuring that Bong County\'s cultural soul remains vibrant even as it moves forward.' },
+      { tag:'Community',   tagColor:'#1B5E35', emoji:'', bg:'#0D1A10', title:'Life in Sugar Hill: Community, Resilience & Progress in Gbarnga', preview:'A portrait of one of Gbarnga\'s most vibrant communities — from market women to youth leaders.',                      author:'Agnes Kollie',     role:'Sugar Hill, Gbarnga', isPublished: true, fullStory:'Sugar Hill is more than just a neighborhood in Gbarnga—it\'s a living embodiment of Bong County\'s spirit: resilient, vibrant, and full of hope. Agnes Kollie, who has lived in Sugar Hill for 20 years, paints a vivid picture of community life.\n\n"Every morning, the market women are up before dawn. They prepare their goods, arrange their stalls, and by 6 AM, Sugar Hill comes alive," Agnes describes. These women—traders, farmers, mothers—are the economic heartbeat of the community. They sell vegetables, rice, palm oil, textiles, and countless other goods. Many of them send their children to school through the income they earn.\n\nBut Sugar Hill is not just about commerce. It\'s about connection. Community members gather for naming ceremonies, weddings, and funerals. When a house burns down, neighbors help rebuild. When a child is sick, the community contributes to medical care. When a young person gets accepted to university, the celebration is shared by everyone.\n\nIn recent years, Sugar Hill has seen youth-led initiatives flourish. A group of young entrepreneurs started a community learning center where children receive after-school tutoring. A women\'s savings group has grown to 45 members, providing microfinance and economic support. Youth have organized community cleanup drives and sports tournaments that bring neighbors together.\n\n"What strikes me most about Sugar Hill is that despite challenges—poverty, limited infrastructure, limited job opportunities—people have not lost their hope or their sense of community," Agnes reflects. "We celebrate small victories. We support each other. We believe that together, we can build something better."\n\nSugar Hill represents thousands of communities across Bong County where ordinary people do extraordinary things—where resilience and unity are not just ideals but daily practices.' },
+      { tag:'Youth',       tagColor:'#C8960C', emoji:'', bg:'#251200', title:'Learning to Code at BCTC: Bong County\'s Tech Generation',        preview:'Students at Bong County Technical College are writing software that could serve their communities — and the world.',   author:'Junior Morris',    role:'BCTC Student, Gbarnga', isPublished: true, fullStory:'In a computer lab at Bong County Technical College (BCTC) in Gbarnga, a group of young people are typing lines of code, debugging programs, and building applications. They are part of a new generation of tech entrepreneurs and developers who are proving that cutting-edge technology is not exclusive to Silicon Valley or Lagos—it belongs right here in Bong County.\n\nJunior Morris, a third-year student in BCTC\'s Information Technology program, discovered his passion for coding almost by accident. "I came to BCTC thinking I\'d study general IT, but when I took my first programming course, something clicked. I realized I could create solutions to real problems."\n\nWith guidance from his instructors and collaboration with peers, Junior led a team to develop a mobile app that helps farmers in Bong County access market prices for their produce in real-time. The app was born from frustration: farmers often didn\'t know the fair market value of their crops, leading to exploitation by middlemen. The app, called "Market Voice," has been downloaded over 500 times and is helping farmers make better economic decisions.\n\nJunior\'s story is not unique at BCTC. Across the college, students are working on projects addressing real challenges: an app to help health centers manage patient records, a software system for schools to track student performance, a platform connecting youth to job opportunities in Bong County.\n\n"What\'s exciting is that we\'re not just learning theory," Junior explains. "We\'re applying our learning to solve problems in our own communities. We\'re creating technology that reflects our context and our values."\n\nThe college has partnered with tech organizations and international mentors to provide students with world-class training. Students have access to modern equipment, coding bootcamps, and internship opportunities. Some graduates have started their own tech companies; others have moved to positions with international organizations; all are contributing to Africa\'s digital transformation.\n\nAs Junior looks to the future, his ambition is clear: "I want to show young people in Bong County that technology is for us too. That we can be innovators, not just consumers. That our ideas matter."' },
     ];
-    const filtered = computed(() => activeCat.value === 'All' ? stories : stories.filter(s => s.tag === activeCat.value));
+    
+    // Load submitted stories from localStorage
+    const loadSubmittedStories = () => {
+      try {
+        const saved = localStorage.getItem('bongCountySubmittedStories');
+        return saved ? JSON.parse(saved) : [];
+      } catch (e) {
+        return [];
+      }
+    };
+    
+    // Initialize stories array with defaults + submitted stories
+    const stories = ref([...defaultStories, ...loadSubmittedStories()]);
+    const filtered = computed(() => activeCat.value === 'All' ? stories.value : stories.value.filter(s => s.tag === activeCat.value));
+    
     const showStoryModal = ref(false);
+    const submitSuccess = ref(false);
     const storyForm = reactive({
       name: '',
       role: '',
@@ -1197,7 +1256,7 @@ const PageStories = {
     });
     
     const submitStory = () => {
-      if (!storyForm.name || !storyForm.email || !storyForm.story || !storyForm.title) {
+      if (!storyForm.name || !storyForm.email || !storyForm.story || !storyForm.title || !storyForm.category) {
         alert('Please fill in all required fields');
         return;
       }
@@ -1206,19 +1265,64 @@ const PageStories = {
         return;
       }
       
-      const mailtoBody = `Name: ${storyForm.name}%0ARole/Location: ${storyForm.role}%0ACategory: ${storyForm.category}%0A%0AStory Title: ${storyForm.title}%0A%0AStory:%0A${storyForm.story}`;
-      window.open(`mailto:stories@bongcounty.lr?subject=New Story Submission: ${encodeURIComponent(storyForm.title)}&body=${mailtoBody}`);
+      // Create new story object
+      const categoryColors = {
+        'Youth': { color: '#C8960C', bg: '#251200' },
+        'Agriculture': { color: '#1B5E35', bg: '#0D2E12' },
+        'Culture': { color: '#5A7260', bg: '#1A0D00' },
+        'Education': { color: '#185FA5', bg: '#0A1525' },
+        'Community': { color: '#1B5E35', bg: '#0D1A10' },
+        'Other': { color: '#555555', bg: '#1A1A1A' }
+      };
+      const colors = categoryColors[storyForm.category] || categoryColors['Other'];
       
+      const newStory = {
+        tag: storyForm.category,
+        tagColor: colors.color,
+        emoji: '',
+        bg: colors.bg,
+        title: storyForm.title,
+        preview: storyForm.story.substring(0, 150) + (storyForm.story.length > 150 ? '...' : ''),
+        author: storyForm.name,
+        role: storyForm.role,
+        isPublished: false,
+        submittedAt: new Date().toLocaleDateString(),
+        fullStory: storyForm.story
+      };
+      
+      // Add to stories array
+      stories.value.unshift(newStory);
+      
+      // Save to localStorage
+      try {
+        const submitted = loadSubmittedStories();
+        submitted.unshift(newStory);
+        localStorage.setItem('bongCountySubmittedStories', JSON.stringify(submitted));
+      } catch (e) {
+        console.log('Could not save to localStorage');
+      }
+      
+      // Send email notification
+      const mailtoBody = `Name: ${storyForm.name}%0ARole/Location: ${storyForm.role}%0ACategory: ${storyForm.category}%0ASubmitter Email: ${storyForm.email}%0A%0AStory Title: ${storyForm.title}%0A%0AStory:%0A${storyForm.story}%0A%0A----%0AThis story has been automatically published on the website at bongcounty.lr/stories`;
+      window.open(`mailto:sumobequizzy@gmail.com?subject=New Story Submitted: ${encodeURIComponent(storyForm.title)}&body=${mailtoBody}`);
+      
+      // Show success message
+      submitSuccess.value = true;
+      setTimeout(() => {
+        submitSuccess.value = false;
+        showStoryModal.value = false;
+      }, 3000);
+      
+      // Reset form
       storyForm.name = '';
       storyForm.role = '';
       storyForm.category = '';
       storyForm.title = '';
       storyForm.story = '';
       storyForm.email = '';
-      showStoryModal.value = false;
     };
     
-    return { activeCat, cats, filtered, showStoryModal, storyForm, submitStory };
+    return { activeCat, cats, filtered, selectedStory: ref(null), showStoryModal, submitSuccess, storyForm, submitStory };
   }
 };
 
