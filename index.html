@@ -8,6 +8,10 @@
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
 
+  <!-- Leaflet CSS & JS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
   <!-- Google Font -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -123,6 +127,21 @@
 
     .indicator.active {
       background-color: #dc2626;
+    }
+
+    #map {
+      width: 100%;
+      height: 500px;
+      border-radius: 1rem;
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+      z-index: 1;
+    }
+
+    @media (min-width: 1024px) {
+      #map {
+        height: 600px;
+        border-radius: 1.5rem;
+      }
     }
   </style>
 </head>
@@ -269,24 +288,8 @@
         </p>
       </div>
 
-      <!-- Placeholder Map -->
-      <div class="relative bg-white rounded-2xl sm:rounded-3xl overflow-hidden shadow-xl p-4 sm:p-8 lg:p-16">
-
-        <img
-          src="https://upload.wikimedia.org/wikipedia/commons/9/91/Liberia_location_map.svg"
-          alt="Liberia Map"
-          class="w-full max-w-4xl mx-auto"
-        />
-
-        <!-- Example Map Pins -->
-        <div class="absolute top-[35%] left-[45%]">
-          <div class="relative">
-            <div class="w-4 h-4 bg-blue-500 rounded-full"></div>
-            <div class="absolute inset-0 w-4 h-4 bg-blue-500 rounded-full map-dot"></div>
-          </div>
-        </div>
-
-      </div>
+      <!-- Interactive Map -->
+      <div id="map" class="bg-gray-200"></div>
     </div>
   </section>
 
@@ -1071,6 +1074,36 @@
 
     let slideshowInterval;
     startSlideshow();
+
+    // Initialize Leaflet Map
+    const map = L.map('map').setView([6.5, -9.5], 8);
+    
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '© OpenStreetMap contributors',
+      maxZoom: 18,
+      minZoom: 7
+    }).addTo(map);
+
+    // Add markers for major cities
+    const locations = [
+      { lat: 6.3155, lng: -10.8073, name: 'Monrovia', county: 'Montserrado' },
+      { lat: 6.9956, lng: -9.5241, name: 'Gbarnga', county: 'Bong' },
+      { lat: 7.4689, lng: -8.7626, name: 'Sanniquellie', county: 'Nimba' },
+      { lat: 6.2622, lng: -10.0789, name: 'Buchanan', county: 'Grand Bassa' },
+      { lat: 8.4606, lng: -10.3679, name: 'Voinjama', county: 'Lofa' },
+      { lat: 5.9047, lng: -10.7369, name: 'Harper', county: 'Maryland' }
+    ];
+
+    locations.forEach(loc => {
+      L.circleMarker([loc.lat, loc.lng], {
+        radius: 8,
+        fillColor: '#dc2626',
+        color: '#fff',
+        weight: 2,
+        opacity: 1,
+        fillOpacity: 0.8
+      }).bindPopup(`<b>${loc.name}</b><br>${loc.county} County`).addTo(map);
+    });
 
   </script>
 
