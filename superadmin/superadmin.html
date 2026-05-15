@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Super Admin Dashboard | CountySphere Liberia</title>
+
+  <!-- Third-party Scripts -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- Custom Stylesheets -->
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" href="css/sidebar.css">
+  <link rel="stylesheet" href="css/responsive.css">
+</head>
+<body>
+
+  <!-- ================= MAIN WRAPPER ================= -->
+  <div class="flex min-h-screen">
+
+    <!-- ================= SIDEBAR ================= -->
+    <aside class="w-72 bg-slate-950 text-white hidden lg:flex flex-col fixed left-0 top-0 bottom-0 h-screen">
+      <div class="px-8 py-8 border-b border-white/10">
+        <h1 class="text-2xl text-red-700 font-extrabold">
+          County <span class="text-white">Sphere</span><span class="text-blue-500">Liberia</span>
+        </h1>
+        <p class="text-gray-400 text-sm mt-2">Super Admin Dashboard</p>
+      </div>
+
+      <nav class="flex-1 overflow-y-auto px-5 py-8 space-y-3">
+        <button onclick="Navigation.showPage('overview')" class="sidebar-link active-link w-full text-left px-5 py-4 rounded-2xl transition hover:bg-blue-600">
+          Dashboard
+        </button>
+        <button onclick="Navigation.showPage('counties')" class="sidebar-link w-full text-left px-5 py-4 rounded-2xl transition hover:bg-slate-800">
+          Counties
+        </button>
+        <button onclick="Navigation.showPage('content')" class="sidebar-link w-full text-left px-5 py-4 rounded-2xl transition hover:bg-slate-800">
+          Content
+        </button>
+        <button onclick="Navigation.showPage('tourism')" class="sidebar-link w-full text-left px-5 py-4 rounded-2xl transition hover:bg-slate-800">
+          Tourism Sites
+        </button>
+        <button onclick="Navigation.showPage('events')" class="sidebar-link w-full text-left px-5 py-4 rounded-2xl transition hover:bg-slate-800">
+          Events
+        </button>
+        <button onclick="Navigation.showPage('opportunities')" class="sidebar-link w-full text-left px-5 py-4 rounded-2xl transition hover:bg-slate-800">
+          Opportunities
+        </button>
+        <button onclick="Navigation.showPage('users')" class="sidebar-link w-full text-left px-5 py-4 rounded-2xl transition hover:bg-slate-800">
+          Users
+        </button>
+        <button onclick="Navigation.showPage('districts')" class="sidebar-link w-full text-left px-5 py-4 rounded-2xl transition hover:bg-slate-800">
+          Districts
+        </button>
+        <button onclick="Navigation.showPage('analytics')" class="sidebar-link w-full text-left px-5 py-4 rounded-2xl transition hover:bg-slate-800">
+          Analytics
+        </button>
+        <button onclick="Navigation.showPage('settings')" class="sidebar-link w-full text-left px-5 py-4 rounded-2xl transition hover:bg-slate-800">
+          Settings
+        </button>
+      </nav>
+
+      <div class="p-6 border-t border-white/10">
+        <button onclick="Auth.logout()" class="w-full bg-red-600 hover:bg-red-500 transition py-4 rounded-2xl font-semibold">
+          Logout
+        </button>
+      </div>
+    </aside>
+
+    <!-- ================= CONTENT ================= -->
+    <main class="flex-1 overflow-hidden ml-72">
+
+      <!-- ================= TOPBAR ================= -->
+      <header class="bg-white border-b border-gray-200 px-6 lg:px-10 py-5 flex items-center justify-between">
+        <div>
+          <h2 class="text-3xl font-extrabold text-gray-900">Dashboard Overview</h2>
+          <p class="text-gray-500 mt-1">Manage Liberia Counties Digital Platform</p>
+        </div>
+        <div class="flex items-center gap-5">
+          <div class="text-right">
+            <h4 id="adminName" class="font-bold text-gray-900">Loading...</h4>
+            <p class="text-sm text-gray-500">Super Admin</p>
+          </div>
+          <div class="w-14 h-14 rounded-full bg-blue-600 text-white flex items-center justify-center font-bold text-xl">A</div>
+        </div>
+      </header>
+
+      <!-- ================= PAGES CONTAINER ================= -->
+      <div class="pages-container h-[calc(100vh-100px)] overflow-hidden">
+
+        <!-- OVERVIEW PAGE -->
+        <section data-page="overview" class="page active h-full overflow-y-auto p-6 lg:p-10" id="overview-page"></section>
+
+        <!-- COUNTIES PAGE -->
+        <section data-page="counties" class="page hidden h-full overflow-y-auto p-6 lg:p-10" id="counties-page"></section>
+
+        <!-- CONTENT PAGE -->
+        <section data-page="content" class="page hidden h-full overflow-y-auto p-6 lg:p-10" id="content-page"></section>
+
+        <!-- TOURISM PAGE -->
+        <section data-page="tourism" class="page hidden h-full overflow-y-auto p-6 lg:p-10" id="tourism-page"></section>
+
+        <!-- EVENTS PAGE -->
+        <section data-page="events" class="page hidden h-full overflow-y-auto p-6 lg:p-10" id="events-page"></section>
+
+        <!-- OPPORTUNITIES PAGE -->
+        <section data-page="opportunities" class="page hidden h-full overflow-y-auto p-6 lg:p-10" id="opportunities-page"></section>
+
+        <!-- USERS PAGE -->
+        <section data-page="users" class="page hidden h-full overflow-y-auto p-6 lg:p-10" id="users-page"></section>
+
+        <!-- DISTRICTS PAGE -->
+        <section data-page="districts" class="page hidden h-full overflow-y-auto p-6 lg:p-10" id="districts-page"></section>
+
+        <!-- ANALYTICS PAGE -->
+        <section data-page="analytics" class="page hidden h-full overflow-y-auto p-6 lg:p-10" id="analytics-page"></section>
+
+        <!-- SETTINGS PAGE -->
+        <section data-page="settings" class="page hidden h-full overflow-y-auto p-6 lg:p-10" id="settings-page"></section>
+
+      </div>
+
+    </main>
+
+  </div>
+
+  <!-- ================= MODALS CONTAINER ================= -->
+  <div id="modals-container"></div>
+
+  <!-- ================= SCRIPTS ================= -->
+  <script src="js/core/supabase-client.js"></script>
+  <script src="js/core/auth.js"></script>
+  <script src="js/page-protection.js"></script>
+  <script src="js/core/navigation.js"></script>
+  <script src="js/utils/helpers.js"></script>
+  <script src="js/utils/modals.js"></script>
+  <script src="js/modules/dashboard.js"></script>
+  <script src="js/modules/counties.js"></script>
+  <script src="js/modules/content.js"></script>
+  <script src="js/modules/tourism.js"></script>
+  <script src="js/modules/events.js"></script>
+  <script src="js/modules/opportunities.js"></script>
+  <script src="js/modules/users.js"></script>
+  <script src="js/modules/districts.js"></script>
+  <script src="js/modules/analytics.js"></script>
+  <script src="js/modules/settings.js"></script>
+  <script src="js/app.js"></script>
+
+</body>
+</html>

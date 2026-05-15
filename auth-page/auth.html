@@ -1,0 +1,2002 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ExploreLiberia — Sign In</title>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=Playfair+Display:wght@700;900&display=swap"
+    rel="stylesheet">
+
+  <style>
+    :root {
+      --red: #C41E3A;
+      --red-dk: #9B1630;
+      --dark: #0A0A0A;
+      --panel: #111111;
+      --border: rgba(255, 255, 255, 0.08);
+      --text: rgba(255, 255, 255, 0.85);
+      --muted: rgba(255, 255, 255, 0.4);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: var(--dark);
+      min-height: 100vh;
+      display: flex;
+      overflow: hidden;
+    }
+
+    /* ── LEFT PANEL ── */
+    .left-panel {
+      width: 45%;
+      position: relative;
+      overflow: hidden;
+      display: none;
+    }
+
+    @media (min-width: 1024px) {
+      .left-panel {
+        display: block;
+      }
+    }
+
+    .left-panel-bg {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(160deg, #0A1A0D 0%, #0D2818 40%, #1B5E35 100%);
+    }
+
+    /* Animated grid */
+    .left-panel-grid {
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+      background-size: 48px 48px;
+    }
+
+    /* Glowing orbs */
+    .orb {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(80px);
+      opacity: 0.35;
+      animation: drift 8s ease-in-out infinite alternate;
+    }
+
+    .orb-1 {
+      width: 340px;
+      height: 340px;
+      background: #1B5E35;
+      top: -80px;
+      left: -80px;
+      animation-delay: 0s;
+    }
+
+    .orb-2 {
+      width: 280px;
+      height: 280px;
+      background: #C41E3A;
+      bottom: 60px;
+      right: -60px;
+      animation-delay: 3s;
+    }
+
+    .orb-3 {
+      width: 200px;
+      height: 200px;
+      background: #F0B429;
+      top: 45%;
+      left: 30%;
+      animation-delay: 1.5s;
+    }
+
+    @keyframes drift {
+      from {
+        transform: translate(0, 0) scale(1);
+      }
+
+      to {
+        transform: translate(30px, 20px) scale(1.1);
+      }
+    }
+
+    .left-content {
+      position: relative;
+      z-index: 10;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 3rem;
+    }
+
+    .left-logo {
+      font-family: 'Poppins', sans-serif;
+      font-size: 1.5rem;
+      font-weight: 800;
+      color: white;
+      letter-spacing: -0.5px;
+    }
+
+    .left-logo span {
+      color: #60A5FA;
+    }
+
+    .left-headline {
+      font-family: 'Playfair Display', serif;
+      font-size: 3rem;
+      font-weight: 900;
+      color: white;
+      line-height: 1.15;
+    }
+
+    .left-headline em {
+      color: #F0B429;
+      font-style: normal;
+    }
+
+    .left-desc {
+      color: rgba(255, 255, 255, 0.55);
+      font-size: 1rem;
+      line-height: 1.7;
+      margin-top: 1.25rem;
+      max-width: 340px;
+    }
+
+    .county-pills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 2rem;
+    }
+
+    .county-pill {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      color: rgba(255, 255, 255, 0.7);
+      padding: 6px 14px;
+      border-radius: 100px;
+      font-size: 0.75rem;
+      font-weight: 500;
+    }
+
+    .county-pill.active {
+      background: rgba(196, 30, 58, 0.25);
+      border-color: rgba(196, 30, 58, 0.5);
+      color: #ff8a9a;
+    }
+
+    .left-footer {
+      color: rgba(255, 255, 255, 0.3);
+      font-size: 0.75rem;
+    }
+
+    /* ── RIGHT PANEL ── */
+    .right-panel {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+      overflow-y: auto;
+      background: var(--dark);
+      position: relative;
+    }
+
+    /* Subtle noise texture */
+    .right-panel::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+      opacity: 0.4;
+    }
+
+    .auth-box {
+      width: 100%;
+      max-width: 420px;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* Mobile logo */
+    .mobile-logo {
+      text-align: center;
+      margin-bottom: 2rem;
+      font-family: 'Poppins', sans-serif;
+      font-size: 1.6rem;
+      font-weight: 800;
+      color: white;
+    }
+
+    .mobile-logo span {
+      color: #60A5FA;
+    }
+
+    @media (min-width: 1024px) {
+      .mobile-logo {
+        display: none;
+      }
+    }
+
+    /* Tab switcher */
+    .auth-tabs {
+      display: flex;
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 4px;
+      margin-bottom: 2rem;
+    }
+
+    .auth-tab {
+      flex: 1;
+      text-align: center;
+      padding: 10px;
+      border-radius: 10px;
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: var(--muted);
+      cursor: pointer;
+      transition: all 0.25s;
+      border: none;
+      background: none;
+      font-family: 'Poppins', sans-serif;
+    }
+
+    .auth-tab.active {
+      background: var(--red);
+      color: white;
+      box-shadow: 0 4px 15px rgba(196, 30, 58, 0.35);
+    }
+
+    /* Form panel */
+    .form-panel {
+      display: none;
+      animation: fadeUp 0.3s ease;
+    }
+
+    .form-panel.active {
+      display: block;
+    }
+
+    @keyframes fadeUp {
+      from {
+        opacity: 0;
+        transform: translateY(12px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .form-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.75rem;
+      font-weight: 700;
+      color: white;
+      margin-bottom: 0.4rem;
+    }
+
+    .form-subtitle {
+      color: var(--muted);
+      font-size: 0.875rem;
+      margin-bottom: 1.75rem;
+      line-height: 1.6;
+    }
+
+    /* Input group */
+    .input-group {
+      margin-bottom: 1.1rem;
+    }
+
+    .input-label {
+      display: block;
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: rgba(255, 255, 255, 0.6);
+      margin-bottom: 0.4rem;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+    }
+
+    .input-wrap {
+      position: relative;
+    }
+
+    .input-icon {
+      position: absolute;
+      left: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: rgba(255, 255, 255, 0.3);
+      font-size: 1rem;
+      pointer-events: none;
+    }
+
+    .form-input {
+      width: 100%;
+      background: var(--panel);
+      border: 1.5px solid var(--border);
+      border-radius: 12px;
+      padding: 13px 14px 13px 42px;
+      color: white;
+      font-size: 0.9rem;
+      font-family: 'Poppins', sans-serif;
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .form-input::placeholder {
+      color: rgba(255, 255, 255, 0.2);
+    }
+
+    .form-input:focus {
+      border-color: var(--red);
+      box-shadow: 0 0 0 3px rgba(196, 30, 58, 0.15);
+    }
+
+    .form-input.error {
+      border-color: #ef4444;
+    }
+
+    .form-input.success {
+      border-color: #22c55e;
+    }
+
+    /* Password toggle */
+    .pw-toggle {
+      position: absolute;
+      right: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      color: rgba(255, 255, 255, 0.3);
+      cursor: pointer;
+      font-size: 1rem;
+      padding: 0;
+      transition: color 0.2s;
+    }
+
+    .pw-toggle:hover {
+      color: rgba(255, 255, 255, 0.7);
+    }
+
+    /* Select */
+    .form-select {
+      width: 100%;
+      background: var(--panel);
+      border: 1.5px solid var(--border);
+      border-radius: 12px;
+      padding: 13px 14px 13px 42px;
+      color: white;
+      font-size: 0.9rem;
+      font-family: 'Poppins', sans-serif;
+      outline: none;
+      cursor: pointer;
+      transition: border-color 0.2s;
+      appearance: none;
+    }
+
+    .form-select:focus {
+      border-color: var(--red);
+    }
+
+    .form-select option {
+      background: #1a1a1a;
+      color: white;
+    }
+
+    /* Role cards */
+    .role-cards {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 1.1rem;
+    }
+
+    .role-card {
+      background: var(--panel);
+      border: 1.5px solid var(--border);
+      border-radius: 12px;
+      padding: 14px 12px;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-align: center;
+    }
+
+    .role-card:hover {
+      border-color: rgba(255, 255, 255, 0.2);
+    }
+
+    .role-card.selected {
+      border-color: var(--red);
+      background: rgba(196, 30, 58, 0.1);
+      box-shadow: 0 0 0 3px rgba(196, 30, 58, 0.12);
+    }
+
+    .role-card-icon {
+      font-size: 1.5rem;
+      margin-bottom: 6px;
+    }
+
+    .role-card-name {
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: white;
+    }
+
+    .role-card-desc {
+      font-size: 0.68rem;
+      color: var(--muted);
+      margin-top: 2px;
+      line-height: 1.4;
+    }
+
+    /* Strength meter */
+    .strength-bar {
+      height: 3px;
+      border-radius: 2px;
+      background: rgba(255, 255, 255, 0.08);
+      margin-top: 8px;
+      overflow: hidden;
+    }
+
+    .strength-fill {
+      height: 100%;
+      border-radius: 2px;
+      transition: width 0.3s, background 0.3s;
+      width: 0%;
+    }
+
+    .strength-text {
+      font-size: 0.72rem;
+      color: var(--muted);
+      margin-top: 4px;
+    }
+
+    /* Error message */
+    .field-error {
+      font-size: 0.72rem;
+      color: #ef4444;
+      margin-top: 5px;
+      display: none;
+    }
+
+    .field-error.show {
+      display: block;
+    }
+
+    /* Submit button */
+    .btn-primary {
+      width: 100%;
+      padding: 14px;
+      background: var(--red);
+      color: white;
+      font-weight: 700;
+      font-size: 0.95rem;
+      border-radius: 12px;
+      border: none;
+      cursor: pointer;
+      font-family: 'Poppins', sans-serif;
+      transition: all 0.25s;
+      position: relative;
+      overflow: hidden;
+      margin-top: 0.5rem;
+    }
+
+    .btn-primary:hover:not(:disabled) {
+      background: var(--red-dk);
+      transform: translateY(-1px);
+      box-shadow: 0 8px 25px rgba(196, 30, 58, 0.4);
+    }
+
+    .btn-primary:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .btn-primary .spinner {
+      display: none;
+      width: 18px;
+      height: 18px;
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      border-top-color: white;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      margin: 0 auto;
+    }
+
+    .btn-primary.loading .btn-text {
+      display: none;
+    }
+
+    .btn-primary.loading .spinner {
+      display: block;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    /* Alert box */
+    .alert {
+      border-radius: 12px;
+      padding: 12px 16px;
+      font-size: 0.82rem;
+      margin-bottom: 1.25rem;
+      display: none;
+      line-height: 1.5;
+    }
+
+    .alert.show {
+      display: block;
+    }
+
+    .alert-error {
+      background: rgba(239, 68, 68, 0.12);
+      border: 1px solid rgba(239, 68, 68, 0.3);
+      color: #fca5a5;
+    }
+
+    .alert-success {
+      background: rgba(34, 197, 94, 0.12);
+      border: 1px solid rgba(34, 197, 94, 0.3);
+      color: #86efac;
+    }
+
+    .alert-info {
+      background: rgba(96, 165, 250, 0.12);
+      border: 1px solid rgba(96, 165, 250, 0.3);
+      color: #93c5fd;
+    }
+
+    /* Divider */
+    .divider {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin: 1.5rem 0;
+      color: var(--muted);
+      font-size: 0.78rem;
+    }
+
+    .divider::before,
+    .divider::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+
+    /* Terms */
+    .terms-text {
+      font-size: 0.72rem;
+      color: var(--muted);
+      text-align: center;
+      margin-top: 1rem;
+      line-height: 1.6;
+    }
+
+    .terms-text a {
+      color: rgba(255, 255, 255, 0.5);
+      text-decoration: underline;
+      cursor: pointer;
+    }
+
+    .terms-text a:hover {
+      color: white;
+    }
+
+    /* Back link */
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      color: var(--muted);
+      font-size: 0.82rem;
+      cursor: pointer;
+      margin-bottom: 1.5rem;
+      transition: color 0.2s;
+      background: none;
+      border: none;
+      font-family: 'Poppins', sans-serif;
+    }
+
+    .back-link:hover {
+      color: white;
+    }
+
+    /* Step indicator */
+    .steps {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: 1.5rem;
+    }
+
+    .step-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--border);
+      transition: all 0.3s;
+    }
+
+    .step-dot.active {
+      background: var(--red);
+      width: 20px;
+      border-radius: 4px;
+    }
+
+    .step-dot.done {
+      background: #22c55e;
+    }
+
+    /* Checkbox */
+    .checkbox-wrap {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      margin-bottom: 1rem;
+    }
+
+    .checkbox-wrap input[type="checkbox"] {
+      width: 16px;
+      height: 16px;
+      flex-shrink: 0;
+      accent-color: var(--red);
+      cursor: pointer;
+      margin-top: 2px;
+    }
+
+    .checkbox-wrap label {
+      font-size: 0.78rem;
+      color: var(--muted);
+      line-height: 1.5;
+      cursor: pointer;
+    }
+
+    .checkbox-wrap label a {
+      color: rgba(255, 255, 255, 0.5);
+      text-decoration: underline;
+    }
+
+    .checkbox-wrap label a:hover {
+      color: white;
+    }
+
+    /* Success screen */
+    .success-screen {
+      text-align: center;
+      padding: 1rem 0;
+    }
+
+    .success-icon {
+      width: 72px;
+      height: 72px;
+      border-radius: 50%;
+      background: rgba(34, 197, 94, 0.15);
+      border: 2px solid rgba(34, 197, 94, 0.4);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2rem;
+      margin: 0 auto 1.5rem;
+      animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    @keyframes popIn {
+      from {
+        transform: scale(0);
+        opacity: 0;
+      }
+
+      to {
+        transform: scale(1);
+        opacity: 1;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- ── LEFT PANEL ── -->
+  <div class="left-panel">
+    <div class="left-panel-bg"></div>
+    <div class="left-panel-grid"></div>
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="orb orb-3"></div>
+
+    <div class="left-content">
+      <!-- Logo -->
+      <div class="left-logo text-red-700">
+        C.<span class="text-white">S.</span><span class="text-blue-600">Liberia</span>
+      </div>
+
+      <!-- Main copy -->
+      <div>
+        <div class="left-headline">
+          Be Part of<br>Liberia's<br><em>Digital Story.</em>
+        </div>
+        <p class="left-desc">
+          Join contributors and county admins building the most comprehensive
+          digital platform for all 15 counties of Liberia.
+        </p>
+        <div class="county-pills">
+          <span class="county-pill active">Bong County</span>
+          <span class="county-pill">Nimba County</span>
+          <span class="county-pill">Lofa County</span>
+          <span class="county-pill">Montserrado</span>
+          <span class="county-pill">Grand Bassa</span>
+          <span class="county-pill">Maryland</span>
+          <span class="county-pill">+ 9 more</span>
+        </div>
+      </div>
+
+      <div class="left-footer">
+        © 2026 ExploreLiberia Platform · All rights reserved
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ── RIGHT PANEL ── -->
+  <div class="right-panel">
+    <div class="auth-box">
+
+      <!-- Mobile Logo -->
+      <div class="text-2xl text-red-700 font-extrabold">
+        County <span class="text-white">Sphere</span><span class="text-blue-500">Liberia</span>
+      </div>
+
+      <!-- ════════════════════════════
+           LOGIN / REGISTER TABS
+      ════════════════════════════ -->
+      <div id="mainAuth">
+
+        <!-- Tabs -->
+        <div class="auth-tabs">
+          <button class="auth-tab active" onclick="switchTab('login')">Sign In</button>
+          <button class="auth-tab" onclick="switchTab('register')">Create Account</button>
+        </div>
+
+
+        <!-- ── LOGIN FORM ── -->
+        <div class="form-panel active" id="panel-login">
+          <div class="form-title">Welcome back</div>
+          <div class="form-subtitle">Sign in to your ExploreLiberia account</div>
+
+          <div class="alert alert-error" id="login-alert"></div>
+
+          <form id="loginForm" onsubmit="handleLogin(event)">
+
+            <div class="input-group">
+              <label class="input-label">Email Address</label>
+              <div class="input-wrap">
+                <span class="input-icon">✉</span>
+                <input id="login-email" type="email" class="form-input" placeholder="you@example.com"
+                  autocomplete="email" required />
+              </div>
+              <div class="field-error" id="login-email-err"></div>
+            </div>
+
+            <div class="input-group">
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.4rem">
+                <label class="input-label" style="margin:0">Password</label>
+                <button type="button" onclick="showReset()"
+                  style="background:none;border:none;color:rgba(255,255,255,0.4);font-size:0.75rem;cursor:pointer;font-family:Poppins,sans-serif;transition:color 0.2s"
+                  onmouseover="this.style.color='white'" onmouseout="this.style.color='rgba(255,255,255,0.4)'">
+                  Forgot password?
+                </button>
+              </div>
+              <div class="input-wrap">
+                <span class="input-icon">🔒</span>
+                <input id="login-password" type="password" class="form-input" placeholder="Enter your password"
+                  autocomplete="current-password" required />
+                <button type="button" class="pw-toggle" onclick="togglePw('login-password', this)">👁</button>
+              </div>
+            </div>
+
+            <div class="checkbox-wrap">
+              <input type="checkbox" id="remember-me" />
+              <label for="remember-me">Keep me signed in for 30 days</label>
+            </div>
+
+            <button type="submit" class="btn-primary" id="loginBtn">
+              <div class="spinner"></div>
+              <span class="btn-text">Sign In →</span>
+            </button>
+          </form>
+
+          <div class="terms-text" style="margin-top:1.5rem">
+            Don't have an account?
+            <a onclick="switchTab('register')">Create one free</a>
+          </div>
+        </div>
+
+
+        <!-- ── REGISTER FORM ── -->
+        <div class="form-panel" id="panel-register">
+          <div class="steps" id="reg-steps">
+            <div class="step-dot active" id="step-1"></div>
+            <div class="step-dot" id="step-2"></div>
+            <div class="step-dot" id="step-3"></div>
+            <div class="step-dot" id="step-4"></div>
+            <!-- <div class="step-dot" id="step-5"></div> -->
+          </div>
+
+          <!-- Step 1: Platform Role selection -->
+          <div id="reg-step-1">
+            <div class="form-title">Join the Platform</div>
+            <div class="form-subtitle">Choose your role to get started</div>
+
+            <div class="alert alert-error" id="reg-step1-alert"></div>
+
+            <label class="input-label" style="margin-bottom:0.6rem;display:block">I want to join as a</label>
+            <div class="role-cards">
+              <div class="role-card selected" id="role-contributor" onclick="selectRole('contributor')">
+                <div class="role-card-icon">C</div>
+                <div class="role-card-name">Contributor</div>
+                <div class="role-card-desc">Submit stories, events & opportunities</div>
+              </div>
+              <div class="role-card" id="role-county_admin" onclick="selectRole('county_admin')">
+                <div class="role-card-icon">CA</div>
+                <div class="role-card-name">County Admin</div>
+                <div class="role-card-desc">Manage a county's content & info</div>
+              </div>
+            </div>
+
+            <div class="input-group" id="county-select-group">
+              <label class="input-label">Select Your County</label>
+              <div class="input-wrap">
+                <span class="input-icon"></span>
+                <select id="reg-county" class="form-select">
+                  <option value="">Choose a county </option>
+                </select>
+              </div>
+              <div class="field-error" id="reg-county-err"></div>
+            </div>
+
+            <button class="btn-primary" onclick="regNext(1)">
+              <div class="spinner"></div>
+              <span class="btn-text">Continue</span>
+            </button>
+          </div>
+
+          <!-- Step 2: Contributor Type & Category -->
+          <div id="reg-step-2" style="display:none">
+            <button class="back-link" onclick="regBack(1)">← Back</button>
+            <div class="form-title">What Type of Contributor Are You?</div>
+            <div class="form-subtitle">This helps us personalize your experience</div>
+
+            <div class="alert alert-error" id="reg-step2-alert"></div>
+
+            <div class="input-group">
+              <label class="input-label">Contributor Type</label>
+              <div class="input-wrap">
+                <span class="input-icon">🏢</span>
+                <select id="reg-contributor-kind" class="form-select" onchange="onContributorKindChange()">
+                  <option value="">Type of contributor</option>
+                  <option value="individual">Individual</option>
+                  <option value="organization">Organization</option>
+                  <option value="ngo">NGO</option>
+                  <option value="university">University</option>
+                  <option value="vocational_training_center">Vocational Training Center</option>
+                  <option value="high_school">High School</option>
+                  <option value="media_institution">Media Institution</option>
+                  <option value="government_institution">Government Institution</option>
+                  <option value="healthcare_institution">Healthcare Institution</option>
+                  <option value="community_group">Community Group</option>
+                  <option value="business">Business</option>
+                  <option value="other">Other</option>
+                </select>
+              </div>
+              <div class="field-error" id="reg-contributor-kind-err"></div>
+            </div>
+
+            <!-- Conditional: Individual Category (only if Individual selected) -->
+            <div id="individual-category-group" style="display:none">
+              <div class="input-group">
+                <label class="input-label">What's Your Background?</label>
+                <div class="input-wrap">
+                  <span class="input-icon">👤</span>
+                  <select id="reg-individual-category" class="form-select">
+                    <option value="">Choose a category</option>
+                    <option value="student">Student</option>
+                    <option value="journalist">Journalist</option>
+                    <option value="writer">Writer</option>
+                    <option value="teacher">Teacher</option>
+                    <option value="doctor">Doctor</option>
+                    <option value="researcher">Researcher</option>
+                    <option value="software_developer">Software Developer</option>
+                    <option value="youth_advocate">Youth Advocate</option>
+                    <option value="photographer">Photographer</option>
+                    <option value="designer">Designer</option>
+                    <option value="entrepreneur">Entrepreneur</option>
+                    <option value="volunteer">Volunteer</option>
+                    <option value="activist">Activist</option>
+                    <option value="farmer">Farmer</option>
+                    <option value="content_creator">Content Creator</option>
+                    <option value="other">Other</option>
+                  </select>
+                </div>
+                <div class="field-error" id="reg-individual-category-err"></div>
+              </div>
+            </div>
+
+            <!-- Conditional: Organization Fields (only if NOT Individual) -->
+            <div id="organization-fields-group" style="display:none">
+              <div class="input-group">
+                <label class="input-label">Organization Name</label>
+                <div class="input-wrap">
+                  <span class="input-icon"></span>
+                  <input id="reg-organization-name" type="text" class="form-input"
+                    placeholder="Your organization's name" />
+                </div>
+                <div class="field-error" id="reg-organization-name-err"></div>
+              </div>
+
+              <div class="input-group">
+                <label class="input-label">Institution Type</label>
+                <div class="input-wrap">
+                  <span class="input-icon"></span>
+                  <input id="reg-institution-type" type="text" class="form-input"
+                    placeholder="e.g., NGO, University, Media Company" />
+                </div>
+                <div class="field-error" id="reg-institution-type-err"></div>
+              </div>
+
+
+              <div class="input-group">
+                <label class="input-label">Organization Description <span
+                    style="color:var(--muted);font-weight:400;text-transform:none">(optional)</span></label>
+                <div class="input-wrap">
+                  <span class="input-icon" style="top:14px;transform:none"></span>
+                  <textarea id="reg-organization-description" class="form-input"
+                    style="padding-top:13px;resize:none;height:80px"
+                    placeholder="Brief description of your organization"></textarea>
+                </div>
+              </div>
+
+              <div class="input-group">
+                <label class="input-label">Website URL <span
+                    style="color:var(--muted);font-weight:400;text-transform:none">(optional)</span></label>
+                <div class="input-wrap">
+                  <span class="input-icon">🔗</span>
+                  <input id="reg-website-url" type="url" class="form-input" placeholder="https://example.com" />
+                </div>
+              </div>
+            </div>
+
+            <button class="btn-primary" onclick="regNext(2)">
+              <div class="spinner"></div>
+              <span class="btn-text">Continue</span>
+            </button>
+          </div>
+
+          <!-- Step 3: Personal info -->
+          <div id="reg-step-3" style="display:none">
+            <button class="back-link" onclick="regBack(2)">Back</button>
+            <div class="form-title">Your Details</div>
+            <div class="form-subtitle">Tell us a bit about yourself</div>
+
+            <div class="alert alert-error" id="reg-step3-alert"></div>
+
+            <div class="input-group">
+              <label class="input-label">Full Name</label>
+              <div class="input-wrap">
+                <span class="input-icon">👤</span>
+                <input id="reg-name" type="text" class="form-input" placeholder="Your full name" autocomplete="name" />
+              </div>
+              <div class="field-error" id="reg-name-err"></div>
+            </div>
+
+            <div class="input-group">
+              <label class="input-label">Email Address</label>
+              <div class="input-wrap">
+                <span class="input-icon">✉</span>
+                <input id="reg-email" type="email" class="form-input" placeholder="you@example.com"
+                  autocomplete="email" />
+              </div>
+              <div class="field-error" id="reg-email-err"></div>
+            </div>
+
+            <div class="input-group">
+              <label class="input-label">Phone Number (Liberia)</label>
+              <div class="input-wrap">
+                <span class="input-icon">📱</span>
+                <input id="reg-phone" type="tel" class="form-input" placeholder="077-123-4567 or 088-123-4567"
+                  autocomplete="tel" />
+              </div>
+              <div class="field-error" id="reg-phone-err"></div>
+              <div style="font-size:0.75rem;color:var(--muted);margin-top:6px">
+                Valid formats: 077xxx xxxx, 088xxx xxxx, or 055xxx xxxx
+              </div>
+            </div>
+
+            <div class="input-group">
+              <label class="input-label">Bio <span
+                  style="color:var(--muted);font-weight:400;text-transform:none">(optional)</span></label>
+              <div class="input-wrap">
+                <span class="input-icon" style="top:14px;transform:none">📝</span>
+                <textarea id="reg-bio" class="form-input" style="padding-top:13px;resize:none;height:80px"
+                  placeholder="A short intro about yourself"></textarea>
+              </div>
+            </div>
+
+            <button class="btn-primary" onclick="regNext(3)">
+              <div class="spinner"></div>
+              <span class="btn-text">Continue →</span>
+            </button>
+          </div>
+
+          <!-- Step 4: Password + Terms -->
+          <div id="reg-step-4" style="display:none">
+            <button class="back-link" onclick="regBack(3)">← Back</button>
+            <div class="form-title">Set Your Password</div>
+            <div class="form-subtitle">Create a strong password to secure your account</div>
+
+            <div class="alert alert-error" id="reg-step4-alert"></div>
+            <div class="alert alert-success" id="reg-success-alert"></div>
+
+            <div class="input-group">
+              <label class="input-label">Password</label>
+              <div class="input-wrap">
+                <span class="input-icon">🔒</span>
+                <input id="reg-password" type="password" class="form-input" placeholder="Min 8 characters"
+                  oninput="checkStrength(this.value)" autocomplete="new-password" />
+                <button type="button" class="pw-toggle" onclick="togglePw('reg-password', this)">👁</button>
+              </div>
+              <div class="strength-bar">
+                <div class="strength-fill" id="strength-fill"></div>
+              </div>
+              <div class="strength-text" id="strength-text"></div>
+              <div class="field-error" id="reg-pw-err"></div>
+            </div>
+
+            <div class="input-group">
+              <label class="input-label">Confirm Password</label>
+              <div class="input-wrap">
+                <span class="input-icon">🔒</span>
+                <input id="reg-confirm" type="password" class="form-input" placeholder="Repeat your password"
+                  autocomplete="new-password" />
+                <button type="button" class="pw-toggle" onclick="togglePw('reg-confirm', this)">👁</button>
+              </div>
+              <div class="field-error" id="reg-confirm-err"></div>
+            </div>
+
+            <div class="checkbox-wrap">
+              <input type="checkbox" id="agree-terms" />
+              <label for="agree-terms">
+                I agree to the <a href="#">Terms of Service</a> and
+                <a href="#">Privacy Policy</a> of ExploreLiberia
+              </label>
+            </div>
+
+            <button class="btn-primary" id="registerBtn" onclick="handleRegister()">
+              <div class="spinner"></div>
+              <span class="btn-text">Create My Account →</span>
+            </button>
+          </div>
+
+          <!-- Step 5: Phone OTP Verification - COMMENTED OUT (TODO: Implement in Phase 2) -->
+          <!--
+          <div id="reg-step-5" style="display:none">
+            <button class="back-link" onclick="regBack(4)">← Back</button>
+            <div class="form-title">Verify Your Phone Number</div>
+            <div class="form-subtitle" id="phone-verify-subtitle">We sent a code to <strong
+                id="phone-display">+231...</strong></div>
+
+            <div class="alert alert-error" id="reg-step5-alert"></div>
+
+            <div class="input-group">
+              <label class="input-label">Enter 6-Digit Code</label>
+              <div class="input-wrap">
+                <span class="input-icon">🔐</span>
+                <input id="reg-otp" type="text" class="form-input" maxlength="6" placeholder="000000" autocomplete="off"
+                  style="letter-spacing:10px;font-size:18px;text-align:center;font-family:monospace" />
+              </div>
+              <div class="field-error" id="reg-otp-err"></div>
+            </div>
+
+            <div style="text-align:center;margin:1.5rem 0">
+              <button type="button" class="back-link" onclick="resendPhoneOtp()" id="resend-otp-btn"
+                style="display:none;justify-content:center">
+                Didn't receive a code? <span style="color:var(--red);font-weight:600">Resend</span>
+              </button>
+              <div id="resend-timer" style="color:var(--muted);font-size:0.85rem"></div>
+            </div>
+
+            <button class="btn-primary" id="verifyPhoneBtn" onclick="verifyPhoneOtp()">
+              <div class="spinner"></div>
+              <span class="btn-text">Verify Phone Number</span>
+            </button>
+          </div>
+          -->
+
+        </div>
+        <!-- end register form -->
+
+      </div>
+      <!-- end mainAuth -->
+
+
+      <!-- ════════════════════════════
+           FORGOT PASSWORD
+      ════════════════════════════ -->
+      <div id="resetPanel" style="display:none">
+        <button class="back-link" onclick="hideReset()">← Back to Sign In</button>
+
+        <div id="reset-form-wrap">
+          <div class="form-title">Reset Password</div>
+          <div class="form-subtitle">
+            Enter your email and we'll send you a reset link right away.
+          </div>
+
+          <div class="alert alert-error" id="reset-alert-err"></div>
+          <div class="alert alert-success" id="reset-alert-ok"></div>
+
+          <div class="input-group">
+            <label class="input-label">Email Address</label>
+            <div class="input-wrap">
+              <span class="input-icon">✉</span>
+              <input id="reset-email" type="email" class="form-input" placeholder="you@example.com"
+                autocomplete="email" />
+            </div>
+          </div>
+
+          <button class="btn-primary" id="resetBtn" onclick="handleReset()">
+            <div class="spinner"></div>
+            <span class="btn-text">Send Reset Link →</span>
+          </button>
+        </div>
+      </div>
+
+
+      <!-- ════════════════════════════
+           EMAIL VERIFICATION NOTICE
+      ════════════════════════════ -->
+      <div id="verifyPanel" style="display:none">
+        <div class="success-screen">
+          <div class="success-icon">✉️</div>
+          <div class="form-title" style="margin-bottom:0.5rem">Check Your Email</div>
+          <p style="color:var(--muted);font-size:0.875rem;line-height:1.7;margin-bottom:1.5rem">
+            We sent a verification link to<br>
+            <strong id="verify-email-display" style="color:white"></strong>
+          </p>
+          <p style="color:var(--muted);font-size:0.8rem;line-height:1.6;margin-bottom:2rem">
+            Click the link in the email to activate your account.
+            Check your spam folder if you don't see it within a few minutes.
+          </p>
+          <button class="btn-primary" onclick="showMain()" style="max-width:260px;margin:0 auto">
+            Back to Sign In
+          </button>
+          <div style="margin-top:1rem">
+            <button onclick="resendVerification()"
+              style="background:none;border:none;color:var(--muted);font-size:0.78rem;cursor:pointer;font-family:Poppins,sans-serif;transition:color 0.2s"
+              onmouseover="this.style.color='white'" onmouseout="this.style.color='var(--muted)'">
+              Didn't receive it? Resend email
+            </button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+    <!-- end auth-box -->
+  </div>
+  <!-- end right-panel -->
+
+
+  <script>
+    // ─────────────────────────────────────────
+    //  SUPABASE
+    // ─────────────────────────────────────────
+    const SUPABASE_URL = 'https://choagncxtmsewzvxoncx.supabase.co';
+    const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNob2FnbmN4dG1zZXd6dnhvbmN4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgzMzk3NjUsImV4cCI6MjA5MzkxNTc2NX0.hVPjF0_b-5DTXMzeFUPYZ82tL27CrsFBIUQrm-XYonE';
+    const { createClient } = supabase;
+    const sb = createClient(SUPABASE_URL, SUPABASE_ANON);
+
+    // ─────────────────────────────────────────
+    //  STATE
+    // ─────────────────────────────────────────
+    let selectedRole = 'contributor';
+    let selectedCounty = null;
+    let selectedContributorKind = null;
+    let selectedIndividualCategory = null;
+    let selectedPhone = null;
+    // let phoneVerified = false;  // TODO: OTP phase 2
+    // let otpSessionId = null;    // TODO: OTP phase 2
+    let lastRegEmail = '';
+
+    // ─────────────────────────────────────────
+    //  INIT — load counties into select + check session
+    // ─────────────────────────────────────────
+    async function init() {
+      // Check for return URL in query params
+      const params = new URLSearchParams(window.location.search);
+      const returnUrl = params.get('return');
+
+      // If user is already logged in, redirect to dashboard or return URL
+      const { data: { session } } = await sb.auth.getSession();
+      if (session) {
+        if (returnUrl) {
+          window.location.href = returnUrl;
+        } else {
+          redirectAfterLogin(session.user);
+        }
+        return;
+      }
+
+      // Load counties for the register dropdown
+      const { data } = await sb
+        .from('counties')
+        .select('id, name, slug')
+        .order('name');
+
+      const sel = document.getElementById('reg-county');
+      if (data && data.length > 0) {
+        data.forEach(c => {
+          const opt = document.createElement('option');
+          opt.value = c.id;
+          opt.textContent = c.name;
+          sel.appendChild(opt);
+        });
+      } else {
+        // Fallback counties if DB not populated yet
+        const fallback = [
+          'Bong County', 'Bomi County', 'Gbarpolu County', 'Grand Bassa County',
+          'Grand Cape Mount County', 'Grand Gedeh County', 'Grand Kru County',
+          'Lofa County', 'Margibi County', 'Maryland County', 'Montserrado County',
+          'Nimba County', 'River Cess County', 'River Gee County', 'Sinoe County'
+        ];
+        fallback.forEach((name, i) => {
+          const opt = document.createElement('option');
+          opt.value = `fallback-${i}`;
+          opt.textContent = name;
+          sel.appendChild(opt);
+        });
+      }
+    }
+
+    // ─────────────────────────────────────────
+    //  REDIRECT after login based on role
+    // ─────────────────────────────────────────
+    async function redirectAfterLogin(user) {
+      // Check for return URL in query params
+      const params = new URLSearchParams(window.location.search);
+      const returnUrl = params.get('return');
+
+      if (returnUrl) {
+        // If there's a specific return URL, use it
+        window.location.href = returnUrl;
+        return;
+      }
+
+      // Otherwise, redirect based on role
+      const { data: profile } = await sb
+        .from('users')
+        .select('role, county_id')
+        .eq('id', user.id)
+        .single();
+
+      if (!profile) {
+        window.location.href = '../index-page/index.html';
+        return;
+      }
+      if (profile.role === 'super_admin' || profile.role === 'county_admin') {
+        window.location.href = '../superadmin/superadmin.html';
+      } else if (profile.role === 'contributor') {
+        window.location.href = '../dashboard-page/dashboard.html';
+      } else {
+        window.location.href = '../index-page/index.html';
+      }
+    }
+
+    // ─────────────────────────────────────────
+    //  TAB SWITCHER
+    // ─────────────────────────────────────────
+    function switchTab(tab) {
+      document.querySelectorAll('.auth-tab').forEach((t, i) => {
+        t.classList.toggle('active', (tab === 'login' ? i === 0 : i === 1));
+      });
+      document.getElementById('panel-login').classList.toggle('active', tab === 'login');
+      document.getElementById('panel-register').classList.toggle('active', tab === 'register');
+      clearAlerts();
+    }
+
+    // ─────────────────────────────────────────
+    //  ROLE SELECTION
+    // ─────────────────────────────────────────
+    function selectRole(role) {
+      selectedRole = role;
+      document.querySelectorAll('.role-card').forEach(c => c.classList.remove('selected'));
+      document.getElementById('role-' + role).classList.add('selected');
+    }
+
+    // ─────────────────────────────────────────
+    //  CONTRIBUTOR KIND CHANGE
+    //  Show/hide conditional fields based on selection
+    // ─────────────────────────────────────────
+    function onContributorKindChange() {
+      const kind = document.getElementById('reg-contributor-kind').value;
+      selectedContributorKind = kind;
+
+      // Show/hide individual category
+      const individualGroup = document.getElementById('individual-category-group');
+      if (kind === 'individual') {
+        individualGroup.style.display = 'block';
+      } else {
+        individualGroup.style.display = 'none';
+        document.getElementById('reg-individual-category').value = '';
+      }
+
+      // Show/hide organization fields
+      const orgGroup = document.getElementById('organization-fields-group');
+      if (kind && kind !== 'individual') {
+        orgGroup.style.display = 'block';
+      } else {
+        orgGroup.style.display = 'none';
+        document.getElementById('reg-organization-name').value = '';
+        document.getElementById('reg-institution-type').value = '';
+        document.getElementById('reg-organization-description').value = '';
+        document.getElementById('reg-website-url').value = '';
+      }
+    }
+
+    // ─────────────────────────────────────────
+    //  REGISTER — MULTI-STEP
+    // ─────────────────────────────────────────
+    function regNext(from) {
+      clearAlerts();
+      if (from === 1) {
+        // Step 1: Validate county selection
+        const county = document.getElementById('reg-county').value;
+        if (!county) {
+          showFieldErr('reg-county-err', 'Please select your county');
+          return;
+        }
+        selectedCounty = county;
+        showStep(2);
+      } else if (from === 2) {
+        // Step 2: Validate contributor kind and conditional fields
+        const kind = document.getElementById('reg-contributor-kind').value;
+        if (!kind) {
+          showFieldErr('reg-contributor-kind-err', 'Please select your contributor type');
+          return;
+        }
+        selectedContributorKind = kind;
+
+        // Validate individual category if individual
+        if (kind === 'individual') {
+          const category = document.getElementById('reg-individual-category').value;
+          if (!category) {
+            showFieldErr('reg-individual-category-err', 'Please select a category');
+            return;
+          }
+          selectedIndividualCategory = category;
+        } else {
+          // Validate organization fields if not individual
+          const orgName = document.getElementById('reg-organization-name').value.trim();
+          const instType = document.getElementById('reg-institution-type').value.trim();
+          if (!orgName) {
+            showFieldErr('reg-organization-name-err', 'Please enter your organization name');
+            return;
+          }
+          if (!instType) {
+            showFieldErr('reg-institution-type-err', 'Please enter your institution type');
+            return;
+          }
+        }
+        showStep(3);
+      } else if (from === 3) {
+        // Step 3: Validate personal info including phone
+        const name = document.getElementById('reg-name').value.trim();
+        const email = document.getElementById('reg-email').value.trim();
+        const phone = document.getElementById('reg-phone').value.trim();
+
+        if (!name) { showFieldErr('reg-name-err', 'Please enter your full name'); return; }
+        if (!email || !email.includes('@')) { showFieldErr('reg-email-err', 'Please enter a valid email'); return; }
+
+        // Validate phone number
+        const phoneValidation = validateLiberianPhone(phone);
+        if (!phoneValidation.valid) {
+          showFieldErr('reg-phone-err', phoneValidation.error);
+          return;
+        }
+
+        // Store the international format phone number
+        selectedPhone = phoneValidation.international;
+
+        showStep(4);
+      }
+    }
+
+    function regBack(to) {
+      clearAlerts();
+      showStep(to);
+    }
+
+    function showStep(n) {
+      [1, 2, 3, 4].forEach(i => {
+        const el = document.getElementById('reg-step-' + i);
+        if (el) el.style.display = i === n ? 'block' : 'none';
+        const dot = document.getElementById('step-' + i);
+        if (dot) {
+          dot.classList.toggle('active', i === n);
+          dot.classList.toggle('done', i < n);
+        }
+      });
+      // Step 5 is hidden (OTP - to be implemented later)
+    }
+
+    // ─────────────────────────────────────────
+    //  PHONE VALIDATION & OTP VERIFICATION
+    // ─────────────────────────────────────────
+
+    /**
+     * Validates and converts Liberian phone number to international format
+     * Accepts: 077-123-4567, 077 123 4567, 0771234567, 771234567, +231771234567
+     * Valid prefixes: 077, 088, 055
+     * Returns: { valid: boolean, international: string, error: string }
+     */
+    function validateLiberianPhone(phone) {
+      if (!phone || !phone.trim()) {
+        return { valid: false, error: 'Phone number is required' };
+      }
+
+      // Remove all non-digit characters except leading +
+      let cleaned = phone.replace(/[\s\-()]/g, '');
+
+      // Handle if user includes +231
+      if (cleaned.startsWith('+231')) {
+        cleaned = cleaned.substring(4);
+      } else if (cleaned.startsWith('231')) {
+        cleaned = cleaned.substring(3);
+      }
+
+      // Remove leading 0 if present
+      if (cleaned.startsWith('0')) {
+        cleaned = cleaned.substring(1);
+      }
+
+      // Validate length (should be 9 digits after country code)
+      if (cleaned.length !== 9) {
+        return { valid: false, error: 'Phone number must be 9 digits' };
+      }
+
+      // Validate it's all digits
+      if (!/^\d+$/.test(cleaned)) {
+        return { valid: false, error: 'Phone number must contain only digits' };
+      }
+
+      // Validate Liberian prefix (077, 088, 055, 066, 099)
+      const validPrefixes = ['77', '88', '55', '66', '99'];
+
+      const prefix = cleaned.substring(0, 2);
+
+      if (!validPrefixes.includes(prefix)) {
+        return {
+          valid: false,
+          error: 'Invalid Liberian mobile number'
+        };
+      }
+
+      // Convert to international format: +231XXXXXXXXX
+      const international = '+231' + cleaned;
+
+      return { valid: true, international };
+    }
+
+    // TODO: OTP Functions - To be implemented later
+    /*
+    async function sendPhoneOtp() {
+      try {
+        if (!selectedPhone) {
+          showAlert('reg-step5-alert', 'error', 'Phone number not set');
+          return false;
+        }
+
+        const { data, error } = await sb.auth.signInWithOtp({
+          phone: selectedPhone,
+          options: {}
+        });
+
+        if (error) {
+          showAlert('reg-step5-alert', 'error', 'Failed to send OTP: ' + error.message);
+          return false;
+        }
+
+        otpSessionId = data?.session?.id || null;
+        const masked = '+231***' + selectedPhone.slice(-4);
+        document.getElementById('phone-display').textContent = masked;
+        startResendTimer();
+        return true;
+      } catch (err) {
+        console.error('Error sending OTP:', err);
+        showAlert('reg-step5-alert', 'error', 'Error sending OTP. Please try again.');
+        return false;
+      }
+    }
+
+    async function verifyPhoneOtp() {
+      const otp = document.getElementById('reg-otp').value.trim();
+      if (!otp || otp.length !== 6) {
+        showFieldErr('reg-otp-err', 'Please enter a 6-digit code');
+        return;
+      }
+      if (!/^\d+$/.test(otp)) {
+        showFieldErr('reg-otp-err', 'Code must contain only digits');
+        return;
+      }
+      setLoading('verifyPhoneBtn', true);
+      try {
+        const { data, error } = await sb.auth.verifyOtp({
+          phone: selectedPhone,
+          token: otp,
+          type: 'sms'
+        });
+        setLoading('verifyPhoneBtn', false);
+        if (error) {
+          showFieldErr('reg-otp-err', 'Invalid code. Please try again.');
+          return;
+        }
+        phoneVerified = true;
+        await completeRegistration();
+      } catch (err) {
+        console.error('Error verifying OTP:', err);
+        showFieldErr('reg-otp-err', 'Verification failed. Please try again.');
+        setLoading('verifyPhoneBtn', false);
+      }
+    }
+
+    async function resendPhoneOtp() {
+      document.getElementById('resend-otp-btn').style.display = 'none';
+      const timerDiv = document.getElementById('resend-timer');
+      timerDiv.textContent = 'Sending...';
+      const result = await sendPhoneOtp();
+      if (!result) {
+        document.getElementById('resend-otp-btn').style.display = 'flex';
+      }
+    }
+
+    function startResendTimer() {
+      const resendBtn = document.getElementById('resend-otp-btn');
+      const timerDiv = document.getElementById('resend-timer');
+      let seconds = 60;
+      resendBtn.style.display = 'none';
+      timerDiv.textContent = 'Resend code in ' + seconds + 's';
+      const interval = setInterval(() => {
+        seconds--;
+        if (seconds <= 0) {
+          clearInterval(interval);
+          resendBtn.style.display = 'flex';
+          timerDiv.textContent = '';
+        } else {
+          timerDiv.textContent = 'Resend code in ' + seconds + 's';
+        }
+      }, 1000);
+    }
+    */
+
+    // ─────────────────────────────────────────
+    //  HANDLE REGISTER - Step 4 completion
+    // ─────────────────────────────────────────
+    async function handleRegister() {
+      clearAlerts();
+
+      const name     = document.getElementById('reg-name').value.trim();
+      const email    = document.getElementById('reg-email').value.trim();
+      const bio      = document.getElementById('reg-bio').value.trim();
+      const password = document.getElementById('reg-password').value;
+      const confirm  = document.getElementById('reg-confirm').value;
+      const agreed   = document.getElementById('agree-terms').checked;
+
+      // Validate password
+      if (password.length < 8) {
+        showFieldErr('reg-pw-err', 'Password must be at least 8 characters');
+        return;
+      }
+      if (password !== confirm) {
+        showFieldErr('reg-confirm-err', 'Passwords do not match');
+        return;
+      }
+      if (!agreed) {
+        showAlert('reg-step4-alert', 'error', 'Please accept the terms to continue');
+        return;
+      }
+
+      setLoading('registerBtn', true);
+
+      // Sign up via Supabase Auth
+      const { data, error } = await sb.auth.signUp({
+        email,
+        password,
+        options: {
+          data: {
+            full_name:  name,
+            role:       selectedRole,
+            county_id:  selectedCounty,
+            phone:      selectedPhone
+          },
+          emailRedirectTo: window.location.origin + '../auth-page/auth.html'
+        }
+      });
+
+      setLoading('registerBtn', false);
+
+      if (error) {
+        showAlert('reg-step4-alert', 'error', error.message);
+        return;
+      }
+
+      // Prepare data for users table upsert
+      let userData = {
+        id:        data.user.id,
+        email:     email,
+        phone:     selectedPhone || null,
+        phone_verified: false,  // TODO: Implement OTP verification later
+        full_name: name,
+        bio:       bio || null,
+        role:      selectedRole,
+        county_id: selectedCounty && !selectedCounty.startsWith('fallback')
+          ? selectedCounty
+          : null,
+        contributor_kind: selectedContributorKind,
+        profile_visibility: 'public'
+      };
+
+      // Add individual or organization data
+      if (selectedContributorKind === 'individual') {
+        userData.individual_category = selectedIndividualCategory;
+      } else {
+        userData.organization_name = document.getElementById('reg-organization-name').value.trim();
+        userData.institution_type = document.getElementById('reg-institution-type').value.trim();
+        userData.organization_description = document.getElementById('reg-organization-description').value.trim() || null;
+        userData.website_url = document.getElementById('reg-website-url').value.trim() || null;
+      }
+
+      // Update the users table with extra info
+      if (data.user) {
+        const { error: updateError } = await sb.from('users').upsert(userData);
+        if (updateError) {
+          console.error('Error updating user profile:', updateError);
+        }
+      }
+
+      lastRegEmail = email;
+      showVerifyScreen(email);
+    }
+
+    // ─────────────────────────────────────────
+    //  PHONE OTP VERIFICATION - COMMENTED OUT (TODO: Implement later)
+    // ─────────────────────────────────────────
+    
+    /*
+    // Store password temporarily during signup flow
+    let registrationPassword = null;
+
+    // Complete registration after phone OTP verification
+    async function completeRegistration() {
+      try {
+        const name = document.getElementById('reg-name').value.trim();
+        const email = document.getElementById('reg-email').value.trim();
+        const bio = document.getElementById('reg-bio').value.trim();
+        const password = registrationPassword;
+
+        setLoading('verifyPhoneBtn', true);
+
+        // Sign up with email and password
+        const { data, error } = await sb.auth.signUp({
+          email,
+          password,
+          options: {
+            data: {
+              full_name: name,
+              role: selectedRole,
+              county_id: selectedCounty,
+              phone: selectedPhone
+            },
+            emailRedirectTo: window.location.origin + '../auth-page/auth.html'
+          }
+        });
+
+        if (error) {
+          showAlert('reg-step5-alert', 'error', 'Signup failed: ' + error.message);
+          setLoading('verifyPhoneBtn', false);
+          return;
+        }
+
+        // Prepare data for users table upsert
+        let userData = {
+          id: data.user.id,
+          email: email,
+          phone: selectedPhone,
+          phone_verified: true,
+          full_name: name,
+          bio: bio || null,
+          role: selectedRole,
+          county_id: selectedCounty && !selectedCounty.startsWith('fallback')
+            ? selectedCounty
+            : null,
+          contributor_kind: selectedContributorKind,
+          profile_visibility: 'public'
+        };
+
+        // Add individual or organization data
+        if (selectedContributorKind === 'individual') {
+          userData.individual_category = selectedIndividualCategory;
+        } else {
+          userData.organization_name = document.getElementById('reg-organization-name').value.trim();
+          userData.institution_type = document.getElementById('reg-institution-type').value.trim();
+          userData.organization_description = document.getElementById('reg-organization-description').value.trim() || null;
+          userData.website_url = document.getElementById('reg-website-url').value.trim() || null;
+        }
+
+        // Update the users table with all info including phone
+        const { error: updateError } = await sb.from('users').upsert(userData);
+        if (updateError) {
+          console.error('Error updating user profile:', updateError);
+        }
+
+        setLoading('verifyPhoneBtn', false);
+        lastRegEmail = email;
+        showVerifyScreen(email);
+      } catch (err) {
+        console.error('Error completing registration:', err);
+        showAlert('reg-step5-alert', 'error', 'Registration error: ' + err.message);
+        setLoading('verifyPhoneBtn', false);
+      }
+    }
+    */
+
+    // ─────────────────────────────────────────
+    //  HANDLE LOGIN
+    // ─────────────────────────────────────────
+    async function handleLogin(e) {
+      e.preventDefault();
+      clearAlerts();
+
+      const email = document.getElementById('login-email').value.trim();
+      const password = document.getElementById('login-password').value;
+
+      if (!email) { showFieldErr('login-email-err', 'Please enter your email'); return; }
+      if (!password) { return; }
+
+      setLoading('loginBtn', true);
+
+      const { data, error } = await sb.auth.signInWithPassword({ email, password });
+
+      setLoading('loginBtn', false);
+
+      if (error) {
+        const msg = error.message === 'Invalid login credentials'
+          ? 'Incorrect email or password. Please try again.'
+          : error.message === 'Email not confirmed'
+            ? 'Please verify your email before signing in. Check your inbox.'
+            : error.message;
+        showAlert('login-alert', 'error', msg);
+        document.getElementById('login-password').classList.add('error');
+        return;
+      }
+
+      // Redirect based on role
+      redirectAfterLogin(data.user);
+    }
+
+    // ─────────────────────────────────────────
+    //  FORGOT PASSWORD
+    // ─────────────────────────────────────────
+    function showReset() {
+      document.getElementById('mainAuth').style.display = 'none';
+      document.getElementById('resetPanel').style.display = 'block';
+    }
+
+    function hideReset() {
+      document.getElementById('mainAuth').style.display = 'block';
+      document.getElementById('resetPanel').style.display = 'none';
+      clearAlerts();
+    }
+
+    async function handleReset() {
+      clearAlerts();
+      const email = document.getElementById('reset-email').value.trim();
+      if (!email || !email.includes('@')) {
+        showAlert('reset-alert-err', 'error', 'Please enter a valid email address');
+        return;
+      }
+
+      setLoading('resetBtn', true);
+
+      const { error } = await sb.auth.resetPasswordForEmail(email, {
+        redirectTo: window.location.origin + '../auth-page/auth.html?type=recovery'
+      });
+
+      setLoading('resetBtn', false);
+
+      if (error) {
+        showAlert('reset-alert-err', 'error', error.message);
+        return;
+      }
+
+      showAlert('reset-alert-ok', 'success',
+        `Reset link sent to ${email}. Check your inbox and spam folder.`);
+      document.getElementById('reset-email').value = '';
+    }
+
+    // ─────────────────────────────────────────
+    //  VERIFY SCREEN
+    // ─────────────────────────────────────────
+    function showVerifyScreen(email) {
+      document.getElementById('mainAuth').style.display = 'none';
+      document.getElementById('resetPanel').style.display = 'none';
+      document.getElementById('verifyPanel').style.display = 'block';
+      document.getElementById('verify-email-display').textContent = email;
+    }
+
+    async function resendVerification() {
+      if (!lastRegEmail) return;
+      const { error } = await sb.auth.resend({
+        type: 'signup',
+        email: lastRegEmail
+      });
+      if (!error) {
+        alert('Verification email resent! Check your inbox.');
+      }
+    }
+
+    function showMain() {
+      document.getElementById('verifyPanel').style.display = 'none';
+      document.getElementById('mainAuth').style.display = 'block';
+      switchTab('login');
+    }
+
+    // ─────────────────────────────────────────
+    //  PASSWORD STRENGTH
+    // ─────────────────────────────────────────
+    function checkStrength(pw) {
+      const fill = document.getElementById('strength-fill');
+      const text = document.getElementById('strength-text');
+      let score = 0;
+
+      if (pw.length >= 8) score++;
+      if (/[A-Z]/.test(pw)) score++;
+      if (/[0-9]/.test(pw)) score++;
+      if (/[^A-Za-z0-9]/.test(pw)) score++;
+
+      const configs = [
+        { pct: '0%', color: 'transparent', label: '' },
+        { pct: '25%', color: '#ef4444', label: 'Weak' },
+        { pct: '50%', color: '#f97316', label: 'Fair' },
+        { pct: '75%', color: '#eab308', label: 'Good' },
+        { pct: '100%', color: '#22c55e', label: 'Strong ✓' },
+      ];
+
+      const cfg = configs[score] || configs[0];
+      fill.style.width = cfg.pct;
+      fill.style.background = cfg.color;
+      text.textContent = cfg.label;
+      text.style.color = cfg.color;
+    }
+
+    // ─────────────────────────────────────────
+    //  UTILITIES
+    // ─────────────────────────────────────────
+    function togglePw(id, btn) {
+      const inp = document.getElementById(id);
+      inp.type = inp.type === 'password' ? 'text' : 'password';
+      btn.textContent = inp.type === 'password' ? '👁' : '🙈';
+    }
+
+    function setLoading(btnId, loading) {
+      const btn = document.getElementById(btnId);
+      if (!btn) return;
+      btn.disabled = loading;
+      btn.classList.toggle('loading', loading);
+    }
+
+    function showAlert(id, type, msg) {
+      const el = document.getElementById(id);
+      if (!el) return;
+      el.textContent = msg;
+      el.className = `alert alert-${type} show`;
+    }
+
+    function showFieldErr(id, msg) {
+      const el = document.getElementById(id);
+      if (!el) return;
+      el.textContent = msg;
+      el.classList.add('show');
+    }
+
+    function clearAlerts() {
+      document.querySelectorAll('.alert').forEach(a => a.classList.remove('show'));
+      document.querySelectorAll('.field-error').forEach(e => e.classList.remove('show'));
+      document.querySelectorAll('.form-input').forEach(i => {
+        i.classList.remove('error', 'success');
+      });
+    }
+
+    // ─────────────────────────────────────────
+    //  CHECK FOR PASSWORD RECOVERY REDIRECT
+    //  Supabase redirects back here with a hash
+    // ─────────────────────────────────────────
+    async function checkRecoveryMode() {
+      const hash = window.location.hash;
+      if (hash.includes('type=recovery') || new URLSearchParams(window.location.search).get('type') === 'recovery') {
+        // Show a new password form
+        document.getElementById('mainAuth').innerHTML = `
+          <div class="form-title">Set New Password</div>
+          <div class="form-subtitle">Choose a strong new password for your account.</div>
+          <div class="alert alert-error"   id="np-err"></div>
+          <div class="alert alert-success" id="np-ok"></div>
+          <div class="input-group">
+            <label class="input-label">New Password</label>
+            <div class="input-wrap">
+              <span class="input-icon">🔒</span>
+              <input id="new-pw" type="password" class="form-input" placeholder="Min 8 characters"
+                oninput="checkStrength(this.value)" />
+              <button type="button" class="pw-toggle" onclick="togglePw('new-pw',this)">👁</button>
+            </div>
+            <div class="strength-bar"><div class="strength-fill" id="strength-fill"></div></div>
+            <div class="strength-text" id="strength-text"></div>
+          </div>
+          <div class="input-group">
+            <label class="input-label">Confirm New Password</label>
+            <div class="input-wrap">
+              <span class="input-icon">🔒</span>
+              <input id="new-pw-confirm" type="password" class="form-input" placeholder="Repeat password" />
+            </div>
+          </div>
+          <button class="btn-primary" id="newPwBtn" onclick="submitNewPassword()">
+            <div class="spinner"></div>
+            <span class="btn-text">Update Password →</span>
+          </button>
+        `;
+      }
+    }
+
+    async function submitNewPassword() {
+      const pw = document.getElementById('new-pw').value;
+      const confirm = document.getElementById('new-pw-confirm').value;
+      if (pw.length < 8) { showAlert('np-err', 'error', 'Password must be at least 8 characters'); return; }
+      if (pw !== confirm) { showAlert('np-err', 'error', 'Passwords do not match'); return; }
+      setLoading('newPwBtn', true);
+      const { error } = await sb.auth.updateUser({ password: pw });
+      setLoading('newPwBtn', false);
+      if (error) { showAlert('np-err', 'error', error.message); return; }
+      showAlert('np-ok', 'success', 'Password updated! Redirecting to sign in...');
+      setTimeout(() => { window.location.href = '../auth-page/auth.html'; }, 2000);
+    }
+
+    // ─────────────────────────────────────────
+    //  BOOT
+    // ─────────────────────────────────────────
+    checkRecoveryMode();
+    init();
+  </script>
+</body>
+
+</html>

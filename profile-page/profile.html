@@ -1,0 +1,869 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Contributor Profile</title>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  
+  <!-- AUTHENTICATION DEPENDENCIES - MUST LOAD FIRST -->
+  <script src="../supabaseClient.js"></script>
+  <script src="../auth-guard.js"></script>
+  
+  <!-- PAGE PROTECTION - RUNS BEFORE CONTENT RENDERS -->
+  <script src="js/page-protection.js"></script>
+  
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=Playfair+Display:wght@700;900&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --red:    #C41E3A;
+      --red-dk: #9B1630;
+      --dark:   #0A0A0A;
+      --panel:  #111111;
+      --border: rgba(255,255,255,0.08);
+      --text:   rgba(255,255,255,0.85);
+      --muted:  rgba(255,255,255,0.4);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: var(--dark);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    /* ──────────────────────────────────────── */
+    /*  HEADER & NAVIGATION                     */
+    /* ──────────────────────────────────────── */
+    .header {
+      background: rgba(0,0,0,0.5);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid var(--border);
+      padding: 1rem 2rem;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .header-content {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .logo {
+      font-size: 1.4rem;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+    }
+    .logo span { color: #60A5FA; }
+
+    .nav-buttons {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .btn-small {
+      padding: 8px 16px;
+      border-radius: 8px;
+      border: none;
+      font-family: 'Poppins', sans-serif;
+      cursor: pointer;
+      font-size: 0.875rem;
+      font-weight: 600;
+      transition: all 0.2s;
+    }
+
+    .btn-secondary {
+      background: rgba(255,255,255,0.08);
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+    .btn-secondary:hover {
+      background: rgba(255,255,255,0.12);
+      border-color: rgba(255,255,255,0.15);
+    }
+
+    .btn-primary-small {
+      background: var(--red);
+      color: white;
+    }
+    .btn-primary-small:hover {
+      background: var(--red-dk);
+    }
+
+    /* ──────────────────────────────────────── */
+    /*  MAIN CONTAINER                          */
+    /* ──────────────────────────────────────── */
+    .container {
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 2rem;
+    }
+
+    /* ──────────────────────────────────────── */
+    /*  PROFILE HEADER SECTION                  */
+    /* ──────────────────────────────────────── */
+    .profile-header {
+      background: linear-gradient(135deg, rgba(27,94,53,0.2) 0%, rgba(196,30,58,0.1) 100%);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 2rem;
+      margin-bottom: 2rem;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2rem;
+      align-items: start;
+    }
+
+    @media (max-width: 768px) {
+      .profile-header {
+        grid-template-columns: 1fr;
+        padding: 1.5rem;
+      }
+    }
+
+    .profile-image-section {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .profile-image {
+      width: 160px;
+      height: 160px;
+      border-radius: 12px;
+      object-fit: cover;
+      border: 2px solid var(--border);
+      background: rgba(255,255,255,0.05);
+    }
+
+    .profile-badge {
+      background: rgba(196,30,58,0.2);
+      border: 1px solid rgba(196,30,58,0.4);
+      color: #ff8a9a;
+      padding: 6px 14px;
+      border-radius: 100px;
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+
+    .profile-info {
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+
+    .profile-name {
+      font-family: 'Playfair Display', serif;
+      font-size: 2.5rem;
+      font-weight: 900;
+      line-height: 1.2;
+    }
+
+    .profile-meta {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1rem;
+    }
+
+    .meta-item {
+      background: rgba(255,255,255,0.05);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1rem;
+    }
+
+    .meta-label {
+      font-size: 0.75rem;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 0.4rem;
+    }
+
+    .meta-value {
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: white;
+    }
+
+    .meta-value.secondary {
+      font-weight: 500;
+      color: var(--text);
+    }
+
+    .profile-actions {
+      display: flex;
+      gap: 1rem;
+      margin-top: 1rem;
+    }
+
+    .btn-action {
+      flex: 1;
+      padding: 12px;
+      border-radius: 8px;
+      border: none;
+      font-family: 'Poppins', sans-serif;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-size: 0.9rem;
+    }
+
+    .btn-action.primary {
+      background: var(--red);
+      color: white;
+    }
+    .btn-action.primary:hover {
+      background: var(--red-dk);
+      transform: translateY(-1px);
+    }
+
+    .btn-action.secondary {
+      background: rgba(255,255,255,0.08);
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+    .btn-action.secondary:hover {
+      background: rgba(255,255,255,0.12);
+    }
+
+    /* ──────────────────────────────────────── */
+    /*  CONTENT SECTIONS                        */
+    /* ──────────────────────────────────────── */
+    .section {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .section-title {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: white;
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .section-title-icon {
+      font-size: 1.5rem;
+    }
+
+    /* Bio Section */
+    .bio-text {
+      line-height: 1.8;
+      color: var(--text);
+      white-space: pre-wrap;
+    }
+
+    .bio-empty {
+      color: var(--muted);
+      font-style: italic;
+    }
+
+    /* Organization Info */
+    .org-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1rem;
+    }
+
+    @media (max-width: 768px) {
+      .org-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .org-field {
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+    }
+
+    .org-label {
+      font-size: 0.8rem;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      font-weight: 600;
+    }
+
+    .org-value {
+      font-size: 0.95rem;
+      color: white;
+      word-break: break-word;
+    }
+
+    .org-value a {
+      color: #60A5FA;
+      text-decoration: underline;
+      transition: color 0.2s;
+    }
+    .org-value a:hover {
+      color: #93C5FD;
+    }
+
+    /* Statistics */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1rem;
+    }
+
+    @media (max-width: 768px) {
+      .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    .stat-card {
+      background: rgba(255,255,255,0.05);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1rem;
+      text-align: center;
+    }
+
+    .stat-value {
+      font-size: 2rem;
+      font-weight: 800;
+      color: var(--red);
+      margin-bottom: 0.4rem;
+    }
+
+    .stat-label {
+      font-size: 0.8rem;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    /* Loading State */
+    .loading {
+      text-align: center;
+      padding: 3rem;
+      color: var(--muted);
+    }
+
+    .spinner {
+      display: inline-block;
+      width: 40px;
+      height: 40px;
+      border: 3px solid rgba(255,255,255,0.1);
+      border-top-color: var(--red);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin-bottom: 1rem;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    /* Error State */
+    .error-container {
+      background: rgba(239,68,68,0.1);
+      border: 1px solid rgba(239,68,68,0.3);
+      color: #fca5a5;
+      padding: 1.5rem;
+      border-radius: 12px;
+      text-align: center;
+      margin: 2rem 0;
+    }
+
+    /* Empty State */
+    .empty-state {
+      text-align: center;
+      padding: 3rem;
+      color: var(--muted);
+    }
+
+    .empty-state-icon {
+      font-size: 3rem;
+      margin-bottom: 1rem;
+    }
+
+    /* Contributor Type Badge */
+    .contributor-type-badge {
+      display: inline-block;
+      background: rgba(27,94,53,0.2);
+      border: 1px solid rgba(27,94,53,0.4);
+      color: #86efac;
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      margin-right: 0.5rem;
+      margin-bottom: 0.5rem;
+    }
+
+    /* Modal for Edit Profile */
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0,0,0,0.7);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal.show {
+      display: flex;
+    }
+
+    .modal-content {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 2rem;
+      max-width: 500px;
+      width: 90%;
+      max-height: 80vh;
+      overflow-y: auto;
+    }
+
+    .modal-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+      margin-bottom: 1.5rem;
+    }
+
+    .modal-close {
+      position: absolute;
+      top: 1rem;
+      right: 1rem;
+      background: none;
+      border: none;
+      color: var(--muted);
+      font-size: 1.5rem;
+      cursor: pointer;
+      transition: color 0.2s;
+    }
+
+    .modal-close:hover {
+      color: white;
+    }
+  </style>
+</head>
+<body>
+  <!-- Header -->
+  <div class="header">
+    <div class="header-content">
+      <div class="logo">Explore<span>Liberia</span></div>
+      <div class="nav-buttons">
+        <button class="btn-small btn-secondary" onclick="goHome()">← Back Home</button>
+        <button class="btn-small btn-primary-small" id="authBtn" onclick="handleAuthClick()">Sign In</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="container">
+    <!-- Loading State -->
+    <div id="loadingState" class="loading">
+      <div class="spinner"></div>
+      <p>Loading profile...</p>
+    </div>
+
+    <!-- Error State -->
+    <div id="errorState" style="display:none">
+      <div class="error-container">
+        <p>Unable to load profile. Please try again.</p>
+        <button class="btn-action primary" style="margin-top:1rem;max-width:200px;margin-left:auto;margin-right:auto" onclick="location.reload()">
+          Reload
+        </button>
+      </div>
+    </div>
+
+    <!-- Profile Content -->
+    <div id="profileContent" style="display:none">
+      <!-- Profile Header -->
+      <div class="profile-header">
+        <!-- Left: Image & Badge -->
+        <div class="profile-image-section">
+          <img id="profileImage" class="profile-image" alt="Profile" />
+          <span class="profile-badge" id="roleStatus">Contributor</span>
+          <div id="contributorTypeBadges" style="text-align:center;margin-top:0.5rem"></div>
+        </div>
+
+        <!-- Right: Info & Actions -->
+        <div class="profile-info">
+          <div>
+            <h1 class="profile-name" id="fullName">-</h1>
+            <div id="contributorType" style="margin-top:0.5rem;color:var(--muted)">-</div>
+          </div>
+
+          <div class="profile-meta">
+            <div class="meta-item">
+              <div class="meta-label">County</div>
+              <div class="meta-value" id="county">-</div>
+            </div>
+            <div class="meta-item">
+              <div class="meta-label">Joined</div>
+              <div class="meta-value" id="joinedDate">-</div>
+            </div>
+            <div class="meta-item">
+              <div class="meta-label">Contributor Type</div>
+              <div class="meta-value secondary" id="contribKind">-</div>
+            </div>
+            <div class="meta-item" id="categoryItemContainer" style="display:none">
+              <div class="meta-label">Category</div>
+              <div class="meta-value secondary" id="category">-</div>
+            </div>
+          </div>
+
+          <div class="profile-actions">
+            <button class="btn-action secondary" id="settingsBtn" onclick="goToSettings()" style="display:none">⚙️ Settings</button>
+            <button class="btn-action primary" id="subscribeBtn" onclick="goToSettings()" style="display:none">📌 Manage Subscriptions</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bio Section -->
+      <div class="section" id="bioSection" style="display:none">
+        <div class="section-title">
+          <span class="section-title-icon">📝</span>
+          About
+        </div>
+        <div class="bio-text" id="bioContent">-</div>
+      </div>
+
+      <!-- Organization Info Section -->
+      <div class="section" id="orgSection" style="display:none">
+        <div class="section-title">
+          <span class="section-title-icon">🏢</span>
+          Organization Information
+        </div>
+        <div class="org-grid">
+          <div class="org-field" id="orgNameField" style="display:none">
+            <div class="org-label">Organization Name</div>
+            <div class="org-value" id="orgName">-</div>
+          </div>
+          <div class="org-field" id="instTypeField" style="display:none">
+            <div class="org-label">Institution Type</div>
+            <div class="org-value" id="instType">-</div>
+          </div>
+          <div class="org-field" id="websiteField" style="display:none">
+            <div class="org-label">Website</div>
+            <div class="org-value" id="website">
+              <a href="#" target="_blank">-</a>
+            </div>
+          </div>
+        </div>
+        <div id="orgDescField" style="display:none;margin-top:1rem">
+          <div class="org-label">Organization Description</div>
+          <div class="org-value" id="orgDesc" style="margin-top:0.5rem;line-height:1.6">-</div>
+        </div>
+      </div>
+
+      <!-- Statistics Section -->
+      <div class="section">
+        <div class="section-title">
+          <span class="section-title-icon">📊</span>
+          Contribution Activity
+        </div>
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-value" id="contentCount">0</div>
+            <div class="stat-label">Content Pieces</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value" id="viewsCount">0</div>
+            <div class="stat-label">Total Views</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value" id="subscribersCount">0</div>
+            <div class="stat-label">Subscriptions</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value" id="interestsCount">0</div>
+            <div class="stat-label">Interests</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ─────────────────────────────────────────
+    //  SUPABASE SETUP
+    // ─────────────────────────────────────────
+    const SUPABASE_URL  = 'https://choagncxtmsewzvxoncx.supabase.co';
+    const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNob2FnbmN4dG1zZXd6dnhvbmN4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgzMzk3NjUsImV4cCI6MjA5MzkxNTc2NX0.hVPjF0_b-5DTXMzeFUPYZ82tL27CrsFBIUQrm-XYonE';
+    const { createClient } = supabase;
+    const sb = createClient(SUPABASE_URL, SUPABASE_ANON);
+
+    // ─────────────────────────────────────────
+    //  STATE
+    // ─────────────────────────────────────────
+    let currentUser = null;
+    let profileUser = null;
+    let isOwnProfile = false;
+
+    // ─────────────────────────────────────────
+    //  INIT
+    // ─────────────────────────────────────────
+    async function init() {
+      // Get current session
+      const { data: { session } } = await sb.auth.getSession();
+      currentUser = session?.user || null;
+
+      // Get profile user ID from URL
+      const urlParams = new URLSearchParams(window.location.search);
+      const userId = urlParams.get('id');
+
+      if (!userId) {
+        showError();
+        return;
+      }
+
+      isOwnProfile = currentUser && currentUser.id === userId;
+
+      // Load profile data
+      await loadProfile(userId);
+      updateAuthButton();
+    }
+
+    // ─────────────────────────────────────────
+    //  LOAD PROFILE
+    // ─────────────────────────────────────────
+    async function loadProfile(userId) {
+      try {
+        document.getElementById('loadingState').style.display = 'block';
+        document.getElementById('errorState').style.display = 'none';
+        document.getElementById('profileContent').style.display = 'none';
+
+        // Fetch user profile
+        const { data: user, error } = await sb
+          .from('users')
+          .select(`
+            id, full_name, email, bio, avatar_url, role,
+            contributor_kind, individual_category,
+            organization_name, organization_description, institution_type, website_url,
+            profile_image_url, created_at,
+            county:counties(name)
+          `)
+          .eq('id', userId)
+          .single();
+
+        if (error) throw error;
+
+        profileUser = user;
+
+        // Fetch contribution statistics
+        const { data: content } = await sb
+          .from('content')
+          .select('id, view_count')
+          .eq('author_id', userId);
+
+        const { data: subscriptions } = await sb
+          .from('user_subscriptions')
+          .select('id')
+          .eq('user_id', userId);
+
+        // Render profile
+        renderProfile(user, content, subscriptions);
+
+        document.getElementById('loadingState').style.display = 'none';
+        document.getElementById('profileContent').style.display = 'block';
+
+      } catch (err) {
+        console.error('Error loading profile:', err);
+        document.getElementById('loadingState').style.display = 'none';
+        showError();
+      }
+    }
+
+    // ─────────────────────────────────────────
+    //  RENDER PROFILE
+    // ─────────────────────────────────────────
+    function renderProfile(user, contentList = [], subscriptionsList = []) {
+      // Basic Info
+      document.getElementById('fullName').textContent = user.full_name || 'Contributor';
+      document.getElementById('county').textContent = user.county?.name || 'Not specified';
+      document.getElementById('joinedDate').textContent = new Date(user.created_at).toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'short'
+      });
+
+      // Profile Image
+      const profileImg = document.getElementById('profileImage');
+      if (user.profile_image_url) {
+        profileImg.src = user.profile_image_url;
+      } else {
+        profileImg.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200"%3E%3Crect fill="%23222" width="200" height="200"/%3E%3Ccircle cx="100" cy="80" r="50" fill="%23555"/%3E%3Cellipse cx="100" cy="160" rx="60" ry="40" fill="%23555"/%3E%3C/svg%3E';
+      }
+
+      // Contributor Type
+      const kindMap = {
+        'individual': '👤 Individual',
+        'organization': '🏢 Organization',
+        'ngo': '🤝 NGO',
+        'university': '🎓 University',
+        'vocational_training_center': '🛠️ Vocational Training',
+        'high_school': '🏫 High School',
+        'media_institution': '📰 Media',
+        'government_institution': '🏛️ Government',
+        'healthcare_institution': '🏥 Healthcare',
+        'community_group': '👥 Community Group',
+        'business': '💼 Business',
+        'other': '📌 Other'
+      };
+
+      const kindDisplay = kindMap[user.contributor_kind] || 'Contributor';
+      document.getElementById('contribKind').textContent = kindDisplay;
+      document.getElementById('contributorType').textContent = kindDisplay;
+
+      // Individual Category
+      if (user.contributor_kind === 'individual' && user.individual_category) {
+        const categoryMap = {
+          'student': 'Student',
+          'journalist': 'Journalist',
+          'writer': 'Writer',
+          'teacher': 'Teacher',
+          'doctor': 'Doctor',
+          'researcher': 'Researcher',
+          'software_developer': 'Software Developer',
+          'youth_advocate': 'Youth Advocate',
+          'photographer': 'Photographer',
+          'designer': 'Designer',
+          'entrepreneur': 'Entrepreneur',
+          'volunteer': 'Volunteer',
+          'activist': 'Activist',
+          'farmer': 'Farmer',
+          'content_creator': 'Content Creator',
+          'other': 'Other'
+        };
+        const categoryDisplay = categoryMap[user.individual_category] || user.individual_category;
+        document.getElementById('category').textContent = categoryDisplay;
+        document.getElementById('categoryItemContainer').style.display = 'block';
+
+        document.getElementById('contributorTypeBadges').innerHTML = 
+          `<span class="contributor-type-badge">${categoryDisplay}</span>`;
+      } else {
+        document.getElementById('categoryItemContainer').style.display = 'none';
+      }
+
+      // Bio
+      if (user.bio) {
+        document.getElementById('bioContent').textContent = user.bio;
+        document.getElementById('bioSection').style.display = 'block';
+      } else {
+        document.getElementById('bioSection').style.display = 'none';
+      }
+
+      // Organization Info
+      const hasOrgInfo = user.contributor_kind !== 'individual' && (
+        user.organization_name || user.organization_description || user.institution_type || user.website_url
+      );
+
+      if (hasOrgInfo) {
+        document.getElementById('orgSection').style.display = 'block';
+
+        if (user.organization_name) {
+          document.getElementById('orgName').textContent = user.organization_name;
+          document.getElementById('orgNameField').style.display = 'block';
+        }
+
+        if (user.institution_type) {
+          document.getElementById('instType').textContent = user.institution_type;
+          document.getElementById('instTypeField').style.display = 'block';
+        }
+
+        if (user.organization_description) {
+          document.getElementById('orgDesc').textContent = user.organization_description;
+          document.getElementById('orgDescField').style.display = 'block';
+        }
+
+        if (user.website_url) {
+          const link = document.querySelector('#website a');
+          link.href = user.website_url;
+          link.textContent = user.website_url;
+          document.getElementById('websiteField').style.display = 'block';
+        }
+      } else {
+        document.getElementById('orgSection').style.display = 'none';
+      }
+
+      // Statistics
+      const totalViews = contentList.reduce((sum, item) => sum + (item.view_count || 0), 0);
+      document.getElementById('contentCount').textContent = contentList.length;
+      document.getElementById('viewsCount').textContent = totalViews.toLocaleString();
+      document.getElementById('subscribersCount').textContent = subscriptionsList.length;
+      document.getElementById('interestsCount').textContent = subscriptionsList.length;
+
+      // Show action buttons if own profile
+      if (isOwnProfile) {
+        document.getElementById('settingsBtn').style.display = 'block';
+        document.getElementById('subscribeBtn').style.display = 'block';
+      } else {
+        document.getElementById('settingsBtn').style.display = 'none';
+        document.getElementById('subscribeBtn').style.display = 'none';
+      }
+    }
+
+    // ─────────────────────────────────────────
+    //  UTILITIES
+    // ─────────────────────────────────────────
+    function showError() {
+      document.getElementById('loadingState').style.display = 'none';
+      document.getElementById('errorState').style.display = 'block';
+    }
+
+    function updateAuthButton() {
+      const btn = document.getElementById('authBtn');
+      if (currentUser) {
+        btn.textContent = '👤 ' + (currentUser.email?.split('@')[0] || 'Account');
+        btn.onclick = () => handleLogout();
+      } else {
+        btn.textContent = 'Sign In';
+        btn.onclick = () => window.location.href = '../auth-page/auth.html';
+      }
+    }
+
+    function handleAuthClick() {
+      if (currentUser) {
+        handleLogout();
+      } else {
+        window.location.href = '../auth-page/auth.html';
+      }
+    }
+
+    async function handleLogout() {
+      await sb.auth.signOut();
+      window.location.href = '../index-page/index.html';
+    }
+
+    function goHome() {
+      window.location.href = '../index-page/index.html';
+    }
+
+    function goToSettings() {
+      window.location.href = '../settings-page/settings.html';
+    }
+
+    // ─────────────────────────────────────────
+    //  BOOT
+    // ─────────────────────────────────────────
+    init();
+  </script>
+</body>
+</html>

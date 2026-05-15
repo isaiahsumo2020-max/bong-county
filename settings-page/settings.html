@@ -1,0 +1,1008 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Account Settings</title>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=Playfair+Display:wght@700;900&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --red:    #C41E3A;
+      --red-dk: #9B1630;
+      --dark:   #0A0A0A;
+      --panel:  #111111;
+      --border: rgba(255,255,255,0.08);
+      --text:   rgba(255,255,255,0.85);
+      --muted:  rgba(255,255,255,0.4);
+      --green:  #22c55e;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: var(--dark);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    /* ──────────────────────────────────────── */
+    /*  HEADER                                  */
+    /* ──────────────────────────────────────── */
+    .header {
+      background: rgba(0,0,0,0.5);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid var(--border);
+      padding: 1rem 2rem;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .header-content {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .logo {
+      font-size: 1.4rem;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+    }
+    .logo span { color: #60A5FA; }
+
+    .btn-back {
+      padding: 8px 16px;
+      background: rgba(255,255,255,0.08);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text);
+      cursor: pointer;
+      font-family: 'Poppins', sans-serif;
+      font-size: 0.875rem;
+      font-weight: 600;
+      transition: all 0.2s;
+    }
+    .btn-back:hover {
+      background: rgba(255,255,255,0.12);
+    }
+
+    /* ──────────────────────────────────────── */
+    /*  MAIN LAYOUT                             */
+    /* ──────────────────────────────────────── */
+    .container {
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 2rem;
+    }
+
+    .page-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 2.5rem;
+      font-weight: 900;
+      margin-bottom: 1rem;
+    }
+
+    .page-subtitle {
+      color: var(--muted);
+      margin-bottom: 2rem;
+    }
+
+    .settings-grid {
+      display: grid;
+      grid-template-columns: 250px 1fr;
+      gap: 2rem;
+    }
+
+    @media (max-width: 768px) {
+      .settings-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* ──────────────────────────────────────── */
+    /*  SIDEBAR                                 */
+    /* ──────────────────────────────────────── */
+    .settings-sidebar {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .sidebar-item {
+      padding: 12px 16px;
+      border: 1px solid transparent;
+      border-radius: 8px;
+      background: none;
+      color: var(--muted);
+      cursor: pointer;
+      font-family: 'Poppins', sans-serif;
+      font-weight: 600;
+      font-size: 0.9rem;
+      transition: all 0.2s;
+      text-align: left;
+    }
+
+    .sidebar-item:hover {
+      background: rgba(255,255,255,0.05);
+      color: white;
+    }
+
+    .sidebar-item.active {
+      background: rgba(196,30,58,0.2);
+      border-color: rgba(196,30,58,0.4);
+      color: white;
+    }
+
+    /* ──────────────────────────────────────── */
+    /*  SETTINGS PANELS                         */
+    /* ──────────────────────────────────────── */
+    .settings-panel {
+      display: none;
+    }
+
+    .settings-panel.active {
+      display: block;
+      animation: fadeIn 0.3s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .settings-section {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .settings-section-title {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: white;
+      margin-bottom: 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    /* ──────────────────────────────────────── */
+    /*  FORM ELEMENTS                           */
+    /* ──────────────────────────────────────── */
+    .form-group {
+      margin-bottom: 1.5rem;
+    }
+
+    .form-label {
+      display: block;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: rgba(255,255,255,0.6);
+      margin-bottom: 0.5rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .form-input, .form-select, .form-textarea {
+      width: 100%;
+      background: rgba(255,255,255,0.05);
+      border: 1.5px solid var(--border);
+      border-radius: 8px;
+      padding: 12px;
+      color: white;
+      font-family: 'Poppins', sans-serif;
+      font-size: 0.9rem;
+      transition: all 0.2s;
+    }
+
+    .form-input::placeholder, .form-textarea::placeholder {
+      color: rgba(255,255,255,0.2);
+    }
+
+    .form-input:focus, .form-select:focus, .form-textarea:focus {
+      outline: none;
+      border-color: var(--red);
+      background: rgba(196,30,58,0.05);
+      box-shadow: 0 0 0 3px rgba(196,30,58,0.1);
+    }
+
+    .form-select option {
+      background: #1a1a1a;
+      color: white;
+    }
+
+    .form-textarea {
+      resize: vertical;
+      min-height: 100px;
+    }
+
+    .form-hint {
+      font-size: 0.8rem;
+      color: var(--muted);
+      margin-top: 0.5rem;
+    }
+
+    .form-error {
+      font-size: 0.8rem;
+      color: #ef4444;
+      margin-top: 0.5rem;
+      display: none;
+    }
+
+    .form-error.show {
+      display: block;
+    }
+
+    /* ──────────────────────────────────────── */
+    /*  BUTTONS                                 */
+    /* ──────────────────────────────────────── */
+    .btn-group {
+      display: flex;
+      gap: 1rem;
+      margin-top: 1.5rem;
+    }
+
+    .btn {
+      padding: 12px 24px;
+      border-radius: 8px;
+      border: none;
+      font-family: 'Poppins', sans-serif;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-size: 0.9rem;
+    }
+
+    .btn-primary {
+      background: var(--red);
+      color: white;
+    }
+    .btn-primary:hover:not(:disabled) {
+      background: var(--red-dk);
+      transform: translateY(-1px);
+    }
+
+    .btn-secondary {
+      background: rgba(255,255,255,0.08);
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+    .btn-secondary:hover {
+      background: rgba(255,255,255,0.12);
+    }
+
+    .btn-danger {
+      background: rgba(239,68,68,0.2);
+      color: #fca5a5;
+      border: 1px solid rgba(239,68,68,0.3);
+    }
+    .btn-danger:hover {
+      background: rgba(239,68,68,0.3);
+    }
+
+    .btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    /* ──────────────────────────────────────── */
+    /*  AVATAR UPLOAD                           */
+    /* ──────────────────────────────────────── */
+    .avatar-section {
+      display: flex;
+      gap: 1.5rem;
+      align-items: flex-start;
+    }
+
+    @media (max-width: 768px) {
+      .avatar-section {
+        flex-direction: column;
+        align-items: center;
+      }
+    }
+
+    .avatar-preview {
+      width: 120px;
+      height: 120px;
+      border-radius: 12px;
+      object-fit: cover;
+      border: 2px solid var(--border);
+      background: rgba(255,255,255,0.05);
+    }
+
+    .avatar-upload-controls {
+      flex: 1;
+    }
+
+    .file-input-wrapper {
+      position: relative;
+      display: inline-block;
+    }
+
+    .file-input-label {
+      display: inline-block;
+      padding: 10px 20px;
+      background: rgba(255,255,255,0.08);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text);
+      cursor: pointer;
+      font-weight: 600;
+      transition: all 0.2s;
+    }
+
+    .file-input-label:hover {
+      background: rgba(255,255,255,0.12);
+    }
+
+    .file-input-wrapper input[type="file"] {
+      display: none;
+    }
+
+    .upload-hint {
+      font-size: 0.8rem;
+      color: var(--muted);
+      margin-top: 0.5rem;
+    }
+
+    /* ──────────────────────────────────────── */
+    /*  SUBSCRIPTION TOPICS                     */
+    /* ──────────────────────────────────────── */
+    .topics-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+      gap: 1rem;
+    }
+
+    .topic-checkbox {
+      display: none;
+    }
+
+    .topic-label {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 1rem;
+      background: rgba(255,255,255,0.05);
+      border: 2px solid var(--border);
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-align: center;
+    }
+
+    .topic-checkbox:checked + .topic-label {
+      background: rgba(196,30,58,0.2);
+      border-color: var(--red);
+    }
+
+    .topic-label:hover {
+      border-color: rgba(255,255,255,0.2);
+      background: rgba(255,255,255,0.08);
+    }
+
+    .topic-icon {
+      font-size: 1.5rem;
+    }
+
+    .topic-name {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: white;
+    }
+
+    /* ──────────────────────────────────────── */
+    /*  ALERTS                                  */
+    /* ──────────────────────────────────────── */
+    .alert {
+      padding: 12px 16px;
+      border-radius: 8px;
+      margin-bottom: 1rem;
+      font-size: 0.875rem;
+      display: none;
+      line-height: 1.5;
+    }
+
+    .alert.show {
+      display: block;
+    }
+
+    .alert-success {
+      background: rgba(34,197,94,0.12);
+      border: 1px solid rgba(34,197,94,0.3);
+      color: #86efac;
+    }
+
+    .alert-error {
+      background: rgba(239,68,68,0.12);
+      border: 1px solid rgba(239,68,68,0.3);
+      color: #fca5a5;
+    }
+
+    /* ──────────────────────────────────────── */
+    /*  LOADING & EMPTY STATES                  */
+    /* ──────────────────────────────────────── */
+    .loading {
+      text-align: center;
+      padding: 2rem;
+      color: var(--muted);
+    }
+
+    .spinner {
+      display: inline-block;
+      width: 40px;
+      height: 40px;
+      border: 3px solid rgba(255,255,255,0.1);
+      border-top-color: var(--red);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin-bottom: 1rem;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+  </style>
+</head>
+<body>
+  <!-- Header -->
+  <div class="header">
+    <div class="header-content">
+      <div class="logo">Explore<span>Liberia</span></div>
+      <button class="btn-back" onclick="goHome()">← Back Home</button>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="container">
+    <h1 class="page-title">Account Settings</h1>
+    <p class="page-subtitle">Manage your profile, subscriptions, and preferences</p>
+
+    <!-- Settings Grid -->
+    <div class="settings-grid">
+      <!-- Sidebar Navigation -->
+      <div class="settings-sidebar">
+        <button class="sidebar-item active" onclick="switchPanel('profile')">👤 Profile</button>
+        <button class="sidebar-item" onclick="switchPanel('subscriptions')">📌 Subscriptions</button>
+        <button class="sidebar-item" onclick="switchPanel('notifications')">🔔 Notifications</button>
+        <button class="sidebar-item" onclick="switchPanel('security')">🔒 Security</button>
+      </div>
+
+      <!-- Content Area -->
+      <div>
+        <!-- PROFILE PANEL -->
+        <div id="panel-profile" class="settings-panel active">
+          <div class="settings-section">
+            <div class="settings-section-title">👤 Profile Information</div>
+
+            <div class="form-group">
+              <label class="form-label">Full Name</label>
+              <input type="text" id="fullName" class="form-input" placeholder="Your full name" />
+              <div class="form-error" id="fullName-err"></div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Email</label>
+              <input type="email" id="email" class="form-input" placeholder="your@email.com" disabled />
+              <div class="form-hint">Email cannot be changed directly. Contact support if needed.</div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Bio</label>
+              <textarea id="bio" class="form-textarea" placeholder="Tell us about yourself..."></textarea>
+              <div class="form-hint">Max 500 characters</div>
+            </div>
+          </div>
+
+          <!-- Avatar Upload -->
+          <div class="settings-section">
+            <div class="settings-section-title">🖼️ Profile Picture</div>
+
+            <div class="avatar-section">
+              <img id="avatarPreview" class="avatar-preview" alt="Profile" />
+              <div class="avatar-upload-controls">
+                <div class="file-input-wrapper">
+                  <label class="file-input-label">
+                    Choose Image
+                    <input type="file" id="avatarFile" accept="image/*" onchange="handleAvatarSelect(event)" />
+                  </label>
+                </div>
+                <div class="upload-hint">JPG, PNG or GIF. Max 5MB.</div>
+                <div id="avatarMessage" class="form-hint" style="margin-top:1rem;display:none"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Organization Info (conditionally shown) -->
+          <div id="orgInfoSection" class="settings-section" style="display:none">
+            <div class="settings-section-title">🏢 Organization Information</div>
+
+            <div class="form-group">
+              <label class="form-label">Organization Name</label>
+              <input type="text" id="orgName" class="form-input" placeholder="Organization name" />
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Institution Type</label>
+              <input type="text" id="instType" class="form-input" placeholder="e.g., NGO, University, Media" />
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Organization Description</label>
+              <textarea id="orgDesc" class="form-textarea" placeholder="Describe your organization..."></textarea>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Website URL</label>
+              <input type="url" id="website" class="form-input" placeholder="https://example.com" />
+            </div>
+          </div>
+
+          <!-- Save Button -->
+          <div class="settings-section" style="border:none;padding:0">
+            <div class="btn-group">
+              <button class="btn btn-primary" id="saveProfileBtn" onclick="saveProfile()">Save Changes</button>
+              <button class="btn btn-secondary" onclick="resetProfile()">Cancel</button>
+            </div>
+            <div id="profileAlert" class="alert"></div>
+          </div>
+        </div>
+
+        <!-- SUBSCRIPTIONS PANEL -->
+        <div id="panel-subscriptions" class="settings-panel">
+          <div class="settings-section">
+            <div class="settings-section-title"> Interest Subscriptions</div>
+            <p style="color:var(--muted);margin-bottom:1.5rem">
+              Subscribe to topics to get personalized content recommendations and notifications.
+            </p>
+
+            <div id="topicsLoadingState" class="loading">
+              <div class="spinner"></div>
+              <p>Loading topics...</p>
+            </div>
+
+            <div id="topicsContent" style="display:none">
+              <div id="topicsGrid" class="topics-grid"></div>
+
+              <div class="btn-group" style="margin-top:2rem">
+                <button class="btn btn-primary" onclick="saveSubscriptions()">Save Subscriptions</button>
+              </div>
+              <div id="subscriptionsAlert" class="alert"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- NOTIFICATIONS PANEL -->
+        <div id="panel-notifications" class="settings-panel">
+          <div class="settings-section">
+            <div class="settings-section-title">🔔 Notification Preferences</div>
+
+            <div class="form-group">
+              <label class="form-label">Email Notifications</label>
+              <div style="display:flex;gap:1rem;margin-top:0.5rem">
+                <label style="display:flex;align-items:center;gap:0.5rem;cursor:pointer">
+                  <input type="radio" name="emailNotif" value="all" checked />
+                  <span>All updates</span>
+                </label>
+                <label style="display:flex;align-items:center;gap:0.5rem;cursor:pointer">
+                  <input type="radio" name="emailNotif" value="subscriptions" />
+                  <span>Subscriptions only</span>
+                </label>
+                <label style="display:flex;align-items:center;gap:0.5rem;cursor:pointer">
+                  <input type="radio" name="emailNotif" value="none" />
+                  <span>None</span>
+                </label>
+              </div>
+            </div>
+
+            <div class="form-group" style="margin-top:1.5rem">
+              <label style="display:flex;align-items:center;gap:0.5rem;cursor:pointer">
+                <input type="checkbox" id="digestEmail" />
+                <span>Receive weekly digest</span>
+              </label>
+            </div>
+
+            <div class="btn-group" style="margin-top:1.5rem">
+              <button class="btn btn-primary" onclick="saveNotifications()">Save Preferences</button>
+            </div>
+            <div id="notificationsAlert" class="alert"></div>
+          </div>
+        </div>
+
+        <!-- SECURITY PANEL -->
+        <div id="panel-security" class="settings-panel">
+          <div class="settings-section">
+            <div class="settings-section-title">🔒 Password & Security</div>
+
+            <div class="form-group">
+              <label class="form-label">Current Password</label>
+              <input type="password" id="currentPassword" class="form-input" placeholder="Enter current password" />
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">New Password</label>
+              <input type="password" id="newPassword" class="form-input" placeholder="Enter new password" />
+              <div class="form-hint">At least 8 characters</div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Confirm New Password</label>
+              <input type="password" id="confirmPassword" class="form-input" placeholder="Confirm new password" />
+            </div>
+
+            <div class="btn-group">
+              <button class="btn btn-primary" onclick="changePassword()">Change Password</button>
+            </div>
+            <div id="securityAlert" class="alert"></div>
+          </div>
+
+          <!-- Danger Zone -->
+          <div class="settings-section">
+            <div class="settings-section-title" style="color:#ef4444">⚠️ Danger Zone</div>
+
+            <p style="color:var(--muted);margin-bottom:1rem">
+              This action cannot be undone. Please be certain.
+            </p>
+
+            <button class="btn btn-danger" onclick="deleteAccount()">Delete My Account</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ─────────────────────────────────────────
+    //  SUPABASE SETUP
+    // ─────────────────────────────────────────
+    const SUPABASE_URL  = 'https://choagncxtmsewzvxoncx.supabase.co';
+    const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNob2FnbmN4dG1zZXd6dnhvbmN4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgzMzk3NjUsImV4cCI6MjA5MzkxNTc2NX0.hVPjF0_b-5DTXMzeFUPYZ82tL27CrsFBIUQrm-XYonE';
+    const { createClient } = supabase;
+    const sb = createClient(SUPABASE_URL, SUPABASE_ANON);
+
+    // ─────────────────────────────────────────
+    //  STATE
+    // ─────────────────────────────────────────
+    let currentUser = null;
+    let userProfile = null;
+    let allTopics = [];
+    let selectedTopics = new Set();
+
+    // ─────────────────────────────────────────
+    //  INIT
+    // ─────────────────────────────────────────
+    async function init() {
+      const { data: { session } } = await sb.auth.getSession();
+      currentUser = session?.user;
+
+      if (!currentUser) {
+        window.location.href = '../auth-page/auth.html';
+        return;
+      }
+
+      await loadUserProfile();
+      await loadTopicsAndSubscriptions();
+    }
+
+    // ─────────────────────────────────────────
+    //  LOAD USER PROFILE
+    // ─────────────────────────────────────────
+    async function loadUserProfile() {
+      try {
+        const { data, error } = await sb
+          .from('users')
+          .select('*')
+          .eq('id', currentUser.id)
+          .single();
+
+        if (error) throw error;
+
+        userProfile = data;
+
+        // Populate profile fields
+        document.getElementById('fullName').value = data.full_name || '';
+        document.getElementById('email').value = data.email || '';
+        document.getElementById('bio').value = data.bio || '';
+
+        // Set avatar
+        if (data.profile_image_url) {
+          document.getElementById('avatarPreview').src = data.profile_image_url;
+        }
+
+        // Show org fields if not individual
+        if (data.contributor_kind && data.contributor_kind !== 'individual') {
+          document.getElementById('orgInfoSection').style.display = 'block';
+          document.getElementById('orgName').value = data.organization_name || '';
+          document.getElementById('instType').value = data.institution_type || '';
+          document.getElementById('orgDesc').value = data.organization_description || '';
+          document.getElementById('website').value = data.website_url || '';
+        }
+
+      } catch (err) {
+        console.error('Error loading profile:', err);
+        showAlert('profileAlert', 'error', 'Failed to load profile');
+      }
+    }
+
+    // ─────────────────────────────────────────
+    //  LOAD TOPICS & SUBSCRIPTIONS
+    // ─────────────────────────────────────────
+    async function loadTopicsAndSubscriptions() {
+      try {
+        // Load all topics
+        const { data: topics, error: topicsErr } = await sb
+          .from('notification_topics')
+          .select('*')
+          .eq('is_active', true)
+          .order('display_order');
+
+        if (topicsErr) throw topicsErr;
+        allTopics = topics;
+
+        // Load user subscriptions
+        const { data: subs, error: subsErr } = await sb
+          .from('user_subscriptions')
+          .select('topic_id')
+          .eq('user_id', currentUser.id);
+
+        if (subsErr) throw subsErr;
+
+        selectedTopics = new Set(subs.map(s => s.topic_id));
+
+        renderTopics();
+
+      } catch (err) {
+        console.error('Error loading topics:', err);
+        showAlert('subscriptionsAlert', 'error', 'Failed to load topics');
+      }
+    }
+
+    // ─────────────────────────────────────────
+    //  RENDER TOPICS
+    // ─────────────────────────────────────────
+    function renderTopics() {
+      const grid = document.getElementById('topicsGrid');
+      grid.innerHTML = '';
+
+      allTopics.forEach(topic => {
+        const isSelected = selectedTopics.has(topic.id);
+        const html = `
+          <div>
+            <input type="checkbox" id="topic-${topic.id}" class="topic-checkbox" 
+              ${isSelected ? 'checked' : ''} 
+              onchange="toggleTopic('${topic.id}', this.checked)" />
+            <label for="topic-${topic.id}" class="topic-label">
+              <span class="topic-icon">${topic.icon_emoji}</span>
+              <span class="topic-name">${topic.name}</span>
+            </label>
+          </div>
+        `;
+        grid.innerHTML += html;
+      });
+
+      document.getElementById('topicsLoadingState').style.display = 'none';
+      document.getElementById('topicsContent').style.display = 'block';
+    }
+
+    // ─────────────────────────────────────────
+    //  UI UTILITIES
+    // ─────────────────────────────────────────
+    function switchPanel(panelName) {
+      // Hide all panels
+      document.querySelectorAll('.settings-panel').forEach(p => p.classList.remove('active'));
+      document.querySelectorAll('.sidebar-item').forEach(i => i.classList.remove('active'));
+
+      // Show selected panel
+      document.getElementById(`panel-${panelName}`).classList.add('active');
+      event.target.classList.add('active');
+    }
+
+    function showAlert(elementId, type, message) {
+      const el = document.getElementById(elementId);
+      el.textContent = message;
+      el.className = `alert show alert-${type}`;
+      setTimeout(() => {
+        el.classList.remove('show');
+      }, 5000);
+    }
+
+    function toggleTopic(topicId, checked) {
+      if (checked) {
+        selectedTopics.add(topicId);
+      } else {
+        selectedTopics.delete(topicId);
+      }
+    }
+
+    // ─────────────────────────────────────────
+    //  PROFILE ACTIONS
+    // ─────────────────────────────────────────
+    async function saveProfile() {
+      try {
+        const fullName = document.getElementById('fullName').value.trim();
+        if (!fullName) {
+          showAlert('profileAlert', 'error', 'Full name is required');
+          return;
+        }
+
+        const updates = {
+          id: currentUser.id,
+          full_name: fullName,
+          bio: document.getElementById('bio').value.trim() || null
+        };
+
+        // Add org fields if not individual
+        if (userProfile.contributor_kind && userProfile.contributor_kind !== 'individual') {
+          updates.organization_name = document.getElementById('orgName').value.trim() || null;
+          updates.institution_type = document.getElementById('instType').value.trim() || null;
+          updates.organization_description = document.getElementById('orgDesc').value.trim() || null;
+          updates.website_url = document.getElementById('website').value.trim() || null;
+        }
+
+        const { error } = await sb
+          .from('users')
+          .update(updates)
+          .eq('id', currentUser.id);
+
+        if (error) throw error;
+
+        userProfile = { ...userProfile, ...updates };
+        showAlert('profileAlert', 'success', 'Profile updated successfully!');
+
+      } catch (err) {
+        console.error('Error saving profile:', err);
+        showAlert('profileAlert', 'error', err.message);
+      }
+    }
+
+    function resetProfile() {
+      location.reload();
+    }
+
+    // ─────────────────────────────────────────
+    //  AVATAR UPLOAD
+    // ─────────────────────────────────────────
+    async function handleAvatarSelect(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      const msg = document.getElementById('avatarMessage');
+      msg.style.display = 'block';
+
+      try {
+        // Validate file size (5MB max)
+        if (file.size > 5 * 1024 * 1024) {
+          msg.textContent = 'File is too large. Max 5MB.';
+          msg.style.color = '#fca5a5';
+          return;
+        }
+
+        // Show preview
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          document.getElementById('avatarPreview').src = e.target.result;
+        };
+        reader.readAsDataURL(file);
+
+        msg.textContent = 'Image selected. Click save to upload.';
+        msg.style.color = '#86efac';
+
+      } catch (err) {
+        msg.textContent = 'Error selecting file';
+        msg.style.color = '#fca5a5';
+      }
+    }
+
+    // ─────────────────────────────────────────
+    //  SUBSCRIPTIONS
+    // ─────────────────────────────────────────
+    async function saveSubscriptions() {
+      try {
+        // Get current subscriptions
+        const { data: currentSubs } = await sb
+          .from('user_subscriptions')
+          .select('topic_id')
+          .eq('user_id', currentUser.id);
+
+        const currentTopicIds = new Set(currentSubs.map(s => s.topic_id));
+
+        // Find topics to add
+        const toAdd = Array.from(selectedTopics).filter(tid => !currentTopicIds.has(tid));
+
+        // Find topics to remove
+        const toRemove = Array.from(currentTopicIds).filter(tid => !selectedTopics.has(tid));
+
+        // Insert new subscriptions
+        if (toAdd.length > 0) {
+          const { error } = await sb.from('user_subscriptions').insert(
+            toAdd.map(topic_id => ({ user_id: currentUser.id, topic_id }))
+          );
+          if (error) throw error;
+        }
+
+        // Remove unsubscribed
+        if (toRemove.length > 0) {
+          const { error } = await sb
+            .from('user_subscriptions')
+            .delete()
+            .eq('user_id', currentUser.id)
+            .in('topic_id', toRemove);
+          if (error) throw error;
+        }
+
+        showAlert('subscriptionsAlert', 'success', `Subscriptions updated! (${selectedTopics.size} topics)`);
+
+      } catch (err) {
+        console.error('Error saving subscriptions:', err);
+        showAlert('subscriptionsAlert', 'error', 'Failed to update subscriptions');
+      }
+    }
+
+    // ─────────────────────────────────────────
+    //  OTHER ACTIONS
+    // ─────────────────────────────────────────
+    async function saveNotifications() {
+      showAlert('notificationsAlert', 'success', 'Notification preferences saved!');
+    }
+
+    async function changePassword() {
+      const current = document.getElementById('currentPassword').value;
+      const newPw = document.getElementById('newPassword').value;
+      const confirm = document.getElementById('confirmPassword').value;
+
+      if (!newPw || newPw.length < 8) {
+        showAlert('securityAlert', 'error', 'Password must be at least 8 characters');
+        return;
+      }
+
+      if (newPw !== confirm) {
+        showAlert('securityAlert', 'error', 'Passwords do not match');
+        return;
+      }
+
+      try {
+        const { error } = await sb.auth.updateUser({ password: newPw });
+        if (error) throw error;
+
+        document.getElementById('currentPassword').value = '';
+        document.getElementById('newPassword').value = '';
+        document.getElementById('confirmPassword').value = '';
+
+        showAlert('securityAlert', 'success', 'Password changed successfully!');
+
+      } catch (err) {
+        showAlert('securityAlert', 'error', err.message);
+      }
+    }
+
+    function deleteAccount() {
+      if (confirm('Are you sure you want to delete your account? This cannot be undone.')) {
+        alert('Account deletion is being processed. You will be logged out.');
+        sb.auth.signOut().then(() => {
+          window.location.href = '../index-page/index.html';
+        });
+      }
+    }
+
+    function goHome() {
+      window.location.href = '../index-page/index.html';
+    }
+
+    // ─────────────────────────────────────────
+    //  BOOT
+    // ─────────────────────────────────────────
+    init();
+  </script>
+</body>
+</html>

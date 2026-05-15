@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard - Liberia Counties Digital Platform</title>
+  <link href="https://cdn.tailwindcss.com" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: #f5f5f5;
+    }
+
+    .authenticated-layout {
+      display: flex;
+      min-height: 100vh;
+    }
+
+    /* SIDEBAR */
+    .sidebar {
+      width: 280px;
+      background: linear-gradient(135deg, #1B5E35 0%, #0f3d23 100%);
+      color: white;
+      overflow-y: auto;
+      position: fixed;
+      height: 100vh;
+      left: 0;
+      top: 0;
+      box-shadow: 2px 0 8px rgba(0,0,0,0.15);
+      z-index: 100;
+    }
+
+    .sidebar-header {
+      padding: 30px 20px;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .sidebar-logo {
+      font-size: 22px;
+      font-weight: bold;
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .sidebar-user {
+      font-size: 13px;
+      opacity: 0.8;
+      word-break: break-word;
+    }
+
+    .sidebar-nav {
+      padding: 20px 0;
+    }
+
+    .nav-item {
+      padding: 15px 20px;
+      cursor: pointer;
+      transition: all 0.3s;
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      text-decoration: none;
+      color: white;
+      font-size: 14px;
+    }
+
+    .nav-item:hover {
+      background: rgba(255,255,255,0.1);
+      padding-left: 25px;
+    }
+
+    .nav-item.active {
+      background: rgba(255,255,255,0.15);
+      border-left: 4px solid #fff;
+    }
+
+    .nav-item-icon {
+      font-size: 18px;
+      width: 30px;
+      text-align: center;
+    }
+
+    .sidebar-divider {
+      height: 1px;
+      background: rgba(255,255,255,0.1);
+      margin: 15px 0;
+    }
+
+    .sidebar-footer {
+      position: absolute;
+      bottom: 20px;
+      left: 20px;
+      right: 20px;
+      padding-top: 20px;
+      border-top: 1px solid rgba(255,255,255,0.1);
+    }
+
+    .logout-btn {
+      background: rgba(255,255,255,0.1);
+      color: white;
+      border: none;
+      padding: 12px 16px;
+      border-radius: 6px;
+      cursor: pointer;
+      width: 100%;
+      transition: all 0.3s;
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      justify-content: center;
+      font-weight: 500;
+    }
+
+    .logout-btn:hover {
+      background: rgba(255,0,0,0.2);
+    }
+
+    /* MAIN CONTENT */
+    .main-content {
+      flex: 1;
+      margin-left: 280px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* TOP NAV */
+    .top-nav {
+      background: white;
+      padding: 20px 30px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 50;
+    }
+
+    .top-nav-left {
+      display: flex;
+      gap: 20px;
+      align-items: center;
+    }
+
+    .search-box {
+      background: #f5f5f5;
+      border: 1px solid #ddd;
+      padding: 10px 15px;
+      border-radius: 6px;
+      width: 300px;
+    }
+
+    .top-nav-right {
+      display: flex;
+      gap: 20px;
+      align-items: center;
+    }
+
+    .notification-icon,
+    .settings-icon,
+    .profile-icon {
+      font-size: 20px;
+      cursor: pointer;
+      opacity: 0.6;
+      transition: opacity 0.3s;
+    }
+
+    .notification-icon:hover,
+    .settings-icon:hover,
+    .profile-icon:hover {
+      opacity: 1;
+    }
+
+    /* MAIN PAGE CONTENT */
+    main {
+      flex: 1;
+      padding: 30px;
+      overflow-y: auto;
+    }
+
+    /* RESPONSIVE */
+    @media (max-width: 768px) {
+      .sidebar {
+        width: 0;
+        transform: translateX(-100%);
+        transition: transform 0.3s;
+      }
+
+      .sidebar.open {
+        width: 280px;
+        transform: translateX(0);
+      }
+
+      .main-content {
+        margin-left: 0;
+      }
+
+      .toggle-sidebar-btn {
+        display: flex;
+        font-size: 24px;
+        cursor: pointer;
+      }
+
+      .search-box {
+        display: none;
+      }
+    }
+
+    @media (min-width: 769px) {
+      .toggle-sidebar-btn {
+        display: none;
+      }
+    }
+
+    /* LOADING STATE */
+    .loading {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 400px;
+    }
+
+    .spinner {
+      border: 4px solid #f3f3f3;
+      border-top: 4px solid #1B5E35;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    /* BREADCRUMB */
+    .breadcrumb {
+      display: flex;
+      gap: 8px;
+      font-size: 14px;
+      margin-bottom: 20px;
+      color: #666;
+    }
+
+    .breadcrumb a {
+      color: #1B5E35;
+      text-decoration: none;
+      cursor: pointer;
+    }
+
+    .breadcrumb a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <div class="authenticated-layout">
+    <!-- SIDEBAR NAVIGATION -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-header">
+        <div class="sidebar-logo">
+          🏛️ Liberia
+        </div>
+        <div class="sidebar-user" id="sidebar-user-name">
+          Welcome!
+        </div>
+      </div>
+
+      <nav class="sidebar-nav" id="sidebar-nav">
+        <!-- Navigation items will be inserted here -->
+      </nav>
+
+      <div class="sidebar-footer">
+        <button class="logout-btn" id="logout-btn">
+          <span>🚪</span>
+          <span>Logout</span>
+        </button>
+      </div>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <div class="main-content">
+      <!-- TOP NAVIGATION -->
+      <nav class="top-nav">
+        <div class="top-nav-left">
+          <button class="toggle-sidebar-btn" id="toggle-sidebar">☰</button>
+          <input
+            type="text"
+            class="search-box"
+            placeholder="Search..."
+            id="search-box"
+          >
+        </div>
+
+        <div class="top-nav-right">
+          <span class="notification-icon" id="notifications-btn" title="Notifications">🔔</span>
+          <span class="settings-icon" id="settings-btn" title="Settings">⚙️</span>
+          <span class="profile-icon" id="profile-btn" title="Profile">👤</span>
+        </div>
+      </nav>
+
+      <!-- PAGE CONTENT -->
+      <main id="app">
+        <!-- Page content will be injected here -->
+      </main>
+    </div>
+  </div>
+
+  <!-- SCRIPTS -->
+  <script src="/shared/js/route-config.js" type="module"></script>
+  <script src="/shared/js/route-guard.js" type="module"></script>
+  <script src="/shared/js/visibility.js" type="module"></script>
+
+  <script>
+    // Sidebar toggle on mobile
+    const toggleBtn = document.getElementById('toggle-sidebar');
+    const sidebar = document.getElementById('sidebar');
+
+    if (toggleBtn) {
+      toggleBtn.addEventListener('click', () => {
+        sidebar.classList.toggle('open');
+      });
+    }
+
+    // Close sidebar when clicking nav items
+    const navItems = sidebar.querySelectorAll('.nav-item');
+    navItems.forEach(item => {
+      item.addEventListener('click', () => {
+        if (window.innerWidth <= 768) {
+          sidebar.classList.remove('open');
+        }
+      });
+    });
+
+    // Navigation handlers
+    document.getElementById('settings-btn')?.addEventListener('click', () => {
+      window.location.href = '/settings';
+    });
+
+    document.getElementById('profile-btn')?.addEventListener('click', () => {
+      window.location.href = '/profile';
+    });
+
+    document.getElementById('logout-btn')?.addEventListener('click', async () => {
+      // Logout will be handled by route-guard.js
+      window.dispatchEvent(new CustomEvent('logout'));
+    });
+  </script>
+</body>
+</html>

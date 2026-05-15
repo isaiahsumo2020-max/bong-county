@@ -1,0 +1,67 @@
+/* Sidebar Navigation Styles */
+
+.sidebar-link {
+  display: block;
+  text-align: left;
+  padding: 1rem 1.25rem;
+  border-radius: 0.75rem;
+  transition: all 0.2s;
+  border: none;
+  cursor: pointer;
+  color: #e5e7eb;
+  font-size: 1rem;
+  font-weight: 500;
+  background: transparent;
+}
+
+.sidebar-link:hover {
+  background-color: #1e40af;
+  color: white;
+}
+
+.sidebar-link.active-link {
+  background-color: #2563eb;
+  color: white;
+}
+
+/* Sidebar container styles */
+aside {
+  box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+}
+
+aside h1 {
+  letter-spacing: -0.025em;
+}
+
+aside nav {
+  scrollbar-width: thin;
+  scrollbar-color: #4b5563 #1f2937;
+}
+
+aside nav::-webkit-scrollbar {
+  width: 6px;
+}
+
+aside nav::-webkit-scrollbar-track {
+  background: #1f2937;
+}
+
+aside nav::-webkit-scrollbar-thumb {
+  background: #4b5563;
+  border-radius: 3px;
+}
+
+aside nav::-webkit-scrollbar-thumb:hover {
+  background: #6b7280;
+}
+
+/* Logout button styling */
+aside .p-6 button {
+  font-weight: 600;
+  transition: all 0.2s;
+}
+
+aside .p-6 button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(220, 38, 38, 0.2);
+}

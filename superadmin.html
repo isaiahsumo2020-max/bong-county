@@ -1,0 +1,3925 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Super Admin Dashboard | CountySphere liberia</title>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <style>
+    * {
+      font-family: 'Poppins', sans-serif;
+    }
+
+    body {
+      background: #f5f7fb;
+    }
+
+    .sidebar-link:hover {
+      background: #1e40af;
+      color: white;
+    }
+
+    .active-link {
+      background: #2563eb;
+      color: white;
+    }
+
+    .page.hidden {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ================= MAIN WRAPPER ================= -->
+
+  <div class="flex min-h-screen">
+
+    <!-- ================= SIDEBAR ================= -->
+
+    <aside class="w-72 bg-slate-950 text-white hidden lg:flex flex-col fixed left-0 top-0 bottom-0 h-screen">
+
+      <div class="px-8 py-8 border-b border-white/10">
+        <h1 class="text-2xl text-red-700 font-extrabold">
+          County <span class="text-white">Sphere</span><span class="text-blue-500">Liberia</span>
+        </h1>
+
+        <p class="text-gray-400 text-sm mt-2">
+          Super Admin Dashboard
+        </p>
+      </div>
+
+
+      <nav class="flex-1 overflow-y-auto px-5 py-8 space-y-3">
+
+        <button onclick="showPage('overview')" class="sidebar-link active-link w-full text-left px-5 py-4 rounded-2xl transition hover:bg-blue-600">
+          Dashboard
+        </button>
+
+        <button onclick="showPage('counties')" class="sidebar-link w-full text-left px-5 py-4 rounded-2xl transition hover:bg-slate-800">
+          Counties
+        </button>
+
+        <button onclick="showPage('content')" class="sidebar-link w-full text-left px-5 py-4 rounded-2xl transition hover:bg-slate-800">
+          Content
+        </button>
+
+        <button onclick="showPage('tourism')" class="sidebar-link w-full text-left px-5 py-4 rounded-2xl transition hover:bg-slate-800">
+          Tourism Sites
+        </button>
+
+        <button onclick="showPage('events')" class="sidebar-link w-full text-left px-5 py-4 rounded-2xl transition hover:bg-slate-800">
+          Events
+        </button>
+
+        <button onclick="showPage('opportunities')" class="sidebar-link w-full text-left px-5 py-4 rounded-2xl transition hover:bg-slate-800">
+          Opportunities
+        </button>
+
+        <button onclick="showPage('users')" class="sidebar-link w-full text-left px-5 py-4 rounded-2xl transition hover:bg-slate-800">
+          Users
+        </button>
+
+        <button onclick="showPage('districts')" class="sidebar-link w-full text-left px-5 py-4 rounded-2xl transition hover:bg-slate-800">
+          Districts
+        </button>
+
+        <button onclick="showPage('analytics')" class="sidebar-link w-full text-left px-5 py-4 rounded-2xl transition hover:bg-slate-800">
+          Analytics
+        </button>
+
+        <button onclick="showPage('settings')" class="sidebar-link w-full text-left px-5 py-4 rounded-2xl transition hover:bg-slate-800">
+          Settings
+        </button>
+
+      </nav>
+
+
+      <div class="p-6 border-t border-white/10">
+
+        <button
+          onclick="logout()"
+          class="w-full bg-red-600 hover:bg-red-500 transition py-4 rounded-2xl font-semibold"
+        >
+          Logout
+        </button>
+
+      </div>
+
+    </aside>
+
+
+    <!-- ================= CONTENT ================= -->
+
+    <main class="flex-1 overflow-hidden ml-72">
+
+      <!-- ================= TOPBAR ================= -->
+
+      <header class="bg-white border-b border-gray-200 px-6 lg:px-10 py-5 flex items-center justify-between">
+
+        <div>
+          <h2 class="text-3xl font-extrabold text-gray-900">
+            Dashboard Overview
+          </h2>
+
+          <p class="text-gray-500 mt-1">
+            Manage Liberia Counties Digital Platform
+          </p>
+        </div>
+
+
+        <div class="flex items-center gap-5">
+
+          <div class="text-right">
+            <h4 id="adminName" class="font-bold text-gray-900">
+              Loading...
+            </h4>
+
+            <p class="text-sm text-gray-500">
+              Super Admin
+            </p>
+          </div>
+
+
+          <div class="w-14 h-14 rounded-full bg-blue-600 text-white flex items-center justify-center font-bold text-xl">
+            A
+          </div>
+
+        </div>
+
+      </header>
+
+
+      <!-- ================= PAGES CONTAINER ================= -->
+
+      <div class="pages-container h-[calc(100vh-100px)] overflow-hidden">
+
+        <!-- ================= OVERVIEW PAGE ================= -->
+
+        <section data-page="overview" class="page active h-full overflow-y-auto p-6 lg:p-10">
+
+
+          <!-- ================= STATS ================= -->
+
+          <div id="stats" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 mb-10">
+
+          <div class="bg-white rounded-3xl p-8 shadow-sm border border-gray-100">
+            <p class="text-gray-500 font-medium mb-3">
+              Total Counties
+            </p>
+
+            <h2 id="totalCounties" class="text-5xl font-extrabold text-blue-600">
+              0
+            </h2>
+          </div>
+
+
+          <div class="bg-white rounded-3xl p-8 shadow-sm border border-gray-100">
+            <p class="text-gray-500 font-medium mb-3">
+              Published Content
+            </p>
+
+            <h2 id="totalContent" class="text-5xl font-extrabold text-green-600">
+              0
+            </h2>
+          </div>
+
+
+          <div class="bg-white rounded-3xl p-8 shadow-sm border border-gray-100">
+            <p class="text-gray-500 font-medium mb-3">
+              Registered Users
+            </p>
+
+            <h2 id="totalUsers" class="text-5xl font-extrabold text-purple-600">
+              0
+            </h2>
+          </div>
+
+
+          <div class="bg-white rounded-3xl p-8 shadow-sm border border-gray-100">
+            <p class="text-gray-500 font-medium mb-3">
+              Tourism Sites
+            </p>
+
+            <h2 id="totalTourism" class="text-5xl font-extrabold text-orange-600">
+              0
+            </h2>
+          </div>
+
+        </div>
+
+        </section>
+
+
+        <!-- ================= COUNTIES PAGE ================= -->
+
+        <section data-page="counties" class="page hidden h-full overflow-y-auto p-6 lg:p-10">
+
+        <!-- ================= COUNTIES ================= -->
+
+        <div id="countiesSection" class="bg-white rounded-3xl shadow-sm border border-gray-100 p-8 mb-10">
+
+          <div class="flex items-center justify-between mb-8">
+
+            <div>
+              <h3 class="text-2xl font-extrabold text-gray-900">
+                Counties
+              </h3>
+
+              <p class="text-gray-500 mt-1">
+                Manage all Liberia counties
+              </p>
+            </div>
+
+
+            <button
+              onclick="openAddCountyModal()"
+              class="bg-blue-600 hover:bg-blue-500 transition text-white px-6 py-3 rounded-lg font-semibold"
+            >
+              Add County
+            </button>
+
+          </div>
+
+          <!-- ================= FILTERS ================= -->
+          <div class="bg-gray-50 rounded-lg p-4 mb-6 flex flex-wrap gap-4 items-end">
+            <div>
+              <label class="block text-sm font-semibold text-gray-700 mb-2">Status</label>
+              <select id="countyStatusFilter" onchange="applyCountyFilters()" class="border border-gray-300 px-3 py-2 rounded focus:outline-none focus:border-blue-500">
+                <option value="">All Statuses</option>
+                <option value="active">Active</option>
+                <option value="inactive">Inactive</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-sm font-semibold text-gray-700 mb-2">Search</label>
+              <input type="text" id="countySearchFilter" onkeyup="applyCountyFilters()" placeholder="Search county name or region..." class="border border-gray-300 px-3 py-2 rounded focus:outline-none focus:border-blue-500 w-64">
+            </div>
+            <button onclick="loadCounties()" class="bg-gray-600 hover:bg-gray-500 text-white px-4 py-2 rounded font-semibold">Reset</button>
+          </div>
+
+          <div class="overflow-x-auto">
+
+            <table class="w-full">
+
+              <thead>
+                <tr class="border-b border-gray-200 text-left">
+                  <th class="pb-4 font-semibold text-gray-500">County</th>
+                  <th class="pb-4 font-semibold text-gray-500">Region</th>
+                  <th class="pb-4 font-semibold text-gray-500">Capital</th>
+                  <th class="pb-4 font-semibold text-gray-500">Status</th>
+                  <th class="pb-4 font-semibold text-gray-500">Actions</th>
+                </tr>
+              </thead>
+
+
+              <tbody id="countiesTable">
+                <!-- Dynamic Data -->
+              </tbody>
+
+            </table>
+
+          </div>
+
+        </div>
+
+        </section>
+
+
+        <!-- ================= CONTENT PAGE ================= -->
+
+        <section data-page="content" class="page hidden h-full overflow-y-auto p-6 lg:p-10">
+
+        <!-- ================= CONTENT ================= -->
+
+        <div id="contentSection" class="bg-white rounded-3xl shadow-sm border border-gray-100 p-8 mb-10">
+
+          <div class="flex items-center justify-between mb-8">
+
+            <div>
+              <h3 class="text-2xl font-extrabold text-gray-900">
+                Content
+              </h3>
+
+              <p class="text-gray-500 mt-1">
+                Manage platform content
+              </p>
+            </div>
+
+            <button
+              onclick="openAddContentModal()"
+              class="bg-blue-600 hover:bg-blue-500 transition text-white px-6 py-3 rounded-lg font-semibold"
+            >
+              Add Content
+            </button>
+
+          </div>
+
+          <!-- ================= FILTERS ================= -->
+          <div class="bg-gray-50 rounded-lg p-4 mb-6 flex flex-wrap gap-4 items-end">
+            <div>
+              <label class="block text-sm font-semibold text-gray-700 mb-2">County</label>
+              <select id="contentCountyFilter" onchange="applyContentFilters()" class="border border-gray-300 px-3 py-2 rounded focus:outline-none focus:border-blue-500">
+                <option value="">All Counties</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-sm font-semibold text-gray-700 mb-2">Type</label>
+              <select id="contentTypeFilter" onchange="applyContentFilters()" class="border border-gray-300 px-3 py-2 rounded focus:outline-none focus:border-blue-500">
+                <option value="">All Types</option>
+                <option value="story">Story</option>
+                <option value="announcement">Announcement</option>
+                <option value="article">Article</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-sm font-semibold text-gray-700 mb-2">Status</label>
+              <select id="contentStatusFilter" onchange="applyContentFilters()" class="border border-gray-300 px-3 py-2 rounded focus:outline-none focus:border-blue-500">
+                <option value="">All Statuses</option>
+                <option value="draft">Draft</option>
+                <option value="pending_review">Pending Review</option>
+                <option value="published">Published</option>
+                <option value="rejected">Rejected</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-sm font-semibold text-gray-700 mb-2">Search</label>
+              <input type="text" id="contentSearchFilter" onkeyup="applyContentFilters()" placeholder="Search title..." class="border border-gray-300 px-3 py-2 rounded focus:outline-none focus:border-blue-500 w-48">
+            </div>
+            <button onclick="loadContent()" class="bg-gray-600 hover:bg-gray-500 text-white px-4 py-2 rounded font-semibold">Reset</button>
+          </div>
+
+          <div class="overflow-x-auto">
+
+            <table class="w-full">
+
+              <thead>
+                <tr class="border-b border-gray-200 text-left">
+                  <th class="pb-4 font-semibold text-gray-500">Title</th>
+                  <th class="pb-4 font-semibold text-gray-500">Type</th>
+                  <th class="pb-4 font-semibold text-gray-500">County</th>
+                  <th class="pb-4 font-semibold text-gray-500">Status</th>
+                  <th class="pb-4 font-semibold text-gray-500">Actions</th>
+                </tr>
+              </thead>
+
+              <tbody id="contentTable">
+                <!-- Dynamic Data -->
+              </tbody>
+
+            </table>
+
+          </div>
+
+        </div>
+
+        </section>
+
+
+        <!-- ================= TOURISM PAGE ================= -->
+
+        <section data-page="tourism" class="page hidden h-full overflow-y-auto p-6 lg:p-10">
+
+        <!-- ================= TOURISM SITES ================= -->
+
+        <div id="tourismSection" class="bg-white rounded-3xl shadow-sm border border-gray-100 p-8 mb-10">
+
+          <div class="flex items-center justify-between mb-8">
+
+            <div>
+              <h3 class="text-2xl font-extrabold text-gray-900">
+                Tourism Sites
+              </h3>
+
+              <p class="text-gray-500 mt-1">
+                Manage county tourism attractions
+              </p>
+            </div>
+
+            <button
+              onclick="openAddTourismModal()"
+              class="bg-blue-600 hover:bg-blue-500 transition text-white px-6 py-3 rounded-lg font-semibold"
+            >
+              Add Tourism Site
+            </button>
+
+          </div>
+
+          <!-- ================= FILTERS ================= -->
+          <div class="bg-gray-50 rounded-lg p-4 mb-6 flex flex-wrap gap-4 items-end">
+            <div>
+              <label class="block text-sm font-semibold text-gray-700 mb-2">County</label>
+              <select id="tourismCountyFilter" onchange="applyTourismFilters()" class="border border-gray-300 px-3 py-2 rounded focus:outline-none focus:border-blue-500">
+                <option value="">All Counties</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-sm font-semibold text-gray-700 mb-2">Published</label>
+              <select id="tourismPublishedFilter" onchange="applyTourismFilters()" class="border border-gray-300 px-3 py-2 rounded focus:outline-none focus:border-blue-500">
+                <option value="">All</option>
+                <option value="true">Published</option>
+                <option value="false">Unpublished</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-sm font-semibold text-gray-700 mb-2">Search</label>
+              <input type="text" id="tourismSearchFilter" onkeyup="applyTourismFilters()" placeholder="Search site name..." class="border border-gray-300 px-3 py-2 rounded focus:outline-none focus:border-blue-500 w-48">
+            </div>
+            <button onclick="loadTourism()" class="bg-gray-600 hover:bg-gray-500 text-white px-4 py-2 rounded font-semibold">Reset</button>
+          </div>
+
+          <div class="overflow-x-auto">
+
+            <table class="w-full">
+
+              <thead>
+                <tr class="border-b border-gray-200 text-left">
+                  <th class="pb-4 font-semibold text-gray-500">Name</th>
+                  <th class="pb-4 font-semibold text-gray-500">County</th>
+                  <th class="pb-4 font-semibold text-gray-500">Category</th>
+                  <th class="pb-4 font-semibold text-gray-500">Published</th>
+                  <th class="pb-4 font-semibold text-gray-500">Actions</th>
+                </tr>
+              </thead>
+
+              <tbody id="tourismTable">
+                <!-- Dynamic Data -->
+              </tbody>
+
+            </table>
+
+          </div>
+
+        </div>
+
+        </section>
+
+
+        <!-- ================= EVENTS PAGE ================= -->
+
+        <section data-page="events" class="page hidden h-full overflow-y-auto p-6 lg:p-10">
+
+        <!-- ================= EVENTS ================= -->
+
+        <div id="eventsSection" class="bg-white rounded-3xl shadow-sm border border-gray-100 p-8 mb-10">
+
+          <div class="flex items-center justify-between mb-8">
+
+            <div>
+              <h3 class="text-2xl font-extrabold text-gray-900">
+                Events
+              </h3>
+
+              <p class="text-gray-500 mt-1">
+                Manage community events and gatherings
+              </p>
+            </div>
+
+            <button
+              onclick="openAddEventModal()"
+              class="bg-blue-600 hover:bg-blue-500 transition text-white px-6 py-3 rounded-lg font-semibold"
+            >
+              Add Event
+            </button>
+
+          </div>
+
+          <!-- ================= FILTERS ================= -->
+          <div class="bg-gray-50 rounded-lg p-4 mb-6 flex flex-wrap gap-4 items-end">
+            <div>
+              <label class="block text-sm font-semibold text-gray-700 mb-2">County</label>
+              <select id="eventCountyFilter" onchange="applyEventFilters()" class="border border-gray-300 px-3 py-2 rounded focus:outline-none focus:border-blue-500">
+                <option value="">All Counties</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-sm font-semibold text-gray-700 mb-2">Status</label>
+              <select id="eventStatusFilter" onchange="applyEventFilters()" class="border border-gray-300 px-3 py-2 rounded focus:outline-none focus:border-blue-500">
+                <option value="">All Statuses</option>
+                <option value="upcoming">Upcoming</option>
+                <option value="ongoing">Ongoing</option>
+                <option value="past">Past</option>
+                <option value="cancelled">Cancelled</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-sm font-semibold text-gray-700 mb-2">Search</label>
+              <input type="text" id="eventSearchFilter" onkeyup="applyEventFilters()" placeholder="Search event title..." class="border border-gray-300 px-3 py-2 rounded focus:outline-none focus:border-blue-500 w-48">
+            </div>
+            <button onclick="loadEvents()" class="bg-gray-600 hover:bg-gray-500 text-white px-4 py-2 rounded font-semibold">Reset</button>
+          </div>
+
+          <div class="overflow-x-auto">
+
+            <table class="w-full">
+
+              <thead>
+                <tr class="border-b border-gray-200 text-left">
+                  <th class="pb-4 font-semibold text-gray-500">Title</th>
+                  <th class="pb-4 font-semibold text-gray-500">County</th>
+                  <th class="pb-4 font-semibold text-gray-500">Event Date</th>
+                  <th class="pb-4 font-semibold text-gray-500">Status</th>
+                  <th class="pb-4 font-semibold text-gray-500">Actions</th>
+                </tr>
+              </thead>
+
+              <tbody id="eventsTable">
+                <!-- Dynamic Data -->
+              </tbody>
+
+            </table>
+
+          </div>
+
+        </div>
+
+        </section>
+
+
+        <!-- ================= OPPORTUNITIES PAGE ================= -->
+
+        <section data-page="opportunities" class="page hidden h-full overflow-y-auto p-6 lg:p-10">
+
+        <!-- ================= OPPORTUNITIES ================= -->
+
+        <div id="opportunitiesSection" class="bg-white rounded-3xl shadow-sm border border-gray-100 p-8 mb-10">
+
+          <div class="flex items-center justify-between mb-8">
+
+            <div>
+              <h3 class="text-2xl font-extrabold text-gray-900">
+                Opportunities
+              </h3>
+
+              <p class="text-gray-500 mt-1">
+                Manage scholarships, jobs, internships, and training programs
+              </p>
+            </div>
+
+            <button
+              onclick="openAddOpportunityModal()"
+              class="bg-blue-600 hover:bg-blue-500 transition text-white px-6 py-3 rounded-lg font-semibold"
+            >
+              Add Opportunity
+            </button>
+
+          </div>
+
+          <!-- ================= FILTERS ================= -->
+          <div class="bg-gray-50 rounded-lg p-4 mb-6 flex flex-wrap gap-4 items-end">
+            <div>
+              <label class="block text-sm font-semibold text-gray-700 mb-2">County</label>
+              <select id="opportunityCountyFilter" onchange="applyOpportunityFilters()" class="border border-gray-300 px-3 py-2 rounded focus:outline-none focus:border-blue-500">
+                <option value="">All Counties</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-sm font-semibold text-gray-700 mb-2">Type</label>
+              <select id="opportunityTypeFilter" onchange="applyOpportunityFilters()" class="border border-gray-300 px-3 py-2 rounded focus:outline-none focus:border-blue-500">
+                <option value="">All Types</option>
+                <option value="scholarship">Scholarship</option>
+                <option value="internship">Internship</option>
+                <option value="training">Training</option>
+                <option value="fellowship">Fellowship</option>
+                <option value="grant">Grant</option>
+                <option value="job">Job</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-sm font-semibold text-gray-700 mb-2">Status</label>
+              <select id="opportunityStatusFilter" onchange="applyOpportunityFilters()" class="border border-gray-300 px-3 py-2 rounded focus:outline-none focus:border-blue-500">
+                <option value="">All Statuses</option>
+                <option value="open">Open</option>
+                <option value="closing_soon">Closing Soon</option>
+                <option value="closed">Closed</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-sm font-semibold text-gray-700 mb-2">Search</label>
+              <input type="text" id="opportunitySearchFilter" onkeyup="applyOpportunityFilters()" placeholder="Search title..." class="border border-gray-300 px-3 py-2 rounded focus:outline-none focus:border-blue-500 w-48">
+            </div>
+            <button onclick="loadOpportunities()" class="bg-gray-600 hover:bg-gray-500 text-white px-4 py-2 rounded font-semibold">Reset</button>
+          </div>
+
+          <div class="overflow-x-auto">
+
+            <table class="w-full">
+
+              <thead>
+                <tr class="border-b border-gray-200 text-left">
+                  <th class="pb-4 font-semibold text-gray-500">Title</th>
+                  <th class="pb-4 font-semibold text-gray-500">County</th>
+                  <th class="pb-4 font-semibold text-gray-500">Type</th>
+                  <th class="pb-4 font-semibold text-gray-500">Deadline</th>
+                  <th class="pb-4 font-semibold text-gray-500">Status</th>
+                  <th class="pb-4 font-semibold text-gray-500">Actions</th>
+                </tr>
+              </thead>
+
+              <tbody id="opportunitiesTable">
+                <!-- Dynamic Data -->
+              </tbody>
+
+            </table>
+
+          </div>
+
+        </div>
+
+        </section>
+
+
+        <!-- ================= USERS PAGE ================= -->
+
+        <section data-page="users" class="page hidden h-full overflow-y-auto p-6 lg:p-10">
+
+        <!-- ================= USERS MANAGEMENT ================= -->
+
+        <div id="usersSection" class="bg-white rounded-3xl shadow-sm border border-gray-100 p-8 mb-10">
+
+          <div class="flex items-center justify-between mb-8">
+
+            <div>
+              <h3 class="text-2xl font-extrabold text-gray-900">
+                Users
+              </h3>
+
+              <p class="text-gray-500 mt-1">
+                Manage platform users and permissions
+              </p>
+            </div>
+
+          </div>
+
+          <!-- ================= FILTERS ================= -->
+          <div class="bg-gray-50 rounded-lg p-4 mb-6 flex flex-wrap gap-4 items-end">
+            <div>
+              <label class="block text-sm font-semibold text-gray-700 mb-2">Role</label>
+              <select id="userRoleFilter" onchange="applyUserFilters()" class="border border-gray-300 px-3 py-2 rounded focus:outline-none focus:border-blue-500">
+                <option value="">All Roles</option>
+                <option value="super_admin">Super Admin</option>
+                <option value="county_admin">County Admin</option>
+                <option value="contributor">Contributor</option>
+                <option value="visitor">Visitor</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-sm font-semibold text-gray-700 mb-2">County</label>
+              <select id="userCountyFilter" onchange="applyUserFilters()" class="border border-gray-300 px-3 py-2 rounded focus:outline-none focus:border-blue-500">
+                <option value="">All Counties</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-sm font-semibold text-gray-700 mb-2">Status</label>
+              <select id="userStatusFilter" onchange="applyUserFilters()" class="border border-gray-300 px-3 py-2 rounded focus:outline-none focus:border-blue-500">
+                <option value="">All</option>
+                <option value="true">Active</option>
+                <option value="false">Inactive</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-sm font-semibold text-gray-700 mb-2">Search</label>
+              <input type="text" id="userSearchFilter" onkeyup="applyUserFilters()" placeholder="Search name or email..." class="border border-gray-300 px-3 py-2 rounded focus:outline-none focus:border-blue-500 w-48">
+            </div>
+            <button onclick="loadUsersManagement()" class="bg-gray-600 hover:bg-gray-500 text-white px-4 py-2 rounded font-semibold">Reset</button>
+          </div>
+
+          <div class="overflow-x-auto">
+
+            <table class="w-full">
+
+              <thead>
+                <tr class="border-b border-gray-200 text-left">
+                  <th class="pb-4 font-semibold text-gray-500">Name</th>
+                  <th class="pb-4 font-semibold text-gray-500">Email</th>
+                  <th class="pb-4 font-semibold text-gray-500">Role</th>
+                  <th class="pb-4 font-semibold text-gray-500">County</th>
+                  <th class="pb-4 font-semibold text-gray-500">Verified</th>
+                  <th class="pb-4 font-semibold text-gray-500">Status</th>
+                  <th class="pb-4 font-semibold text-gray-500">Actions</th>
+                </tr>
+              </thead>
+
+              <tbody id="usersManagementTable">
+                <!-- Dynamic Data -->
+              </tbody>
+
+            </table>
+
+          </div>
+
+        </div>
+
+        </section>
+
+
+        <!-- ================= DISTRICTS PAGE ================= -->
+
+        <section data-page="districts" class="page hidden h-full overflow-y-auto p-6 lg:p-10">
+
+        <!-- ================= DISTRICTS ================= -->
+
+        <div id="districtsSection" class="bg-white rounded-3xl shadow-sm border border-gray-100 p-8">
+
+          <div class="flex items-center justify-between mb-8">
+
+            <div>
+              <h3 class="text-2xl font-extrabold text-gray-900">
+                Districts
+              </h3>
+
+              <p class="text-gray-500 mt-1">
+                Manage administrative districts per county
+              </p>
+            </div>
+
+            <button
+              onclick="openAddDistrictModal()"
+              class="bg-blue-600 hover:bg-blue-500 transition text-white px-6 py-3 rounded-lg font-semibold"
+            >
+              Add District
+            </button>
+
+          </div>
+
+          <!-- ================= FILTERS ================= -->
+          <div class="bg-gray-50 rounded-lg p-4 mb-6 flex flex-wrap gap-4 items-end">
+            <div>
+              <label class="block text-sm font-semibold text-gray-700 mb-2">County</label>
+              <select id="districtCountyFilter" onchange="applyDistrictFilters()" class="border border-gray-300 px-3 py-2 rounded focus:outline-none focus:border-blue-500">
+                <option value="">All Counties</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-sm font-semibold text-gray-700 mb-2">Search</label>
+              <input type="text" id="districtSearchFilter" onkeyup="applyDistrictFilters()" placeholder="Search district name..." class="border border-gray-300 px-3 py-2 rounded focus:outline-none focus:border-blue-500 w-48">
+            </div>
+            <button onclick="loadDistricts()" class="bg-gray-600 hover:bg-gray-500 text-white px-4 py-2 rounded font-semibold">Reset</button>
+          </div>
+
+          <div class="overflow-x-auto">
+
+            <table class="w-full">
+
+              <thead>
+                <tr class="border-b border-gray-200 text-left">
+                  <th class="pb-4 font-semibold text-gray-500">District Name</th>
+                  <th class="pb-4 font-semibold text-gray-500">County</th>
+                  <th class="pb-4 font-semibold text-gray-500">Description</th>
+                  <th class="pb-4 font-semibold text-gray-500">Actions</th>
+                </tr>
+              </thead>
+
+              <tbody id="districtsTable">
+                <!-- Dynamic Data -->
+              </tbody>
+
+            </table>
+
+          </div>
+
+        </div>
+
+        </section>
+
+
+        <!-- ================= ANALYTICS PAGE ================= -->
+
+        <section data-page="analytics" class="page hidden h-full overflow-y-auto p-6 lg:p-10">
+
+        <div class="bg-white rounded-3xl shadow-sm border border-gray-100 p-8 mb-10">
+          <h3 class="text-2xl font-extrabold text-gray-900 mb-2">Analytics Dashboard</h3>
+          <p class="text-gray-500 mb-8">Platform-wide statistics and insights</p>
+
+          <!-- ================= ANALYTICS STATS GRID ================= -->
+          <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 mb-10">
+            <div class="bg-gradient-to-br from-blue-50 to-blue-100 rounded-2xl p-6 border border-blue-200">
+              <p class="text-gray-600 font-semibold mb-2">Active Counties</p>
+              <h3 id="analyticsActiveCounties" class="text-4xl font-extrabold text-blue-600">0</h3>
+              <p class="text-sm text-gray-500 mt-2">Total counties</p>
+            </div>
+
+            <div class="bg-gradient-to-br from-green-50 to-green-100 rounded-2xl p-6 border border-green-200">
+              <p class="text-gray-600 font-semibold mb-2">Content Items</p>
+              <h3 id="analyticsContentItems" class="text-4xl font-extrabold text-green-600">0</h3>
+              <p class="text-sm text-gray-500 mt-2">All content pieces</p>
+            </div>
+
+            <div class="bg-gradient-to-br from-purple-50 to-purple-100 rounded-2xl p-6 border border-purple-200">
+              <p class="text-gray-600 font-semibold mb-2">Active Users</p>
+              <h3 id="analyticsActiveUsers" class="text-4xl font-extrabold text-purple-600">0</h3>
+              <p class="text-sm text-gray-500 mt-2">Verified users</p>
+            </div>
+
+            <div class="bg-gradient-to-br from-orange-50 to-orange-100 rounded-2xl p-6 border border-orange-200">
+              <p class="text-gray-600 font-semibold mb-2">Tourism Sites</p>
+              <h3 id="analyticsTourismSites" class="text-4xl font-extrabold text-orange-600">0</h3>
+              <p class="text-sm text-gray-500 mt-2">Published sites</p>
+            </div>
+          </div>
+
+          <!-- ================= CONTENT ANALYTICS ================= -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
+            <div class="bg-gray-50 rounded-2xl p-6 border border-gray-200">
+              <h4 class="font-extrabold text-gray-900 mb-6">Content by Status</h4>
+              <div id="analyticsContentStatus" class="space-y-3">
+                <!-- Dynamic data -->
+              </div>
+            </div>
+
+            <div class="bg-gray-50 rounded-2xl p-6 border border-gray-200">
+              <h4 class="font-extrabold text-gray-900 mb-6">Content by Type</h4>
+              <div id="analyticsContentType" class="space-y-3">
+                <!-- Dynamic data -->
+              </div>
+            </div>
+          </div>
+
+          <!-- ================= EVENTS & OPPORTUNITIES ANALYTICS ================= -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="bg-gray-50 rounded-2xl p-6 border border-gray-200">
+              <h4 class="font-extrabold text-gray-900 mb-6">Events by Status</h4>
+              <div id="analyticsEventStatus" class="space-y-3">
+                <!-- Dynamic data -->
+              </div>
+            </div>
+
+            <div class="bg-gray-50 rounded-2xl p-6 border border-gray-200">
+              <h4 class="font-extrabold text-gray-900 mb-6">Opportunities by Type</h4>
+              <div id="analyticsOpportunityType" class="space-y-3">
+                <!-- Dynamic data -->
+              </div>
+            </div>
+          </div>
+        </div>
+
+        </section>
+
+
+        <!-- ================= SETTINGS PAGE ================= -->
+
+        <section data-page="settings" class="page hidden h-full overflow-y-auto p-6 lg:p-10">
+
+        <div class="max-w-4xl">
+          <!-- ================= GENERAL SETTINGS ================= -->
+          <div class="bg-white rounded-3xl shadow-sm border border-gray-100 p-8 mb-10">
+            <h3 class="text-2xl font-extrabold text-gray-900 mb-2">General Settings</h3>
+            <p class="text-gray-500 mb-8">Platform configuration and preferences</p>
+
+            <div class="space-y-6">
+              <div>
+                <label class="block text-gray-700 font-semibold mb-2">Platform Name</label>
+                <input type="text" id="settingsPlatformName" value="Liberia Counties Platform" class="w-full border border-gray-300 px-4 py-3 rounded-lg focus:outline-none focus:border-blue-500">
+                <p class="text-sm text-gray-500 mt-1">The name displayed across the platform</p>
+              </div>
+
+              <div>
+                <label class="block text-gray-700 font-semibold mb-2">Platform Description</label>
+                <textarea id="settingsPlatformDescription" class="w-full border border-gray-300 px-4 py-3 rounded-lg focus:outline-none focus:border-blue-500 h-24">A comprehensive digital platform for showcasing and managing Liberia's counties</textarea>
+                <p class="text-sm text-gray-500 mt-1">Brief description of the platform</p>
+              </div>
+
+              <div>
+                <label class="block text-gray-700 font-semibold mb-2">Support Email</label>
+                <input type="email" id="settingsSupportEmail" value="support@liberiacounties.com" class="w-full border border-gray-300 px-4 py-3 rounded-lg focus:outline-none focus:border-blue-500">
+                <p class="text-sm text-gray-500 mt-1">Email for user support inquiries</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- ================= CONTENT SETTINGS ================= -->
+          <div class="bg-white rounded-3xl shadow-sm border border-gray-100 p-8 mb-10">
+            <h3 class="text-2xl font-extrabold text-gray-900 mb-2">Content Moderation</h3>
+            <p class="text-gray-500 mb-8">Configure content publishing and approval workflows</p>
+
+            <div class="space-y-4">
+              <label class="flex items-center gap-3 cursor-pointer">
+                <input type="checkbox" id="settingsRequireApproval" checked class="w-5 h-5 rounded">
+                <span class="text-gray-900 font-semibold">Require approval for new content</span>
+              </label>
+              <p class="text-sm text-gray-500 ml-8">Content must be reviewed by admin before publishing</p>
+
+              <label class="flex items-center gap-3 cursor-pointer mt-4">
+                <input type="checkbox" id="settingsAutoPublish" class="w-5 h-5 rounded">
+                <span class="text-gray-900 font-semibold">Auto-publish after approval</span>
+              </label>
+              <p class="text-sm text-gray-500 ml-8">Automatically publish content once approved</p>
+            </div>
+          </div>
+
+          <!-- ================= SYSTEM SETTINGS ================= -->
+          <div class="bg-white rounded-3xl shadow-sm border border-gray-100 p-8 mb-10">
+            <h3 class="text-2xl font-extrabold text-gray-900 mb-2">System Settings</h3>
+            <p class="text-gray-500 mb-8">Advanced platform configuration</p>
+
+            <div class="space-y-6">
+              <div>
+                <label class="block text-gray-700 font-semibold mb-2">Items per Page</label>
+                <input type="number" id="settingsItemsPerPage" value="20" min="10" max="100" class="w-full border border-gray-300 px-4 py-3 rounded-lg focus:outline-none focus:border-blue-500">
+                <p class="text-sm text-gray-500 mt-1">Default number of items displayed in table lists</p>
+              </div>
+
+              <div>
+                <label class="block text-gray-700 font-semibold mb-2">Session Timeout (minutes)</label>
+                <input type="number" id="settingsSessionTimeout" value="30" min="5" max="480" class="w-full border border-gray-300 px-4 py-3 rounded-lg focus:outline-none focus:border-blue-500">
+                <p class="text-sm text-gray-500 mt-1">Auto logout duration for inactive users</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- ================= ACTION BUTTONS ================= -->
+          <div class="bg-white rounded-3xl shadow-sm border border-gray-100 p-8">
+            <div class="flex gap-4">
+              <button onclick="saveSettings()" class="bg-blue-600 hover:bg-blue-500 transition text-white px-8 py-3 rounded-lg font-semibold">
+                Save Settings
+              </button>
+              <button onclick="resetSettings()" class="bg-gray-400 hover:bg-gray-300 transition text-gray-900 px-8 py-3 rounded-lg font-semibold">
+                Reset to Defaults
+              </button>
+            </div>
+          </div>
+        </div>
+
+        </section>
+
+      </div>
+
+    </main>
+
+  </div>
+
+
+  <!-- ================= ADD COUNTY MODAL ================= -->
+
+  <div id="addCountyModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+    <div class="bg-white rounded-lg shadow-lg w-full max-w-md p-6">
+      <h3 class="text-2xl font-bold text-gray-900 mb-6">Add New County</h3>
+      
+      <form onsubmit="saveNewCounty(event)">
+        <div class="mb-4">
+          <label class="block text-gray-700 font-semibold mb-2">County Name *</label>
+          <input type="text" id="countyName" required class="w-full border border-gray-300 px-3 py-2 rounded focus:outline-none focus:border-blue-500" placeholder="Enter county name">
+        </div>
+
+        <div class="mb-4">
+          <label class="block text-gray-700 font-semibold mb-2">Region</label>
+          <input type="text" id="countyRegion" class="w-full border border-gray-300 px-3 py-2 rounded focus:outline-none focus:border-blue-500" placeholder="Enter region">
+        </div>
+
+        <div class="mb-4">
+          <label class="block text-gray-700 font-semibold mb-2">Capital</label>
+          <input type="text" id="countyCapital" class="w-full border border-gray-300 px-3 py-2 rounded focus:outline-none focus:border-blue-500" placeholder="Enter capital city">
+        </div>
+
+        <div class="mb-6">
+          <label class="block text-gray-700 font-semibold mb-2">Status *</label>
+          <select id="countyStatus" required class="w-full border border-gray-300 px-3 py-2 rounded focus:outline-none focus:border-blue-500">
+            <option value="">Select Status</option>
+            <option value="active">Active</option>
+            <option value="inactive">Inactive</option>
+          </select>
+        </div>
+
+        <div class="flex gap-3">
+          <button type="button" onclick="closeAddCountyModal()" class="flex-1 bg-gray-300 hover:bg-gray-400 text-gray-900 px-4 py-2 rounded font-semibold">Cancel</button>
+          <button type="submit" class="flex-1 bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded font-semibold">Add County</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+
+  <!-- ================= EDIT COUNTY MODAL ================= -->
+
+  <div id="editCountyModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+    <div class="bg-white rounded-lg shadow-lg w-full max-w-md p-6">
+      <h3 class="text-2xl font-bold text-gray-900 mb-6">Edit County</h3>
+      
+      <form onsubmit="saveEditCounty(event)">
+        <input type="hidden" id="editCountyId">
+
+        <div class="mb-4">
+          <label class="block text-gray-700 font-semibold mb-2">County Name *</label>
+          <input type="text" id="editCountyName" required class="w-full border border-gray-300 px-3 py-2 rounded focus:outline-none focus:border-blue-500">
+        </div>
+
+        <div class="mb-4">
+          <label class="block text-gray-700 font-semibold mb-2">Region</label>
+          <input type="text" id="editCountyRegion" class="w-full border border-gray-300 px-3 py-2 rounded focus:outline-none focus:border-blue-500">
+        </div>
+
+        <div class="mb-4">
+          <label class="block text-gray-700 font-semibold mb-2">Capital</label>
+          <input type="text" id="editCountyCapital" class="w-full border border-gray-300 px-3 py-2 rounded focus:outline-none focus:border-blue-500">
+        </div>
+
+        <div class="mb-6">
+          <label class="block text-gray-700 font-semibold mb-2">Status *</label>
+          <select id="editCountyStatus" required class="w-full border border-gray-300 px-3 py-2 rounded focus:outline-none focus:border-blue-500">
+            <option value="active">Active</option>
+            <option value="inactive">Inactive</option>
+          </select>
+        </div>
+
+        <div class="flex gap-3">
+          <button type="button" onclick="closeEditCountyModal()" class="flex-1 bg-gray-300 hover:bg-gray-400 text-gray-900 px-4 py-2 rounded font-semibold">Cancel</button>
+          <button type="submit" class="flex-1 bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded font-semibold">Save Changes</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+
+  <!-- ================= ADD CONTENT MODAL ================= -->
+
+  <div id="addContentModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 overflow-y-auto">
+    <div class="bg-white rounded-lg shadow-lg w-full max-w-md p-6 my-8">
+      <h3 class="text-2xl font-bold text-gray-900 mb-6">Add New Content</h3>
+      
+      <form onsubmit="saveNewContent(event)">
+        <div class="mb-4">
+          <label class="block text-gray-700 font-semibold mb-2">Title *</label>
+          <input type="text" id="contentTitle" required class="w-full border border-gray-300 px-3 py-2 rounded focus:outline-none focus:border-blue-500" placeholder="Enter content title">
+        </div>
+
+        <div class="mb-4">
+          <label class="block text-gray-700 font-semibold mb-2">Type *</label>
+          <select id="contentType" required class="w-full border border-gray-300 px-3 py-2 rounded focus:outline-none focus:border-blue-500">
+            <option value="">Select Type</option>
+            <option value="story">Story</option>
+            <option value="announcement">Announcement</option>
+            <option value="article">Article</option>
+          </select>
+        </div>
+
+        <div class="mb-4">
+          <label class="block text-gray-700 font-semibold mb-2">Body *</label>
+          <textarea id="contentBody" required class="w-full border border-gray-300 px-3 py-2 rounded focus:outline-none focus:border-blue-500" placeholder="Enter main content" rows="4"></textarea>
+        </div>
+
+        <div class="mb-4">
+          <label class="block text-gray-700 font-semibold mb-2">Excerpt</label>
+          <input type="text" id="contentExcerpt" class="w-full border border-gray-300 px-3 py-2 rounded focus:outline-none focus:border-blue-500" placeholder="Short preview text">
+        </div>
+
+        <div class="mb-4">
+          <label class="block text-gray-700 font-semibold mb-2">County *</label>
+          <select id="contentCounty" required class="w-full border border-gray-300 px-3 py-2 rounded focus:outline-none focus:border-blue-500">
+            <option value="">Select County</option>
+          </select>
+        </div>
+
+        <div class="mb-6">
+          <label class="block text-gray-700 font-semibold mb-2">Status *</label>
+          <select id="contentStatus" required class="w-full border border-gray-300 px-3 py-2 rounded focus:outline-none focus:border-blue-500">
+            <option value="">Select Status</option>
+            <option value="draft">Draft</option>
+            <option value="pending_review">Pending Review</option>
+            <option value="published">Published</option>
+            <option value="rejected">Rejected</option>
+          </select>
+        </div>
+
+        <div class="flex gap-3">
+          <button type="button" onclick="closeAddContentModal()" class="flex-1 bg-gray-300 hover:bg-gray-400 text-gray-900 px-4 py-2 rounded font-semibold">Cancel</button>
+          <button type="submit" class="flex-1 bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded font-semibold">Add Content</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+
+  <!-- ================= EDIT CONTENT MODAL ================= -->
+
+  <div id="editContentModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 overflow-y-auto">
+    <div class="bg-white rounded-lg shadow-lg w-full max-w-md p-6 my-8">
+      <h3 class="text-2xl font-bold text-gray-900 mb-6">Edit Content</h3>
+      
+      <form onsubmit="saveEditContent(event)">
+        <input type="hidden" id="editContentId">
+
+        <div class="mb-4">
+          <label class="block text-gray-700 font-semibold mb-2">Title *</label>
+          <input type="text" id="editContentTitle" required class="w-full border border-gray-300 px-3 py-2 rounded focus:outline-none focus:border-blue-500">
+        </div>
+
+        <div class="mb-4">
+          <label class="block text-gray-700 font-semibold mb-2">Type *</label>
+          <select id="editContentType" required class="w-full border border-gray-300 px-3 py-2 rounded focus:outline-none focus:border-blue-500">
+            <option value="story">Story</option>
+            <option value="announcement">Announcement</option>
+            <option value="article">Article</option>
+          </select>
+        </div>
+
+        <div class="mb-4">
+          <label class="block text-gray-700 font-semibold mb-2">Body *</label>
+          <textarea id="editContentBody" required class="w-full border border-gray-300 px-3 py-2 rounded focus:outline-none focus:border-blue-500" rows="4"></textarea>
+        </div>
+
+        <div class="mb-4">
+          <label class="block text-gray-700 font-semibold mb-2">Excerpt</label>
+          <input type="text" id="editContentExcerpt" class="w-full border border-gray-300 px-3 py-2 rounded focus:outline-none focus:border-blue-500">
+        </div>
+
+        <div class="mb-4">
+          <label class="block text-gray-700 font-semibold mb-2">County *</label>
+          <select id="editContentCounty" required class="w-full border border-gray-300 px-3 py-2 rounded focus:outline-none focus:border-blue-500">
+          </select>
+        </div>
+
+        <div class="mb-6">
+          <label class="block text-gray-700 font-semibold mb-2">Status *</label>
+          <select id="editContentStatus" required class="w-full border border-gray-300 px-3 py-2 rounded focus:outline-none focus:border-blue-500">
+            <option value="draft">Draft</option>
+            <option value="pending_review">Pending Review</option>
+            <option value="published">Published</option>
+            <option value="rejected">Rejected</option>
+          </select>
+        </div>
+
+        <div class="flex gap-3">
+          <button type="button" onclick="closeEditContentModal()" class="flex-1 bg-gray-300 hover:bg-gray-400 text-gray-900 px-4 py-2 rounded font-semibold">Cancel</button>
+          <button type="submit" class="flex-1 bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded font-semibold">Save Changes</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+
+  <!-- ================= ADD TOURISM SITE MODAL ================= -->
+
+  <div id="addTourismModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 overflow-y-auto">
+    <div class="bg-white rounded-lg shadow-lg w-full max-w-md p-6 my-8">
+      <h3 class="text-2xl font-bold text-gray-900 mb-6">Add Tourism Site</h3>
+      
+      <form onsubmit="saveNewTourism(event)">
+        <div class="mb-4">
+          <label class="block text-gray-700 font-semibold mb-2">Site Name *</label>
+          <input type="text" id="tourismName" required class="w-full border border-gray-300 px-3 py-2 rounded focus:outline-none focus:border-blue-500" placeholder="Enter site name">
+        </div>
+
+        <div class="mb-4">
+          <label class="block text-gray-700 font-semibold mb-2">County *</label>
+          <select id="tourismCounty" required class="w-full border border-gray-300 px-3 py-2 rounded focus:outline-none focus:border-blue-500">
+            <option value="">Select County</option>
+          </select>
+        </div>
+
+        <div class="mb-4">
+          <label class="block text-gray-700 font-semibold mb-2">Category</label>
+          <input type="text" id="tourismCategory" class="w-full border border-gray-300 px-3 py-2 rounded focus:outline-none focus:border-blue-500" placeholder="e.g., Beach, Mountain, Historical">
+        </div>
+
+        <div class="mb-4">
+          <label class="block text-gray-700 font-semibold mb-2">Description</label>
+          <textarea id="tourismDescription" class="w-full border border-gray-300 px-3 py-2 rounded focus:outline-none focus:border-blue-500" placeholder="Describe the tourism site" rows="3"></textarea>
+        </div>
+
+        <div class="mb-4">
+          <label class="block text-gray-700 font-semibold mb-2">Location</label>
+          <input type="text" id="tourismLocation" class="w-full border border-gray-300 px-3 py-2 rounded focus:outline-none focus:border-blue-500" placeholder="Address or coordinates">
+        </div>
+
+        <div class="mb-4">
+          <label class="block text-gray-700 font-semibold mb-2">Entry Fee</label>
+          <input type="text" id="tourismEntryFee" class="w-full border border-gray-300 px-3 py-2 rounded focus:outline-none focus:border-blue-500" placeholder="e.g., $10 USD">
+        </div>
+
+        <div class="mb-4">
+          <label class="block text-gray-700 font-semibold mb-2">Contact Info</label>
+          <input type="text" id="tourismContact" class="w-full border border-gray-300 px-3 py-2 rounded focus:outline-none focus:border-blue-500" placeholder="Phone or email">
+        </div>
+
+        <div class="mb-6">
+          <label class="flex items-center gap-2">
+            <input type="checkbox" id="tourismPublished" class="w-4 h-4 border border-gray-300 rounded">
+            <span class="text-gray-700 font-semibold">Published</span>
+          </label>
+        </div>
+
+        <div class="flex gap-3">
+          <button type="button" onclick="closeAddTourismModal()" class="flex-1 bg-gray-300 hover:bg-gray-400 text-gray-900 px-4 py-2 rounded font-semibold">Cancel</button>
+          <button type="submit" class="flex-1 bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded font-semibold">Add Site</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+
+  <!-- ================= EDIT TOURISM SITE MODAL ================= -->
+
+  <div id="editTourismModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 overflow-y-auto">
+    <div class="bg-white rounded-lg shadow-lg w-full max-w-md p-6 my-8">
+      <h3 class="text-2xl font-bold text-gray-900 mb-6">Edit Tourism Site</h3>
+      
+      <form onsubmit="saveEditTourism(event)">
+        <input type="hidden" id="editTourismId">
+
+        <div class="mb-4">
+          <label class="block text-gray-700 font-semibold mb-2">Site Name *</label>
+          <input type="text" id="editTourismName" required class="w-full border border-gray-300 px-3 py-2 rounded focus:outline-none focus:border-blue-500">
+        </div>
+
+        <div class="mb-4">
+          <label class="block text-gray-700 font-semibold mb-2">County *</label>
+          <select id="editTourismCounty" required class="w-full border border-gray-300 px-3 py-2 rounded focus:outline-none focus:border-blue-500">
+          </select>
+        </div>
+
+        <div class="mb-4">
+          <label class="block text-gray-700 font-semibold mb-2">Category</label>
+          <input type="text" id="editTourismCategory" class="w-full border border-gray-300 px-3 py-2 rounded focus:outline-none focus:border-blue-500">
+        </div>
+
+        <div class="mb-4">
+          <label class="block text-gray-700 font-semibold mb-2">Description</label>
+          <textarea id="editTourismDescription" class="w-full border border-gray-300 px-3 py-2 rounded focus:outline-none focus:border-blue-500" rows="3"></textarea>
+        </div>
+
+        <div class="mb-4">
+          <label class="block text-gray-700 font-semibold mb-2">Location</label>
+          <input type="text" id="editTourismLocation" class="w-full border border-gray-300 px-3 py-2 rounded focus:outline-none focus:border-blue-500">
+        </div>
+
+        <div class="mb-4">
+          <label class="block text-gray-700 font-semibold mb-2">Entry Fee</label>
+          <input type="text" id="editTourismEntryFee" class="w-full border border-gray-300 px-3 py-2 rounded focus:outline-none focus:border-blue-500">
+        </div>
+
+        <div class="mb-4">
+          <label class="block text-gray-700 font-semibold mb-2">Contact Info</label>
+          <input type="text" id="editTourismContact" class="w-full border border-gray-300 px-3 py-2 rounded focus:outline-none focus:border-blue-500">
+        </div>
+
+        <div class="mb-6">
+          <label class="flex items-center gap-2">
+            <input type="checkbox" id="editTourismPublished" class="w-4 h-4 border border-gray-300 rounded">
+            <span class="text-gray-700 font-semibold">Published</span>
+          </label>
+        </div>
+
+        <div class="flex gap-3">
+          <button type="button" onclick="closeEditTourismModal()" class="flex-1 bg-gray-300 hover:bg-gray-400 text-gray-900 px-4 py-2 rounded font-semibold">Cancel</button>
+          <button type="submit" class="flex-1 bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded font-semibold">Save Changes</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+
+  <!-- ================= ADD EVENT MODAL ================= -->
+
+  <div id="addEventModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 overflow-y-auto">
+    <div class="bg-white rounded-lg shadow-lg w-full max-w-md p-6 my-8">
+      <h3 class="text-2xl font-bold text-gray-900 mb-6">Add Event</h3>
+      
+      <form onsubmit="saveNewEvent(event)">
+        <div class="mb-4">
+          <label class="block text-gray-700 font-semibold mb-2">Title *</label>
+          <input type="text" id="eventTitle" required class="w-full border border-gray-300 px-3 py-2 rounded focus:outline-none focus:border-blue-500" placeholder="Enter event title">
+        </div>
+
+        <div class="mb-4">
+          <label class="block text-gray-700 font-semibold mb-2">County *</label>
+          <select id="eventCounty" required class="w-full border border-gray-300 px-3 py-2 rounded focus:outline-none focus:border-blue-500">
+            <option value="">Select County</option>
+          </select>
+        </div>
+
+        <div class="mb-4">
+          <label class="block text-gray-700 font-semibold mb-2">Event Date *</label>
+          <input type="datetime-local" id="eventDate" required class="w-full border border-gray-300 px-3 py-2 rounded focus:outline-none focus:border-blue-500">
+        </div>
+
+        <div class="mb-4">
+          <label class="block text-gray-700 font-semibold mb-2">End Date</label>
+          <input type="datetime-local" id="eventEndDate" class="w-full border border-gray-300 px-3 py-2 rounded focus:outline-none focus:border-blue-500">
+        </div>
+
+        <div class="mb-4">
+          <label class="block text-gray-700 font-semibold mb-2">Location</label>
+          <input type="text" id="eventLocation" class="w-full border border-gray-300 px-3 py-2 rounded focus:outline-none focus:border-blue-500" placeholder="Event venue or address">
+        </div>
+
+        <div class="mb-4">
+          <label class="block text-gray-700 font-semibold mb-2">Description</label>
+          <textarea id="eventDescription" class="w-full border border-gray-300 px-3 py-2 rounded focus:outline-none focus:border-blue-500" placeholder="Event details" rows="3"></textarea>
+        </div>
+
+        <div class="mb-6">
+          <label class="block text-gray-700 font-semibold mb-2">Status *</label>
+          <select id="eventStatus" required class="w-full border border-gray-300 px-3 py-2 rounded focus:outline-none focus:border-blue-500">
+            <option value="">Select Status</option>
+            <option value="upcoming">Upcoming</option>
+            <option value="ongoing">Ongoing</option>
+            <option value="past">Past</option>
+            <option value="cancelled">Cancelled</option>
+          </select>
+        </div>
+
+        <div class="mb-6">
+          <label class="flex items-center gap-2">
+            <input type="checkbox" id="eventPublished" class="w-4 h-4 border border-gray-300 rounded">
+            <span class="text-gray-700 font-semibold">Published</span>
+          </label>
+        </div>
+
+        <div class="flex gap-3">
+          <button type="button" onclick="closeAddEventModal()" class="flex-1 bg-gray-300 hover:bg-gray-400 text-gray-900 px-4 py-2 rounded font-semibold">Cancel</button>
+          <button type="submit" class="flex-1 bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded font-semibold">Add Event</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+
+  <!-- ================= EDIT EVENT MODAL ================= -->
+
+  <div id="editEventModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 overflow-y-auto">
+    <div class="bg-white rounded-lg shadow-lg w-full max-w-md p-6 my-8">
+      <h3 class="text-2xl font-bold text-gray-900 mb-6">Edit Event</h3>
+      
+      <form onsubmit="saveEditEvent(event)">
+        <input type="hidden" id="editEventId">
+
+        <div class="mb-4">
+          <label class="block text-gray-700 font-semibold mb-2">Title *</label>
+          <input type="text" id="editEventTitle" required class="w-full border border-gray-300 px-3 py-2 rounded focus:outline-none focus:border-blue-500">
+        </div>
+
+        <div class="mb-4">
+          <label class="block text-gray-700 font-semibold mb-2">County *</label>
+          <select id="editEventCounty" required class="w-full border border-gray-300 px-3 py-2 rounded focus:outline-none focus:border-blue-500">
+          </select>
+        </div>
+
+        <div class="mb-4">
+          <label class="block text-gray-700 font-semibold mb-2">Event Date *</label>
+          <input type="datetime-local" id="editEventDate" required class="w-full border border-gray-300 px-3 py-2 rounded focus:outline-none focus:border-blue-500">
+        </div>
+
+        <div class="mb-4">
+          <label class="block text-gray-700 font-semibold mb-2">End Date</label>
+          <input type="datetime-local" id="editEventEndDate" class="w-full border border-gray-300 px-3 py-2 rounded focus:outline-none focus:border-blue-500">
+        </div>
+
+        <div class="mb-4">
+          <label class="block text-gray-700 font-semibold mb-2">Location</label>
+          <input type="text" id="editEventLocation" class="w-full border border-gray-300 px-3 py-2 rounded focus:outline-none focus:border-blue-500">
+        </div>
+
+        <div class="mb-4">
+          <label class="block text-gray-700 font-semibold mb-2">Description</label>
+          <textarea id="editEventDescription" class="w-full border border-gray-300 px-3 py-2 rounded focus:outline-none focus:border-blue-500" rows="3"></textarea>
+        </div>
+
+        <div class="mb-6">
+          <label class="block text-gray-700 font-semibold mb-2">Status *</label>
+          <select id="editEventStatus" required class="w-full border border-gray-300 px-3 py-2 rounded focus:outline-none focus:border-blue-500">
+            <option value="upcoming">Upcoming</option>
+            <option value="ongoing">Ongoing</option>
+            <option value="past">Past</option>
+            <option value="cancelled">Cancelled</option>
+          </select>
+        </div>
+
+        <div class="mb-6">
+          <label class="flex items-center gap-2">
+            <input type="checkbox" id="editEventPublished" class="w-4 h-4 border border-gray-300 rounded">
+            <span class="text-gray-700 font-semibold">Published</span>
+          </label>
+        </div>
+
+        <div class="flex gap-3">
+          <button type="button" onclick="closeEditEventModal()" class="flex-1 bg-gray-300 hover:bg-gray-400 text-gray-900 px-4 py-2 rounded font-semibold">Cancel</button>
+          <button type="submit" class="flex-1 bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded font-semibold">Save Changes</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+
+  <!-- ================= ADD OPPORTUNITY MODAL ================= -->
+
+  <div id="addOpportunityModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 overflow-y-auto">
+    <div class="bg-white rounded-lg shadow-lg w-full max-w-md p-6 my-8">
+      <h3 class="text-2xl font-bold text-gray-900 mb-6">Add Opportunity</h3>
+      
+      <form onsubmit="saveNewOpportunity(event)">
+        <div class="mb-4">
+          <label class="block text-gray-700 font-semibold mb-2">Title *</label>
+          <input type="text" id="opportunityTitle" required class="w-full border border-gray-300 px-3 py-2 rounded focus:outline-none focus:border-blue-500" placeholder="Enter opportunity title">
+        </div>
+
+        <div class="mb-4">
+          <label class="block text-gray-700 font-semibold mb-2">Type *</label>
+          <select id="opportunityType" required class="w-full border border-gray-300 px-3 py-2 rounded focus:outline-none focus:border-blue-500">
+            <option value="">Select Type</option>
+            <option value="scholarship">Scholarship</option>
+            <option value="internship">Internship</option>
+            <option value="training">Training</option>
+            <option value="fellowship">Fellowship</option>
+            <option value="grant">Grant</option>
+            <option value="job">Job</option>
+          </select>
+        </div>
+
+        <div class="mb-4">
+          <label class="block text-gray-700 font-semibold mb-2">County *</label>
+          <select id="opportunityCounty" required class="w-full border border-gray-300 px-3 py-2 rounded focus:outline-none focus:border-blue-500">
+            <option value="">Select County</option>
+          </select>
+        </div>
+
+        <div class="mb-4">
+          <label class="block text-gray-700 font-semibold mb-2">Description *</label>
+          <textarea id="opportunityDescription" required class="w-full border border-gray-300 px-3 py-2 rounded focus:outline-none focus:border-blue-500" placeholder="Opportunity details" rows="4"></textarea>
+        </div>
+
+        <div class="mb-4">
+          <label class="block text-gray-700 font-semibold mb-2">Deadline</label>
+          <input type="date" id="opportunityDeadline" class="w-full border border-gray-300 px-3 py-2 rounded focus:outline-none focus:border-blue-500">
+        </div>
+
+        <div class="mb-4">
+          <label class="block text-gray-700 font-semibold mb-2">Status *</label>
+          <select id="opportunityStatus" required class="w-full border border-gray-300 px-3 py-2 rounded focus:outline-none focus:border-blue-500">
+            <option value="">Select Status</option>
+            <option value="open">Open</option>
+            <option value="closing_soon">Closing Soon</option>
+            <option value="closed">Closed</option>
+          </select>
+        </div>
+
+        <div class="mb-4">
+          <label class="block text-gray-700 font-semibold mb-2">Application URL</label>
+          <input type="url" id="opportunityApplyUrl" class="w-full border border-gray-300 px-3 py-2 rounded focus:outline-none focus:border-blue-500" placeholder="https://example.com/apply">
+        </div>
+
+        <div class="mb-6">
+          <label class="block text-gray-700 font-semibold mb-2">Contact Email</label>
+          <input type="email" id="opportunityContactEmail" class="w-full border border-gray-300 px-3 py-2 rounded focus:outline-none focus:border-blue-500" placeholder="contact@example.com">
+        </div>
+
+        <div class="mb-6">
+          <label class="flex items-center gap-2">
+            <input type="checkbox" id="opportunityPublished" class="w-4 h-4 border border-gray-300 rounded">
+            <span class="text-gray-700 font-semibold">Published</span>
+          </label>
+        </div>
+
+        <div class="flex gap-3">
+          <button type="button" onclick="closeAddOpportunityModal()" class="flex-1 bg-gray-300 hover:bg-gray-400 text-gray-900 px-4 py-2 rounded font-semibold">Cancel</button>
+          <button type="submit" class="flex-1 bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded font-semibold">Add Opportunity</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+
+  <!-- ================= EDIT OPPORTUNITY MODAL ================= -->
+
+  <div id="editOpportunityModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 overflow-y-auto">
+    <div class="bg-white rounded-lg shadow-lg w-full max-w-md p-6 my-8">
+      <h3 class="text-2xl font-bold text-gray-900 mb-6">Edit Opportunity</h3>
+      
+      <form onsubmit="saveEditOpportunity(event)">
+        <input type="hidden" id="editOpportunityId">
+
+        <div class="mb-4">
+          <label class="block text-gray-700 font-semibold mb-2">Title *</label>
+          <input type="text" id="editOpportunityTitle" required class="w-full border border-gray-300 px-3 py-2 rounded focus:outline-none focus:border-blue-500">
+        </div>
+
+        <div class="mb-4">
+          <label class="block text-gray-700 font-semibold mb-2">Type *</label>
+          <select id="editOpportunityType" required class="w-full border border-gray-300 px-3 py-2 rounded focus:outline-none focus:border-blue-500">
+            <option value="scholarship">Scholarship</option>
+            <option value="internship">Internship</option>
+            <option value="training">Training</option>
+            <option value="fellowship">Fellowship</option>
+            <option value="grant">Grant</option>
+            <option value="job">Job</option>
+          </select>
+        </div>
+
+        <div class="mb-4">
+          <label class="block text-gray-700 font-semibold mb-2">County *</label>
+          <select id="editOpportunityCounty" required class="w-full border border-gray-300 px-3 py-2 rounded focus:outline-none focus:border-blue-500">
+          </select>
+        </div>
+
+        <div class="mb-4">
+          <label class="block text-gray-700 font-semibold mb-2">Description *</label>
+          <textarea id="editOpportunityDescription" required class="w-full border border-gray-300 px-3 py-2 rounded focus:outline-none focus:border-blue-500" rows="4"></textarea>
+        </div>
+
+        <div class="mb-4">
+          <label class="block text-gray-700 font-semibold mb-2">Deadline</label>
+          <input type="date" id="editOpportunityDeadline" class="w-full border border-gray-300 px-3 py-2 rounded focus:outline-none focus:border-blue-500">
+        </div>
+
+        <div class="mb-4">
+          <label class="block text-gray-700 font-semibold mb-2">Status *</label>
+          <select id="editOpportunityStatus" required class="w-full border border-gray-300 px-3 py-2 rounded focus:outline-none focus:border-blue-500">
+            <option value="open">Open</option>
+            <option value="closing_soon">Closing Soon</option>
+            <option value="closed">Closed</option>
+          </select>
+        </div>
+
+        <div class="mb-4">
+          <label class="block text-gray-700 font-semibold mb-2">Application URL</label>
+          <input type="url" id="editOpportunityApplyUrl" class="w-full border border-gray-300 px-3 py-2 rounded focus:outline-none focus:border-blue-500">
+        </div>
+
+        <div class="mb-6">
+          <label class="block text-gray-700 font-semibold mb-2">Contact Email</label>
+          <input type="email" id="editOpportunityContactEmail" class="w-full border border-gray-300 px-3 py-2 rounded focus:outline-none focus:border-blue-500">
+        </div>
+
+        <div class="mb-6">
+          <label class="flex items-center gap-2">
+            <input type="checkbox" id="editOpportunityPublished" class="w-4 h-4 border border-gray-300 rounded">
+            <span class="text-gray-700 font-semibold">Published</span>
+          </label>
+        </div>
+
+        <div class="flex gap-3">
+          <button type="button" onclick="closeEditOpportunityModal()" class="flex-1 bg-gray-300 hover:bg-gray-400 text-gray-900 px-4 py-2 rounded font-semibold">Cancel</button>
+          <button type="submit" class="flex-1 bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded font-semibold">Save Changes</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+
+  <!-- ================= EDIT USER ROLE MODAL ================= -->
+
+  <div id="editUserRoleModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+    <div class="bg-white rounded-lg shadow-lg w-full max-w-md p-6">
+      <h3 class="text-2xl font-bold text-gray-900 mb-6">Edit User</h3>
+      
+      <form onsubmit="saveEditUserRole(event)">
+        <input type="hidden" id="editUserId">
+
+        <div class="mb-4">
+          <label class="block text-gray-700 font-semibold mb-2">Name</label>
+          <p id="editUserName" class="text-gray-900 font-semibold"></p>
+        </div>
+
+        <div class="mb-4">
+          <label class="block text-gray-700 font-semibold mb-2">Email</label>
+          <p id="editUserEmail" class="text-gray-600"></p>
+        </div>
+
+        <div class="mb-4">
+          <label class="block text-gray-700 font-semibold mb-2">Role *</label>
+          <select id="editUserRole" required class="w-full border border-gray-300 px-3 py-2 rounded focus:outline-none focus:border-blue-500">
+            <option value="super_admin">Super Admin</option>
+            <option value="county_admin">County Admin</option>
+            <option value="contributor">Contributor</option>
+            <option value="visitor">Visitor</option>
+          </select>
+        </div>
+
+        <div class="mb-4">
+          <label class="block text-gray-700 font-semibold mb-2">Active</label>
+          <label class="flex items-center gap-2">
+            <input type="checkbox" id="editUserActive" class="w-4 h-4 border border-gray-300 rounded">
+            <span class="text-gray-700">User is active</span>
+          </label>
+        </div>
+
+        <div class="mb-6">
+          <label class="block text-gray-700 font-semibold mb-2">Verified</label>
+          <label class="flex items-center gap-2">
+            <input type="checkbox" id="editUserVerified" class="w-4 h-4 border border-gray-300 rounded">
+            <span class="text-gray-700">User is verified</span>
+          </label>
+        </div>
+
+        <div class="flex gap-3">
+          <button type="button" onclick="closeEditUserRoleModal()" class="flex-1 bg-gray-300 hover:bg-gray-400 text-gray-900 px-4 py-2 rounded font-semibold">Cancel</button>
+          <button type="submit" class="flex-1 bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded font-semibold">Save Changes</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+
+  <!-- ================= ADD DISTRICT MODAL ================= -->
+
+  <div id="addDistrictModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+    <div class="bg-white rounded-lg shadow-lg w-full max-w-md p-6">
+      <h3 class="text-2xl font-bold text-gray-900 mb-6">Add District</h3>
+      
+      <form onsubmit="saveNewDistrict(event)">
+        <div class="mb-4">
+          <label class="block text-gray-700 font-semibold mb-2">District Name *</label>
+          <input type="text" id="districtName" required class="w-full border border-gray-300 px-3 py-2 rounded focus:outline-none focus:border-blue-500" placeholder="Enter district name">
+        </div>
+
+        <div class="mb-4">
+          <label class="block text-gray-700 font-semibold mb-2">County *</label>
+          <select id="districtCounty" required class="w-full border border-gray-300 px-3 py-2 rounded focus:outline-none focus:border-blue-500">
+            <option value="">Select County</option>
+          </select>
+        </div>
+
+        <div class="mb-6">
+          <label class="block text-gray-700 font-semibold mb-2">Description</label>
+          <textarea id="districtDescription" class="w-full border border-gray-300 px-3 py-2 rounded focus:outline-none focus:border-blue-500" placeholder="District details" rows="3"></textarea>
+        </div>
+
+        <div class="flex gap-3">
+          <button type="button" onclick="closeAddDistrictModal()" class="flex-1 bg-gray-300 hover:bg-gray-400 text-gray-900 px-4 py-2 rounded font-semibold">Cancel</button>
+          <button type="submit" class="flex-1 bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded font-semibold">Add District</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+
+  <!-- ================= EDIT DISTRICT MODAL ================= -->
+
+  <div id="editDistrictModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+    <div class="bg-white rounded-lg shadow-lg w-full max-w-md p-6">
+      <h3 class="text-2xl font-bold text-gray-900 mb-6">Edit District</h3>
+      
+      <form onsubmit="saveEditDistrict(event)">
+        <input type="hidden" id="editDistrictId">
+
+        <div class="mb-4">
+          <label class="block text-gray-700 font-semibold mb-2">District Name *</label>
+          <input type="text" id="editDistrictName" required class="w-full border border-gray-300 px-3 py-2 rounded focus:outline-none focus:border-blue-500">
+        </div>
+
+        <div class="mb-4">
+          <label class="block text-gray-700 font-semibold mb-2">County *</label>
+          <select id="editDistrictCounty" required class="w-full border border-gray-300 px-3 py-2 rounded focus:outline-none focus:border-blue-500">
+          </select>
+        </div>
+
+        <div class="mb-6">
+          <label class="block text-gray-700 font-semibold mb-2">Description</label>
+          <textarea id="editDistrictDescription" class="w-full border border-gray-300 px-3 py-2 rounded focus:outline-none focus:border-blue-500" rows="3"></textarea>
+        </div>
+
+        <div class="flex gap-3">
+          <button type="button" onclick="closeEditDistrictModal()" class="flex-1 bg-gray-300 hover:bg-gray-400 text-gray-900 px-4 py-2 rounded font-semibold">Cancel</button>
+          <button type="submit" class="flex-1 bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded font-semibold">Save Changes</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+
+  <!-- ================= EDIT USER ROLE MODAL ================= -->
+
+  <div id="editUserRoleModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+    <div class="bg-white rounded-lg shadow-lg w-full max-w-md p-6">
+      <h3 class="text-2xl font-bold text-gray-900 mb-6">Edit User</h3>
+      
+      <form onsubmit="saveEditUserRole(event)">
+        <input type="hidden" id="editUserId">
+
+        <div class="mb-4">
+          <label class="block text-gray-700 font-semibold mb-2">Name</label>
+          <p id="editUserName" class="text-gray-900 font-semibold"></p>
+        </div>
+
+        <div class="mb-4">
+          <label class="block text-gray-700 font-semibold mb-2">Email</label>
+          <p id="editUserEmail" class="text-gray-600"></p>
+        </div>
+
+        <div class="mb-4">
+          <label class="block text-gray-700 font-semibold mb-2">Role *</label>
+          <select id="editUserRole" required class="w-full border border-gray-300 px-3 py-2 rounded focus:outline-none focus:border-blue-500">
+            <option value="super_admin">Super Admin</option>
+            <option value="county_admin">County Admin</option>
+            <option value="contributor">Contributor</option>
+            <option value="visitor">Visitor</option>
+          </select>
+        </div>
+
+        <div class="mb-4">
+          <label class="block text-gray-700 font-semibold mb-2">Active</label>
+          <label class="flex items-center gap-2">
+            <input type="checkbox" id="editUserActive" class="w-4 h-4 border border-gray-300 rounded">
+            <span class="text-gray-700">User is active</span>
+          </label>
+        </div>
+
+        <div class="mb-6">
+          <label class="block text-gray-700 font-semibold mb-2">Verified</label>
+          <label class="flex items-center gap-2">
+            <input type="checkbox" id="editUserVerified" class="w-4 h-4 border border-gray-300 rounded">
+            <span class="text-gray-700">User is verified</span>
+          </label>
+        </div>
+
+        <div class="flex gap-3">
+          <button type="button" onclick="closeEditUserRoleModal()" class="flex-1 bg-gray-300 hover:bg-gray-400 text-gray-900 px-4 py-2 rounded font-semibold">Cancel</button>
+          <button type="submit" class="flex-1 bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded font-semibold">Save Changes</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+
+  <!-- ================= ADD DISTRICT MODAL ================= -->
+
+  <div id="addDistrictModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+    <div class="bg-white rounded-lg shadow-lg w-full max-w-md p-6">
+      <h3 class="text-2xl font-bold text-gray-900 mb-6">Add District</h3>
+      
+      <form onsubmit="saveNewDistrict(event)">
+        <div class="mb-4">
+          <label class="block text-gray-700 font-semibold mb-2">District Name *</label>
+          <input type="text" id="districtName" required class="w-full border border-gray-300 px-3 py-2 rounded focus:outline-none focus:border-blue-500" placeholder="Enter district name">
+        </div>
+
+        <div class="mb-4">
+          <label class="block text-gray-700 font-semibold mb-2">County *</label>
+          <select id="districtCounty" required class="w-full border border-gray-300 px-3 py-2 rounded focus:outline-none focus:border-blue-500">
+            <option value="">Select County</option>
+          </select>
+        </div>
+
+        <div class="mb-6">
+          <label class="block text-gray-700 font-semibold mb-2">Description</label>
+          <textarea id="districtDescription" class="w-full border border-gray-300 px-3 py-2 rounded focus:outline-none focus:border-blue-500" placeholder="District details" rows="3"></textarea>
+        </div>
+
+        <div class="flex gap-3">
+          <button type="button" onclick="closeAddDistrictModal()" class="flex-1 bg-gray-300 hover:bg-gray-400 text-gray-900 px-4 py-2 rounded font-semibold">Cancel</button>
+          <button type="submit" class="flex-1 bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded font-semibold">Add District</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+
+  <!-- ================= EDIT DISTRICT MODAL ================= -->
+
+  <div id="editDistrictModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+    <div class="bg-white rounded-lg shadow-lg w-full max-w-md p-6">
+      <h3 class="text-2xl font-bold text-gray-900 mb-6">Edit District</h3>
+      
+      <form onsubmit="saveEditDistrict(event)">
+        <input type="hidden" id="editDistrictId">
+
+        <div class="mb-4">
+          <label class="block text-gray-700 font-semibold mb-2">District Name *</label>
+          <input type="text" id="editDistrictName" required class="w-full border border-gray-300 px-3 py-2 rounded focus:outline-none focus:border-blue-500">
+        </div>
+
+        <div class="mb-4">
+          <label class="block text-gray-700 font-semibold mb-2">County *</label>
+          <select id="editDistrictCounty" required class="w-full border border-gray-300 px-3 py-2 rounded focus:outline-none focus:border-blue-500">
+          </select>
+        </div>
+
+        <div class="mb-6">
+          <label class="block text-gray-700 font-semibold mb-2">Description</label>
+          <textarea id="editDistrictDescription" class="w-full border border-gray-300 px-3 py-2 rounded focus:outline-none focus:border-blue-500" rows="3"></textarea>
+        </div>
+
+        <div class="flex gap-3">
+          <button type="button" onclick="closeEditDistrictModal()" class="flex-1 bg-gray-300 hover:bg-gray-400 text-gray-900 px-4 py-2 rounded font-semibold">Cancel</button>
+          <button type="submit" class="flex-1 bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded font-semibold">Save Changes</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+
+  <!-- ================= SUPABASE ================= -->
+
+  <script>
+
+    const supabaseUrl = 'https://choagncxtmsewzvxoncx.supabase.co'
+    const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNob2FnbmN4dG1zZXd6dnhvbmN4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgzMzk3NjUsImV4cCI6MjA5MzkxNTc2NX0.hVPjF0_b-5DTXMzeFUPYZ82tL27CrsFBIUQrm-XYonE'
+
+    const supabaseClient = supabase.createClient(
+      supabaseUrl,
+      supabaseKey
+    )
+
+    // ================= DATA STORAGE FOR FILTERING =================
+    let allCounties = []
+    let allContent = []
+    let allTourism = []
+    let allEvents = []
+    let allOpportunities = []
+    let allUsers = []
+    let allDistricts = []
+
+
+    // ================= AUTH CHECK =================
+
+    async function checkAuth() {
+
+      const {
+        data: { user }
+      } = await supabaseClient.auth.getUser()
+
+      if (!user) {
+        window.location.href = '/login.html'
+        return
+      }
+
+
+      const { data: profile } = await supabaseClient
+        .from('users')
+        .select('*')
+        .eq('id', user.id)
+        .single()
+
+
+      if (!profile || profile.role !== 'super_admin') {
+        alert('Unauthorized Access')
+        window.location.href = '/'
+        return
+      }
+
+
+      document.getElementById('adminName').innerText = profile.full_name
+
+    }
+
+
+    // ================= LOAD DASHBOARD STATS =================
+
+    async function loadStats() {
+
+      // Counties
+      const { count: countiesCount } = await supabaseClient
+        .from('counties')
+        .select('*', { count: 'exact', head: true })
+
+
+      // Content
+      const { count: contentCount } = await supabaseClient
+        .from('content')
+        .select('*', { count: 'exact', head: true })
+        .eq('status', 'published')
+
+
+      // Users
+      const { count: usersCount } = await supabaseClient
+        .from('users')
+        .select('*', { count: 'exact', head: true })
+
+
+      // Tourism Sites
+      const { count: tourismCount } = await supabaseClient
+        .from('tourism_sites')
+        .select('*', { count: 'exact', head: true })
+
+
+      document.getElementById('totalCounties').innerText = countiesCount || 0
+      document.getElementById('totalContent').innerText = contentCount || 0
+      document.getElementById('totalUsers').innerText = usersCount || 0
+      document.getElementById('totalTourism').innerText = tourismCount || 0
+
+    }
+
+
+    // ================= LOAD COUNTIES =================
+
+    async function loadCounties() {
+
+      const { data, error } = await supabaseClient
+        .from('counties')
+        .select('*')
+        .order('name')
+
+
+      if (error) {
+        console.error(error)
+        return
+      }
+
+      allCounties = data
+      renderCountiesTable(data)
+
+        table.innerHTML += `
+
+          <tr class="border-b border-gray-100 cursor-pointer hover:bg-gray-50" onclick="openEditCountyModal(${county.id}, '${county.name}', '${county.region || ''}', '${county.capital || ''}', '${county.status}')">
+
+            <td class="py-5 font-semibold text-gray-900">
+              ${county.name}
+            </td>
+
+            <td class="py-5 text-gray-600">
+              ${county.region || '-'}
+            </td>
+
+            <td class="py-5 text-gray-600">
+              ${county.capital || '-'}
+            </td>
+
+            <td class="py-5">
+              <span class="px-4 py-2 rounded-full text-sm font-semibold bg-green-100 text-green-700">
+                ${county.status}
+              </span>
+            </td>
+
+            <td class="py-5">
+
+              <div class="flex gap-2" onclick="event.stopPropagation()">
+
+                <button
+                  onclick="openEditCountyModal(${county.id}, '${county.name}', '${county.region || ''}', '${county.capital || ''}', '${county.status}')"
+                  class="bg-blue-600 hover:bg-blue-500 text-white px-3 py-2 rounded text-sm"
+                >
+                  Edit
+                </button>
+
+                <button
+                  onclick="deleteCounty(${county.id})"
+                  class="bg-red-600 hover:bg-red-500 text-white px-3 py-2 rounded text-sm"
+                >
+                  Delete
+                </button>
+
+              </div>
+
+            </td>
+
+          </tr>
+
+        `
+
+      })
+
+    }
+
+    function renderCountiesTable(data) {
+      const table = document.getElementById('countiesTable')
+      table.innerHTML = ''
+
+      data.forEach(county => {
+
+        table.innerHTML += `
+
+          <tr class="border-b border-gray-100 cursor-pointer hover:bg-gray-50" onclick="openEditCountyModal(${county.id}, '${county.name}', '${county.region || ''}', '${county.capital || ''}', '${county.status}')">
+
+            <td class="py-5 font-semibold text-gray-900">
+              ${county.name}
+            </td>
+
+            <td class="py-5 text-gray-600">
+              ${county.region || '-'}
+            </td>
+
+            <td class="py-5 text-gray-600">
+              ${county.capital || '-'}
+            </td>
+
+            <td class="py-5">
+              <span class="px-4 py-2 rounded-full text-sm font-semibold bg-green-100 text-green-700">
+                ${county.status}
+              </span>
+            </td>
+
+            <td class="py-5">
+
+              <div class="flex gap-2" onclick="event.stopPropagation()">
+
+                <button
+                  onclick="openEditCountyModal(${county.id}, '${county.name}', '${county.region || ''}', '${county.capital || ''}', '${county.status}')"
+                  class="bg-blue-600 hover:bg-blue-500 text-white px-3 py-2 rounded text-sm"
+                >
+                  Edit
+                </button>
+
+                <button
+                  onclick="deleteCounty(${county.id})"
+                  class="bg-red-600 hover:bg-red-500 text-white px-3 py-2 rounded text-sm"
+                >
+                  Delete
+                </button>
+
+              </div>
+
+            </td>
+
+          </tr>
+
+        `
+
+      })
+    }
+
+    function applyCountyFilters() {
+      const status = document.getElementById('countyStatusFilter').value
+      const search = document.getElementById('countySearchFilter').value.toLowerCase()
+
+      let filtered = allCounties
+
+      if (status) {
+        filtered = filtered.filter(c => c.status === status)
+      }
+
+      if (search) {
+        filtered = filtered.filter(c => 
+          c.name.toLowerCase().includes(search) || 
+          (c.region && c.region.toLowerCase().includes(search))
+        )
+      }
+
+      renderCountiesTable(filtered)
+    }
+
+
+    // ================= LOAD USERS =================
+
+    async function loadUsers() {
+
+      const { data, error } = await supabaseClient
+        .from('users')
+        .select('*')
+        .order('created_at', { ascending: false })
+        .limit(10)
+
+
+      if (error) {
+        console.error(error)
+        return
+      }
+
+
+      const table = document.getElementById('usersTable')
+      table.innerHTML = ''
+
+
+      data.forEach(user => {
+
+        table.innerHTML += `
+
+          <tr class="border-b border-gray-100">
+
+            <td class="py-5 font-semibold text-gray-900">
+              ${user.full_name}
+            </td>
+
+            <td class="py-5 text-gray-600">
+              ${user.email}
+            </td>
+
+            <td class="py-5">
+              <span class="bg-blue-100 text-blue-700 px-4 py-2 rounded-full text-sm font-semibold">
+                ${user.role}
+              </span>
+            </td>
+
+            <td class="py-5">
+              ${user.is_active
+                ? '<span class="text-green-600 font-semibold">Active</span>'
+                : '<span class="text-red-600 font-semibold">Inactive</span>'}
+            </td>
+
+          </tr>
+
+        `
+
+      })
+
+    }
+
+
+    // ================= SIDEBAR NAVIGATION =================
+
+    function showPage(pageId) {
+      // Hide all pages
+      document.querySelectorAll('[data-page]').forEach(page => {
+        page.classList.add('hidden')
+      })
+
+      // Show selected page
+      const selectedPage = document.querySelector(`[data-page="${pageId}"]`)
+      if (selectedPage) {
+        selectedPage.classList.remove('hidden')
+        updateSidebarActive(pageId)
+      }
+    }
+
+    function updateSidebarActive(sectionId) {
+      // Remove active class from all buttons
+      document.querySelectorAll('.sidebar-link').forEach(btn => {
+        btn.classList.remove('active-link')
+      })
+
+      // Add active class to clicked button
+      const buttons = document.querySelectorAll('.sidebar-link')
+      const sectionNames = {
+        'overview': 'Dashboard',
+        'counties': 'Counties',
+        'content': 'Content',
+        'tourism': 'Tourism',
+        'events': 'Events',
+        'opportunities': 'Opportunities',
+        'users': 'Users',
+        'districts': 'Districts'
+      }
+
+      buttons.forEach(btn => {
+        if (btn.textContent.includes(sectionNames[sectionId])) {
+          btn.classList.add('active-link')
+        }
+      })
+    }
+
+
+    // ================= LOGOUT =================
+
+    async function logout() {
+
+      await supabaseClient.auth.signOut()
+
+      window.location.href = '/login.html'
+
+    }
+
+
+    // ================= MODAL FUNCTIONS =================
+
+    function openAddCountyModal() {
+      document.getElementById('addCountyModal').classList.remove('hidden')
+      document.getElementById('countyName').focus()
+    }
+
+    function closeAddCountyModal() {
+      document.getElementById('addCountyModal').classList.add('hidden')
+      document.getElementById('countyName').value = ''
+      document.getElementById('countyRegion').value = ''
+      document.getElementById('countyCapital').value = ''
+      document.getElementById('countyStatus').value = ''
+    }
+
+    function openEditCountyModal(id, name, region, capital, status) {
+      document.getElementById('editCountyId').value = id
+      document.getElementById('editCountyName').value = name
+      document.getElementById('editCountyRegion').value = region
+      document.getElementById('editCountyCapital').value = capital
+      document.getElementById('editCountyStatus').value = status
+      document.getElementById('editCountyModal').classList.remove('hidden')
+    }
+
+    function closeEditCountyModal() {
+      document.getElementById('editCountyModal').classList.add('hidden')
+    }
+
+
+    // ================= COUNTY CRUD FUNCTIONS =================
+
+    async function saveNewCounty(event) {
+      event.preventDefault()
+
+      const name = document.getElementById('countyName').value.trim()
+      const region = document.getElementById('countyRegion').value.trim()
+      const capital = document.getElementById('countyCapital').value.trim()
+      const status = document.getElementById('countyStatus').value
+
+      if (!name || !status) {
+        alert('Please fill in all required fields')
+        return
+      }
+
+      try {
+        const { data, error } = await supabaseClient
+          .from('counties')
+          .insert([
+            {
+              name: name,
+              region: region || null,
+              capital: capital || null,
+              status: status
+            }
+          ])
+
+        if (error) {
+          alert('Error adding county: ' + error.message)
+          return
+        }
+
+        alert('County added successfully!')
+        closeAddCountyModal()
+        loadCounties()
+        loadStats()
+      } catch (err) {
+        alert('Error: ' + err.message)
+      }
+    }
+
+    async function saveEditCounty(event) {
+      event.preventDefault()
+
+      const id = document.getElementById('editCountyId').value
+      const name = document.getElementById('editCountyName').value.trim()
+      const region = document.getElementById('editCountyRegion').value.trim()
+      const capital = document.getElementById('editCountyCapital').value.trim()
+      const status = document.getElementById('editCountyStatus').value
+
+      if (!name || !status) {
+        alert('Please fill in all required fields')
+        return
+      }
+
+      try {
+        const { data, error } = await supabaseClient
+          .from('counties')
+          .update({
+            name: name,
+            region: region || null,
+            capital: capital || null,
+            status: status
+          })
+          .eq('id', id)
+
+        if (error) {
+          alert('Error updating county: ' + error.message)
+          return
+        }
+
+        alert('County updated successfully!')
+        closeEditCountyModal()
+        loadCounties()
+        loadStats()
+      } catch (err) {
+        alert('Error: ' + err.message)
+      }
+    }
+
+    async function deleteCounty(id) {
+      if (!confirm('Are you sure you want to delete this county? This action cannot be undone.')) {
+        return
+      }
+
+      try {
+        const { error } = await supabaseClient
+          .from('counties')
+          .delete()
+          .eq('id', id)
+
+        if (error) {
+          alert('Error deleting county: ' + error.message)
+          return
+        }
+
+        alert('County deleted successfully!')
+        loadCounties()
+        loadStats()
+      } catch (err) {
+        alert('Error: ' + err.message)
+      }
+    }
+
+
+    // ================= LOAD CONTENT =================
+
+    async function loadContent() {
+
+      const { data, error } = await supabaseClient
+        .from('content')
+        .select('*, counties(name)')
+        .order('created_at', { ascending: false })
+
+
+      if (error) {
+        console.error(error)
+        return
+      }
+
+      allContent = data
+      populateContentCountyFilter()
+      renderContentTable(data)
+
+
+    // ================= POPULATE FILTER DROPDOWNS =================
+
+    function populateContentCountyFilter() {
+      const select = document.getElementById('contentCountyFilter')
+      select.innerHTML = '<option value="">All Counties</option>'
+      const counties = [...new Set(allContent.map(c => c.county_id))]
+      counties.forEach(countyId => {
+        const content = allContent.find(c => c.county_id === countyId)
+        if (content && content.counties) {
+          const opt = document.createElement('option')
+          opt.value = countyId
+          opt.textContent = content.counties.name
+          select.appendChild(opt)
+        }
+      })
+    }
+
+    function populateTourismCountyFilter() {
+      const select = document.getElementById('tourismCountyFilter')
+      select.innerHTML = '<option value="">All Counties</option>'
+      const counties = [...new Set(allTourism.map(t => t.county_id))]
+      counties.forEach(countyId => {
+        const tourism = allTourism.find(t => t.county_id === countyId)
+        if (tourism && tourism.counties) {
+          const opt = document.createElement('option')
+          opt.value = countyId
+          opt.textContent = tourism.counties.name
+          select.appendChild(opt)
+        }
+      })
+    }
+
+    function populateEventCountyFilter() {
+      const select = document.getElementById('eventCountyFilter')
+      select.innerHTML = '<option value="">All Counties</option>'
+      const counties = [...new Set(allEvents.map(e => e.county_id))]
+      counties.forEach(countyId => {
+        const event = allEvents.find(e => e.county_id === countyId)
+        if (event && event.counties) {
+          const opt = document.createElement('option')
+          opt.value = countyId
+          opt.textContent = event.counties.name
+          select.appendChild(opt)
+        }
+      })
+    }
+
+    function populateOpportunityCountyFilter() {
+      const select = document.getElementById('opportunityCountyFilter')
+      select.innerHTML = '<option value="">All Counties</option>'
+      const counties = [...new Set(allOpportunities.map(o => o.county_id))]
+      counties.forEach(countyId => {
+        const opp = allOpportunities.find(o => o.county_id === countyId)
+        if (opp && opp.counties) {
+          const opt = document.createElement('option')
+          opt.value = countyId
+          opt.textContent = opp.counties.name
+          select.appendChild(opt)
+        }
+      })
+    }
+
+    function populateUserCountyFilter() {
+      const select = document.getElementById('userCountyFilter')
+      select.innerHTML = '<option value="">All Counties</option>'
+      const counties = [...new Set(allUsers.map(u => u.county_id).filter(c => c))]
+      counties.forEach(countyId => {
+        const user = allUsers.find(u => u.county_id === countyId)
+        if (user && user.counties) {
+          const opt = document.createElement('option')
+          opt.value = countyId
+          opt.textContent = user.counties.name
+          select.appendChild(opt)
+        }
+      })
+    }
+
+    function populateDistrictCountyFilter() {
+      const select = document.getElementById('districtCountyFilter')
+      select.innerHTML = '<option value="">All Counties</option>'
+      const counties = [...new Set(allDistricts.map(d => d.county_id))]
+      counties.forEach(countyId => {
+        const district = allDistricts.find(d => d.county_id === countyId)
+        if (district && district.counties) {
+          const opt = document.createElement('option')
+          opt.value = countyId
+          opt.textContent = district.counties.name
+          select.appendChild(opt)
+        }
+      })
+    }
+
+
+    // ================= LOAD COUNTIES FOR SELECT =================
+
+    async function loadCountiesForSelect() {
+
+      const { data, error } = await supabaseClient
+        .from('counties')
+        .select('id, name')
+        .order('name')
+
+
+      if (error) {
+        console.error(error)
+        return
+      }
+
+
+      const contentAdd = document.getElementById('contentCounty')
+      const contentEdit = document.getElementById('editContentCounty')
+      const tourismAdd = document.getElementById('tourismCounty')
+      const tourismEdit = document.getElementById('editTourismCounty')
+      const eventAdd = document.getElementById('eventCounty')
+      const eventEdit = document.getElementById('editEventCounty')
+      const opportunityAdd = document.getElementById('opportunityCounty')
+      const opportunityEdit = document.getElementById('editOpportunityCounty')
+      const districtAdd = document.getElementById('districtCounty')
+      const districtEdit = document.getElementById('editDistrictCounty')
+
+      contentAdd.innerHTML = '<option value="">Select County</option>'
+      contentEdit.innerHTML = ''
+      tourismAdd.innerHTML = '<option value="">Select County</option>'
+      tourismEdit.innerHTML = ''
+      eventAdd.innerHTML = '<option value="">Select County</option>'
+      eventEdit.innerHTML = ''
+      opportunityAdd.innerHTML = '<option value="">Select County</option>'
+      opportunityEdit.innerHTML = ''
+      districtAdd.innerHTML = '<option value="">Select County</option>'
+      districtEdit.innerHTML = ''
+
+      data.forEach(county => {
+        // Content dropdowns
+        const contentOpt1 = document.createElement('option')
+        contentOpt1.value = county.id
+        contentOpt1.textContent = county.name
+        contentAdd.appendChild(contentOpt1)
+
+        const contentOpt2 = document.createElement('option')
+        contentOpt2.value = county.id
+        contentOpt2.textContent = county.name
+        contentEdit.appendChild(contentOpt2)
+
+        // Tourism dropdowns
+        const tourismOpt1 = document.createElement('option')
+        tourismOpt1.value = county.id
+        tourismOpt1.textContent = county.name
+        tourismAdd.appendChild(tourismOpt1)
+
+        const tourismOpt2 = document.createElement('option')
+        tourismOpt2.value = county.id
+        tourismOpt2.textContent = county.name
+        tourismEdit.appendChild(tourismOpt2)
+
+        // Event dropdowns
+        const eventOpt1 = document.createElement('option')
+        eventOpt1.value = county.id
+        eventOpt1.textContent = county.name
+        eventAdd.appendChild(eventOpt1)
+
+        const eventOpt2 = document.createElement('option')
+        eventOpt2.value = county.id
+        eventOpt2.textContent = county.name
+        eventEdit.appendChild(eventOpt2)
+
+        // Opportunity dropdowns
+        const opportunityOpt1 = document.createElement('option')
+        opportunityOpt1.value = county.id
+        opportunityOpt1.textContent = county.name
+        opportunityAdd.appendChild(opportunityOpt1)
+
+        const opportunityOpt2 = document.createElement('option')
+        opportunityOpt2.value = county.id
+        opportunityOpt2.textContent = county.name
+        opportunityEdit.appendChild(opportunityOpt2)
+
+        // District dropdowns
+        const districtOpt1 = document.createElement('option')
+        districtOpt1.value = county.id
+        districtOpt1.textContent = county.name
+        districtAdd.appendChild(districtOpt1)
+
+        const districtOpt2 = document.createElement('option')
+        districtOpt2.value = county.id
+        districtOpt2.textContent = county.name
+        districtEdit.appendChild(districtOpt2)
+      })
+
+    }
+
+
+    // ================= CONTENT MODAL FUNCTIONS =================
+
+    function openAddContentModal() {
+      document.getElementById('addContentModal').classList.remove('hidden')
+      document.getElementById('contentTitle').focus()
+    }
+
+    function closeAddContentModal() {
+      document.getElementById('addContentModal').classList.add('hidden')
+      document.getElementById('contentTitle').value = ''
+      document.getElementById('contentType').value = ''
+      document.getElementById('contentBody').value = ''
+      document.getElementById('contentExcerpt').value = ''
+      document.getElementById('contentCounty').value = ''
+      document.getElementById('contentStatus').value = ''
+    }
+
+    function openEditContentModal(id, title, type, body, excerpt, countyId, status) {
+      document.getElementById('editContentId').value = id
+      document.getElementById('editContentTitle').value = title
+      document.getElementById('editContentType').value = type
+      document.getElementById('editContentBody').value = body
+      document.getElementById('editContentExcerpt').value = excerpt
+      document.getElementById('editContentCounty').value = countyId
+      document.getElementById('editContentStatus').value = status
+      document.getElementById('editContentModal').classList.remove('hidden')
+    }
+
+    function closeEditContentModal() {
+      document.getElementById('editContentModal').classList.add('hidden')
+    }
+
+
+    // ================= CONTENT CRUD FUNCTIONS =================
+
+    async function saveNewContent(event) {
+      event.preventDefault()
+
+      const title = document.getElementById('contentTitle').value.trim()
+      const type = document.getElementById('contentType').value
+      const body = document.getElementById('contentBody').value.trim()
+      const excerpt = document.getElementById('contentExcerpt').value.trim()
+      const countyId = document.getElementById('contentCounty').value
+      const status = document.getElementById('contentStatus').value
+
+      if (!title || !type || !body || !countyId || !status) {
+        alert('Please fill in all required fields (Title, Type, Body, County, Status)')
+        return
+      }
+
+      try {
+        // Get current user ID
+        const { data: { user } } = await supabaseClient.auth.getUser()
+        if (!user) {
+          alert('Error: Not authenticated')
+          return
+        }
+
+        const { data, error } = await supabaseClient
+          .from('content')
+          .insert([
+            {
+              title: title,
+              type: type,
+              body: body,
+              excerpt: excerpt || null,
+              county_id: countyId,
+              author_id: user.id,
+              status: status,
+              created_at: new Date().toISOString()
+            }
+          ])
+
+        if (error) {
+          alert('Error adding content: ' + error.message)
+          return
+        }
+
+        alert('Content added successfully!')
+        closeAddContentModal()
+        loadContent()
+        loadStats()
+      } catch (err) {
+        alert('Error: ' + err.message)
+      }
+    }
+
+    async function saveEditContent(event) {
+      event.preventDefault()
+
+      const id = document.getElementById('editContentId').value
+      const title = document.getElementById('editContentTitle').value.trim()
+      const type = document.getElementById('editContentType').value
+      const body = document.getElementById('editContentBody').value.trim()
+      const excerpt = document.getElementById('editContentExcerpt').value.trim()
+      const countyId = document.getElementById('editContentCounty').value
+      const status = document.getElementById('editContentStatus').value
+
+      if (!title || !type || !body || !countyId || !status) {
+        alert('Please fill in all required fields (Title, Type, Body, County, Status)')
+        return
+      }
+
+      try {
+        const { data, error } = await supabaseClient
+          .from('content')
+          .update({
+            title: title,
+            type: type,
+            body: body,
+            excerpt: excerpt || null,
+            county_id: countyId,
+            status: status
+          })
+          .eq('id', id)
+
+        if (error) {
+          alert('Error updating content: ' + error.message)
+          return
+        }
+
+        alert('Content updated successfully!')
+        closeEditContentModal()
+        loadContent()
+        loadStats()
+      } catch (err) {
+        alert('Error: ' + err.message)
+      }
+    }
+
+    async function deleteContent(id) {
+      if (!confirm('Are you sure you want to delete this content? This action cannot be undone.')) {
+        return
+      }
+
+      try {
+        const { error } = await supabaseClient
+          .from('content')
+          .delete()
+          .eq('id', id)
+
+        if (error) {
+          alert('Error deleting content: ' + error.message)
+          return
+        }
+
+        alert('Content deleted successfully!')
+        loadContent()
+        loadStats()
+      } catch (err) {
+        alert('Error: ' + err.message)
+      }
+    }
+
+
+    // ================= LOAD TOURISM SITES =================
+
+    async function loadTourism() {
+
+      const { data, error } = await supabaseClient
+        .from('tourism_sites')
+        .select('*, counties(name)')
+        .order('created_at', { ascending: false })
+
+
+      if (error) {
+        console.error(error)
+        return
+      }
+
+      allTourism = data
+      populateTourismCountyFilter()
+      renderTourismTable(data)
+
+        table.innerHTML += `
+
+          <tr class="border-b border-gray-100 cursor-pointer hover:bg-gray-50" onclick="openEditTourismModal(${site.id}, '${site.name.replace(/'/g, "\\'")}', ${site.county_id}, '${(site.category || '').replace(/'/g, "\\'")}', '${(site.description || '').replace(/'/g, "\\'")}', '${(site.location || '').replace(/'/g, "\\'")}', '${(site.entry_fee || '').replace(/'/g, "\\'")}', '${(site.contact_info || '').replace(/'/g, "\\'")}', ${site.is_published})">
+
+            <td class="py-5 font-semibold text-gray-900">
+              ${site.name}
+            </td>
+
+            <td class="py-5 text-gray-600">
+              ${site.counties?.name || '-'}
+            </td>
+
+            <td class="py-5 text-gray-600">
+              ${site.category || '-'}
+            </td>
+
+            <td class="py-5">
+              <span class="px-3 py-1 rounded text-sm font-semibold ${
+                site.is_published ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-700'
+              }">
+                ${site.is_published ? 'Yes' : 'No'}
+              </span>
+            </td>
+
+            <td class="py-5">
+
+              <div class="flex gap-2" onclick="event.stopPropagation()">
+
+                <button
+                  onclick="openEditTourismModal(${site.id}, '${site.name.replace(/'/g, "\\'")}', ${site.county_id}, '${(site.category || '').replace(/'/g, "\\'")}', '${(site.description || '').replace(/'/g, "\\'")}', '${(site.location || '').replace(/'/g, "\\'")}', '${(site.entry_fee || '').replace(/'/g, "\\'")}', '${(site.contact_info || '').replace(/'/g, "\\'")}', ${site.is_published})"
+                  class="bg-blue-600 hover:bg-blue-500 text-white px-3 py-2 rounded text-sm"
+                >
+                  Edit
+                </button>
+
+                <button
+                  onclick="deleteTourism(${site.id})"
+                  class="bg-red-600 hover:bg-red-500 text-white px-3 py-2 rounded text-sm"
+                >
+                  Delete
+                </button>
+
+              </div>
+
+            </td>
+
+          </tr>
+
+        `
+
+      })
+
+    }
+
+
+    // ================= TOURISM MODAL FUNCTIONS =================
+
+    function openAddTourismModal() {
+      document.getElementById('addTourismModal').classList.remove('hidden')
+      document.getElementById('tourismName').focus()
+    }
+
+    function closeAddTourismModal() {
+      document.getElementById('addTourismModal').classList.add('hidden')
+      document.getElementById('tourismName').value = ''
+      document.getElementById('tourismCounty').value = ''
+      document.getElementById('tourismCategory').value = ''
+      document.getElementById('tourismDescription').value = ''
+      document.getElementById('tourismLocation').value = ''
+      document.getElementById('tourismEntryFee').value = ''
+      document.getElementById('tourismContact').value = ''
+      document.getElementById('tourismPublished').checked = false
+    }
+
+    function openEditTourismModal(id, name, countyId, category, description, location, entryFee, contact, isPublished) {
+      document.getElementById('editTourismId').value = id
+      document.getElementById('editTourismName').value = name
+      document.getElementById('editTourismCounty').value = countyId
+      document.getElementById('editTourismCategory').value = category
+      document.getElementById('editTourismDescription').value = description
+      document.getElementById('editTourismLocation').value = location
+      document.getElementById('editTourismEntryFee').value = entryFee
+      document.getElementById('editTourismContact').value = contact
+      document.getElementById('editTourismPublished').checked = isPublished
+      document.getElementById('editTourismModal').classList.remove('hidden')
+    }
+
+    function closeEditTourismModal() {
+      document.getElementById('editTourismModal').classList.add('hidden')
+    }
+
+
+    // ================= TOURISM CRUD FUNCTIONS =================
+
+    async function saveNewTourism(event) {
+      event.preventDefault()
+
+      const name = document.getElementById('tourismName').value.trim()
+      const countyId = document.getElementById('tourismCounty').value
+      const category = document.getElementById('tourismCategory').value.trim()
+      const description = document.getElementById('tourismDescription').value.trim()
+      const location = document.getElementById('tourismLocation').value.trim()
+      const entryFee = document.getElementById('tourismEntryFee').value.trim()
+      const contact = document.getElementById('tourismContact').value.trim()
+      const isPublished = document.getElementById('tourismPublished').checked
+
+      if (!name || !countyId) {
+        alert('Please fill in required fields (Name and County)')
+        return
+      }
+
+      try {
+        const { data, error } = await supabaseClient
+          .from('tourism_sites')
+          .insert([
+            {
+              name: name,
+              county_id: countyId,
+              category: category || null,
+              description: description || null,
+              location: location || null,
+              entry_fee: entryFee || null,
+              contact_info: contact || null,
+              is_published: isPublished,
+              created_at: new Date().toISOString()
+            }
+          ])
+
+        if (error) {
+          alert('Error adding tourism site: ' + error.message)
+          return
+        }
+
+        alert('Tourism site added successfully!')
+        closeAddTourismModal()
+        loadTourism()
+        loadStats()
+      } catch (err) {
+        alert('Error: ' + err.message)
+      }
+    }
+
+    async function saveEditTourism(event) {
+      event.preventDefault()
+
+      const id = document.getElementById('editTourismId').value
+      const name = document.getElementById('editTourismName').value.trim()
+      const countyId = document.getElementById('editTourismCounty').value
+      const category = document.getElementById('editTourismCategory').value.trim()
+      const description = document.getElementById('editTourismDescription').value.trim()
+      const location = document.getElementById('editTourismLocation').value.trim()
+      const entryFee = document.getElementById('editTourismEntryFee').value.trim()
+      const contact = document.getElementById('editTourismContact').value.trim()
+      const isPublished = document.getElementById('editTourismPublished').checked
+
+      if (!name || !countyId) {
+        alert('Please fill in required fields (Name and County)')
+        return
+      }
+
+      try {
+        const { data, error } = await supabaseClient
+          .from('tourism_sites')
+          .update({
+            name: name,
+            county_id: countyId,
+            category: category || null,
+            description: description || null,
+            location: location || null,
+            entry_fee: entryFee || null,
+            contact_info: contact || null,
+            is_published: isPublished
+          })
+          .eq('id', id)
+
+        if (error) {
+          alert('Error updating tourism site: ' + error.message)
+          return
+        }
+
+        alert('Tourism site updated successfully!')
+        closeEditTourismModal()
+        loadTourism()
+        loadStats()
+      } catch (err) {
+        alert('Error: ' + err.message)
+      }
+    }
+
+    async function deleteTourism(id) {
+      if (!confirm('Are you sure you want to delete this tourism site? This action cannot be undone.')) {
+        return
+      }
+
+      try {
+        const { error } = await supabaseClient
+          .from('tourism_sites')
+          .delete()
+          .eq('id', id)
+
+        if (error) {
+          alert('Error deleting tourism site: ' + error.message)
+          return
+        }
+
+        alert('Tourism site deleted successfully!')
+        loadTourism()
+        loadStats()
+      } catch (err) {
+        alert('Error: ' + err.message)
+      }
+    }
+
+
+    // ================= LOAD EVENTS =================
+
+    async function loadEvents() {
+
+      const { data, error } = await supabaseClient
+        .from('events')
+        .select('*, counties(name)')
+        .order('event_date', { ascending: true })
+
+
+      if (error) {
+        console.error(error)
+        return
+      }
+
+
+      const table = document.getElementById('eventsTable')
+      table.innerHTML = ''
+
+      allEvents = data
+      populateEventCountyFilter()
+      renderEventsTable(data)
+    }
+
+
+    // ================= EVENT MODAL FUNCTIONS =================
+
+    function openAddEventModal() {
+      document.getElementById('addEventModal').classList.remove('hidden')
+      document.getElementById('eventTitle').focus()
+    }
+
+    function closeAddEventModal() {
+      document.getElementById('addEventModal').classList.add('hidden')
+      document.getElementById('eventTitle').value = ''
+      document.getElementById('eventCounty').value = ''
+      document.getElementById('eventDate').value = ''
+      document.getElementById('eventEndDate').value = ''
+      document.getElementById('eventLocation').value = ''
+      document.getElementById('eventDescription').value = ''
+      document.getElementById('eventStatus').value = ''
+      document.getElementById('eventPublished').checked = false
+    }
+
+    function openEditEventModal(id, title, countyId, eventDate, endDate, location, description, status, isPublished) {
+      document.getElementById('editEventId').value = id
+      document.getElementById('editEventTitle').value = title
+      document.getElementById('editEventCounty').value = countyId
+      document.getElementById('editEventDate').value = eventDate.slice(0, 16)
+      document.getElementById('editEventEndDate').value = endDate ? endDate.slice(0, 16) : ''
+      document.getElementById('editEventLocation').value = location
+      document.getElementById('editEventDescription').value = description
+      document.getElementById('editEventStatus').value = status
+      document.getElementById('editEventPublished').checked = isPublished
+      document.getElementById('editEventModal').classList.remove('hidden')
+    }
+
+    function closeEditEventModal() {
+      document.getElementById('editEventModal').classList.add('hidden')
+    }
+
+
+    // ================= EVENT CRUD FUNCTIONS =================
+
+    async function saveNewEvent(event) {
+      event.preventDefault()
+
+      const title = document.getElementById('eventTitle').value.trim()
+      const countyId = document.getElementById('eventCounty').value
+      const eventDate = document.getElementById('eventDate').value
+      const endDate = document.getElementById('eventEndDate').value
+      const location = document.getElementById('eventLocation').value.trim()
+      const description = document.getElementById('eventDescription').value.trim()
+      const status = document.getElementById('eventStatus').value
+      const isPublished = document.getElementById('eventPublished').checked
+
+      if (!title || !countyId || !eventDate || !status) {
+        alert('Please fill in required fields (Title, County, Event Date, Status)')
+        return
+      }
+
+      try {
+        // Get current user ID
+        const { data: { user } } = await supabaseClient.auth.getUser()
+        if (!user) {
+          alert('Error: Not authenticated')
+          return
+        }
+
+        const { data, error } = await supabaseClient
+          .from('events')
+          .insert([
+            {
+              title: title,
+              county_id: countyId,
+              author_id: user.id,
+              event_date: new Date(eventDate).toISOString(),
+              end_date: endDate ? new Date(endDate).toISOString() : null,
+              location: location || null,
+              description: description || null,
+              status: status,
+              is_published: isPublished,
+              created_at: new Date().toISOString()
+            }
+          ])
+
+        if (error) {
+          alert('Error adding event: ' + error.message)
+          return
+        }
+
+        alert('Event added successfully!')
+        closeAddEventModal()
+        loadEvents()
+        loadStats()
+      } catch (err) {
+        alert('Error: ' + err.message)
+      }
+    }
+
+    async function saveEditEvent(event) {
+      event.preventDefault()
+
+      const id = document.getElementById('editEventId').value
+      const title = document.getElementById('editEventTitle').value.trim()
+      const countyId = document.getElementById('editEventCounty').value
+      const eventDate = document.getElementById('editEventDate').value
+      const endDate = document.getElementById('editEventEndDate').value
+      const location = document.getElementById('editEventLocation').value.trim()
+      const description = document.getElementById('editEventDescription').value.trim()
+      const status = document.getElementById('editEventStatus').value
+      const isPublished = document.getElementById('editEventPublished').checked
+
+      if (!title || !countyId || !eventDate || !status) {
+        alert('Please fill in required fields (Title, County, Event Date, Status)')
+        return
+      }
+
+      try {
+        const { data, error } = await supabaseClient
+          .from('events')
+          .update({
+            title: title,
+            county_id: countyId,
+            event_date: new Date(eventDate).toISOString(),
+            end_date: endDate ? new Date(endDate).toISOString() : null,
+            location: location || null,
+            description: description || null,
+            status: status,
+            is_published: isPublished
+          })
+          .eq('id', id)
+
+        if (error) {
+          alert('Error updating event: ' + error.message)
+          return
+        }
+
+        alert('Event updated successfully!')
+        closeEditEventModal()
+        loadEvents()
+        loadStats()
+      } catch (err) {
+        alert('Error: ' + err.message)
+      }
+    }
+
+    async function deleteEvent(id) {
+      if (!confirm('Are you sure you want to delete this event? This action cannot be undone.')) {
+        return
+      }
+
+      try {
+        const { error } = await supabaseClient
+          .from('events')
+          .delete()
+          .eq('id', id)
+
+        if (error) {
+          alert('Error deleting event: ' + error.message)
+          return
+        }
+
+        alert('Event deleted successfully!')
+        loadEvents()
+        loadStats()
+      } catch (err) {
+        alert('Error: ' + err.message)
+      }
+    }
+
+
+    // ================= LOAD OPPORTUNITIES =================
+
+    async function loadOpportunities() {
+
+      const { data, error } = await supabaseClient
+        .from('opportunities')
+        .select('*, counties(name)')
+        .order('deadline', { ascending: true, nullsFirst: false })
+
+
+      if (error) {
+        console.error(error)
+        return
+      }
+
+      allOpportunities = data
+      populateOpportunityCountyFilter()
+      renderOpportunitiesTable(data)
+    }
+
+        table.innerHTML += `
+
+          <tr class="border-b border-gray-100 cursor-pointer hover:bg-gray-50" onclick="openEditOpportunityModal(${opp.id}, '${opp.title.replace(/'/g, "\\'")}', '${opp.type}', ${opp.county_id}, '${(opp.description || '').replace(/'/g, "\\'")}', '${opp.deadline || ''}', '${opp.status}', '${(opp.apply_url || '').replace(/'/g, "\\'")}', '${(opp.contact_email || '').replace(/'/g, "\\'")}', ${opp.is_published})">
+
+            <td class="py-5 font-semibold text-gray-900">
+              ${opp.title}
+            </td>
+
+            <td class="py-5 text-gray-600">
+              ${opp.counties?.name || '-'}
+            </td>
+
+            <td class="py-5 capitalize text-gray-600">
+              ${opp.type}
+            </td>
+
+            <td class="py-5 text-gray-600 text-sm">
+              ${deadline}
+            </td>
+
+            <td class="py-5">
+              <span class="px-3 py-1 rounded text-sm font-semibold ${
+                opp.status === 'open' ? 'bg-green-100 text-green-700' :
+                opp.status === 'closing_soon' ? 'bg-yellow-100 text-yellow-700' :
+                'bg-red-100 text-red-700'
+              }">
+                ${opp.status.replace(/_/g, ' ')}
+              </span>
+            </td>
+
+            <td class="py-5">
+
+              <div class="flex gap-2" onclick="event.stopPropagation()">
+
+                <button
+                  onclick="openEditOpportunityModal(${opp.id}, '${opp.title.replace(/'/g, "\\'")}', '${opp.type}', ${opp.county_id}, '${(opp.description || '').replace(/'/g, "\\'")}', '${opp.deadline || ''}', '${opp.status}', '${(opp.apply_url || '').replace(/'/g, "\\'")}', '${(opp.contact_email || '').replace(/'/g, "\\'")}', ${opp.is_published})"
+                  class="bg-blue-600 hover:bg-blue-500 text-white px-3 py-2 rounded text-sm"
+                >
+                  Edit
+                </button>
+
+                <button
+                  onclick="deleteOpportunity(${opp.id})"
+                  class="bg-red-600 hover:bg-red-500 text-white px-3 py-2 rounded text-sm"
+                >
+                  Delete
+                </button>
+
+              </div>
+
+            </td>
+
+          </tr>
+
+        `
+
+      })
+
+    }
+
+
+    // ================= OPPORTUNITY MODAL FUNCTIONS =================
+
+    function openAddOpportunityModal() {
+      document.getElementById('addOpportunityModal').classList.remove('hidden')
+      document.getElementById('opportunityTitle').focus()
+    }
+
+    function closeAddOpportunityModal() {
+      document.getElementById('addOpportunityModal').classList.add('hidden')
+      document.getElementById('opportunityTitle').value = ''
+      document.getElementById('opportunityType').value = ''
+      document.getElementById('opportunityCounty').value = ''
+      document.getElementById('opportunityDescription').value = ''
+      document.getElementById('opportunityDeadline').value = ''
+      document.getElementById('opportunityStatus').value = ''
+      document.getElementById('opportunityApplyUrl').value = ''
+      document.getElementById('opportunityContactEmail').value = ''
+      document.getElementById('opportunityPublished').checked = false
+    }
+
+    function openEditOpportunityModal(id, title, type, countyId, description, deadline, status, applyUrl, contactEmail, isPublished) {
+      document.getElementById('editOpportunityId').value = id
+      document.getElementById('editOpportunityTitle').value = title
+      document.getElementById('editOpportunityType').value = type
+      document.getElementById('editOpportunityCounty').value = countyId
+      document.getElementById('editOpportunityDescription').value = description
+      document.getElementById('editOpportunityDeadline').value = deadline
+      document.getElementById('editOpportunityStatus').value = status
+      document.getElementById('editOpportunityApplyUrl').value = applyUrl
+      document.getElementById('editOpportunityContactEmail').value = contactEmail
+      document.getElementById('editOpportunityPublished').checked = isPublished
+      document.getElementById('editOpportunityModal').classList.remove('hidden')
+    }
+
+    function closeEditOpportunityModal() {
+      document.getElementById('editOpportunityModal').classList.add('hidden')
+    }
+
+
+    // ================= OPPORTUNITY CRUD FUNCTIONS =================
+
+    async function saveNewOpportunity(event) {
+      event.preventDefault()
+
+      const title = document.getElementById('opportunityTitle').value.trim()
+      const type = document.getElementById('opportunityType').value
+      const countyId = document.getElementById('opportunityCounty').value
+      const description = document.getElementById('opportunityDescription').value.trim()
+      const deadline = document.getElementById('opportunityDeadline').value
+      const status = document.getElementById('opportunityStatus').value
+      const applyUrl = document.getElementById('opportunityApplyUrl').value.trim()
+      const contactEmail = document.getElementById('opportunityContactEmail').value.trim()
+      const isPublished = document.getElementById('opportunityPublished').checked
+
+      if (!title || !type || !countyId || !description || !status) {
+        alert('Please fill in all required fields (Title, Type, County, Description, Status)')
+        return
+      }
+
+      try {
+        // Get current user ID
+        const { data: { user } } = await supabaseClient.auth.getUser()
+        if (!user) {
+          alert('Error: Not authenticated')
+          return
+        }
+
+        const { data, error } = await supabaseClient
+          .from('opportunities')
+          .insert([
+            {
+              title: title,
+              type: type,
+              county_id: countyId,
+              author_id: user.id,
+              description: description,
+              deadline: deadline || null,
+              status: status,
+              apply_url: applyUrl || null,
+              contact_email: contactEmail || null,
+              is_published: isPublished,
+              created_at: new Date().toISOString()
+            }
+          ])
+
+        if (error) {
+          alert('Error adding opportunity: ' + error.message)
+          return
+        }
+
+        alert('Opportunity added successfully!')
+        closeAddOpportunityModal()
+        loadOpportunities()
+        loadStats()
+      } catch (err) {
+        alert('Error: ' + err.message)
+      }
+    }
+
+    async function saveEditOpportunity(event) {
+      event.preventDefault()
+
+      const id = document.getElementById('editOpportunityId').value
+      const title = document.getElementById('editOpportunityTitle').value.trim()
+      const type = document.getElementById('editOpportunityType').value
+      const countyId = document.getElementById('editOpportunityCounty').value
+      const description = document.getElementById('editOpportunityDescription').value.trim()
+      const deadline = document.getElementById('editOpportunityDeadline').value
+      const status = document.getElementById('editOpportunityStatus').value
+      const applyUrl = document.getElementById('editOpportunityApplyUrl').value.trim()
+      const contactEmail = document.getElementById('editOpportunityContactEmail').value.trim()
+      const isPublished = document.getElementById('editOpportunityPublished').checked
+
+      if (!title || !type || !countyId || !description || !status) {
+        alert('Please fill in all required fields (Title, Type, County, Description, Status)')
+        return
+      }
+
+      try {
+        const { data, error } = await supabaseClient
+          .from('opportunities')
+          .update({
+            title: title,
+            type: type,
+            county_id: countyId,
+            description: description,
+            deadline: deadline || null,
+            status: status,
+            apply_url: applyUrl || null,
+            contact_email: contactEmail || null,
+            is_published: isPublished
+          })
+          .eq('id', id)
+
+        if (error) {
+          alert('Error updating opportunity: ' + error.message)
+          return
+        }
+
+        alert('Opportunity updated successfully!')
+        closeEditOpportunityModal()
+        loadOpportunities()
+        loadStats()
+      } catch (err) {
+        alert('Error: ' + err.message)
+      }
+    }
+
+    async function deleteOpportunity(id) {
+      if (!confirm('Are you sure you want to delete this opportunity? This action cannot be undone.')) {
+        return
+      }
+
+      try {
+        const { error } = await supabaseClient
+          .from('opportunities')
+          .delete()
+          .eq('id', id)
+
+        if (error) {
+          alert('Error deleting opportunity: ' + error.message)
+          return
+        }
+
+        alert('Opportunity deleted successfully!')
+        loadOpportunities()
+        loadStats()
+      } catch (err) {
+        alert('Error: ' + err.message)
+      }
+    }
+
+
+    // ================= LOAD USERS MANAGEMENT =================
+
+    async function loadUsersManagement() {
+
+      const { data, error } = await supabaseClient
+        .from('users')
+        .select('id, full_name, email, role, county_id, verified, is_active, counties(name)')
+        .order('created_at', { ascending: false })
+        .limit(50)
+
+
+      if (error) {
+        console.error(error)
+        return
+      }
+
+      allUsers = data
+      populateUserCountyFilter()
+      renderUsersTable(data)
+    }
+
+    function populateUserCountyFilter() {
+      const counties = [...new Set(allUsers.map(u => u.county_id))].filter(Boolean)
+      const countySelect = document.getElementById('userCountyFilter')
+      
+      countySelect.innerHTML = '<option value="">All Counties</option>'
+      
+      const countiesData = allCounties.filter(c => counties.includes(c.id))
+      countiesData.forEach(county => {
+        countySelect.innerHTML += `<option value="${county.id}">${county.name}</option>`
+      })
+    }
+
+
+    function openEditUserRoleModal(id, name, email, role, isActive, isVerified) {
+      document.getElementById('editUserId').value = id
+      document.getElementById('editUserName').textContent = name
+      document.getElementById('editUserEmail').textContent = email
+      document.getElementById('editUserRole').value = role
+      document.getElementById('editUserActive').checked = isActive
+      document.getElementById('editUserVerified').checked = isVerified
+      document.getElementById('editUserRoleModal').classList.remove('hidden')
+    }
+
+
+    function closeEditUserRoleModal() {
+      document.getElementById('editUserRoleModal').classList.add('hidden')
+    }
+
+
+    async function saveEditUserRole(event) {
+      event.preventDefault()
+
+      const userId = document.getElementById('editUserId').value
+      const role = document.getElementById('editUserRole').value
+      const isActive = document.getElementById('editUserActive').checked
+      const isVerified = document.getElementById('editUserVerified').checked
+
+      try {
+        const { error } = await supabaseClient
+          .from('users')
+          .update({ role, is_active: isActive, verified: isVerified })
+          .eq('id', userId)
+
+        if (error) {
+          alert('Error updating user: ' + error.message)
+          return
+        }
+
+        alert('User updated successfully!')
+        closeEditUserRoleModal()
+        loadUsersManagement()
+      } catch (err) {
+        alert('Error: ' + err.message)
+      }
+    }
+
+
+    // ================= LOAD DISTRICTS =================
+
+    async function loadDistricts() {
+
+      const { data, error } = await supabaseClient
+        .from('districts')
+        .select('*, counties(name)')
+        .order('display_order', { ascending: true })
+
+
+      if (error) {
+        console.error(error)
+        return
+      }
+
+      allDistricts = data
+      populateDistrictCountyFilter()
+      renderDistrictsTable(data)
+    }
+
+            <td class="py-5 text-gray-600">
+              ${district.counties?.name || '-'}
+            </td>
+
+            <td class="py-5 text-gray-600">
+              ${district.description || '-'}
+            </td>
+
+            <td class="py-5 flex gap-3" onclick="event.stopPropagation()">
+              <button
+                onclick="openEditDistrictModal('${district.id}', '${district.name}', '${district.county_id}', '${district.description || ''}')"
+                class="text-blue-600 hover:text-blue-700 font-semibold"
+              >
+                Edit
+              </button>
+              <button
+                onclick="deleteDistrict(${district.id})"
+                class="text-red-600 hover:text-red-700 font-semibold"
+              >
+                Delete
+              </button>
+            </td>
+
+          </tr>
+
+        `
+
+      })
+
+    }
+
+
+    function openAddDistrictModal() {
+      document.getElementById('districtName').value = ''
+      document.getElementById('districtCounty').value = ''
+      document.getElementById('districtDescription').value = ''
+      document.getElementById('addDistrictModal').classList.remove('hidden')
+    }
+
+
+    function closeAddDistrictModal() {
+      document.getElementById('addDistrictModal').classList.add('hidden')
+    }
+
+
+    function openEditDistrictModal(id, name, countyId, description) {
+      document.getElementById('editDistrictId').value = id
+      document.getElementById('editDistrictName').value = name
+      document.getElementById('editDistrictCounty').value = countyId
+      document.getElementById('editDistrictDescription').value = description
+      document.getElementById('editDistrictModal').classList.remove('hidden')
+    }
+
+
+    function closeEditDistrictModal() {
+      document.getElementById('editDistrictModal').classList.add('hidden')
+    }
+
+
+    async function saveNewDistrict(event) {
+      event.preventDefault()
+
+      const name = document.getElementById('districtName').value
+      const countyId = document.getElementById('districtCounty').value
+      const description = document.getElementById('districtDescription').value
+
+      if (!name || !countyId) {
+        alert('Please fill in required fields')
+        return
+      }
+
+      try {
+        const { error } = await supabaseClient
+          .from('districts')
+          .insert({
+            name,
+            county_id: countyId,
+            description: description || null,
+            display_order: 0
+          })
+
+        if (error) {
+          alert('Error creating district: ' + error.message)
+          return
+        }
+
+        alert('District created successfully!')
+        closeAddDistrictModal()
+        loadDistricts()
+      } catch (err) {
+        alert('Error: ' + err.message)
+      }
+    }
+
+
+    async function saveEditDistrict(event) {
+      event.preventDefault()
+
+      const id = document.getElementById('editDistrictId').value
+      const name = document.getElementById('editDistrictName').value
+      const countyId = document.getElementById('editDistrictCounty').value
+      const description = document.getElementById('editDistrictDescription').value
+
+      if (!name || !countyId) {
+        alert('Please fill in required fields')
+        return
+      }
+
+      try {
+        const { error } = await supabaseClient
+          .from('districts')
+          .update({
+            name,
+            county_id: countyId,
+            description: description || null
+          })
+          .eq('id', id)
+
+        if (error) {
+          alert('Error updating district: ' + error.message)
+          return
+        }
+
+        alert('District updated successfully!')
+        closeEditDistrictModal()
+        loadDistricts()
+      } catch (err) {
+        alert('Error: ' + err.message)
+      }
+    }
+
+
+    async function deleteDistrict(id) {
+      if (!confirm('Are you sure you want to delete this district? This action cannot be undone.')) {
+        return
+      }
+
+      try {
+        const { error } = await supabaseClient
+          .from('districts')
+          .delete()
+          .eq('id', id)
+
+        if (error) {
+          alert('Error deleting district: ' + error.message)
+          return
+        }
+
+        alert('District deleted successfully!')
+        loadDistricts()
+      } catch (err) {
+        alert('Error: ' + err.message)
+      }
+    }
+
+
+    // ================= FILTER FUNCTIONS =================
+
+    function applyContentFilters() {
+      const countyId = document.getElementById('contentCountyFilter').value
+      const type = document.getElementById('contentTypeFilter').value
+      const status = document.getElementById('contentStatusFilter').value
+      const search = document.getElementById('contentSearchFilter').value.toLowerCase()
+
+      let filtered = allContent
+      if (countyId) filtered = filtered.filter(c => c.county_id == countyId)
+      if (type) filtered = filtered.filter(c => c.type === type)
+      if (status) filtered = filtered.filter(c => c.status === status)
+      if (search) filtered = filtered.filter(c => c.title.toLowerCase().includes(search))
+
+      renderContentTable(filtered)
+    }
+
+    function renderContentTable(data) {
+      const table = document.getElementById('contentTable')
+      table.innerHTML = ''
+      data.forEach(content => {
+        table.innerHTML += `
+          <tr class="border-b border-gray-100 cursor-pointer hover:bg-gray-50" onclick="openEditContentModal(${content.id}, '${content.title.replace(/'/g, "\\'")}', '${content.type}', '${content.body.replace(/'/g, "\\'")}', '${(content.excerpt || '').replace(/'/g, "\\'")}', ${content.county_id}, '${content.status}')">
+            <td class="py-5 font-semibold text-gray-900">${content.title}</td>
+            <td class="py-5 text-gray-600 capitalize">${content.type || '-'}</td>
+            <td class="py-5 text-gray-600">${content.counties?.name || '-'}</td>
+            <td class="py-5"><span class="px-3 py-1 rounded text-sm font-semibold ${content.status === 'published' ? 'bg-green-100 text-green-700' : content.status === 'pending_review' ? 'bg-yellow-100 text-yellow-700' : content.status === 'draft' ? 'bg-blue-100 text-blue-700' : 'bg-red-100 text-red-700'}">${content.status.replace(/_/g, ' ')}</span></td>
+            <td class="py-5"><div class="flex gap-2" onclick="event.stopPropagation()"><button onclick="openEditContentModal(${content.id}, '${content.title.replace(/'/g, "\\'")}', '${content.type}', '${content.body.replace(/'/g, "\\'")}', '${(content.excerpt || '').replace(/'/g, "\\'")}', ${content.county_id}, '${content.status}')" class="bg-blue-600 hover:bg-blue-500 text-white px-3 py-2 rounded text-sm">Edit</button><button onclick="deleteContent(${content.id})" class="bg-red-600 hover:bg-red-500 text-white px-3 py-2 rounded text-sm">Delete</button></div></td>
+          </tr>
+        `
+      })
+    }
+
+    function applyTourismFilters() {
+      const countyId = document.getElementById('tourismCountyFilter').value
+      const published = document.getElementById('tourismPublishedFilter').value
+      const search = document.getElementById('tourismSearchFilter').value.toLowerCase()
+
+      let filtered = allTourism
+      if (countyId) filtered = filtered.filter(t => t.county_id == countyId)
+      if (published !== '') filtered = filtered.filter(t => t.is_published == (published === 'true'))
+      if (search) filtered = filtered.filter(t => t.name.toLowerCase().includes(search))
+
+      renderTourismTable(filtered)
+    }
+
+    function renderTourismTable(data) {
+      const table = document.getElementById('tourismTable')
+      table.innerHTML = ''
+      data.forEach(site => {
+        table.innerHTML += `
+          <tr class="border-b border-gray-100 cursor-pointer hover:bg-gray-50" onclick="openEditTourismModal(${site.id}, '${site.name.replace(/'/g, "\\'")}', ${site.county_id}, '${(site.category || '').replace(/'/g, "\\'")}', '${(site.description || '').replace(/'/g, "\\'")}', '${(site.location || '').replace(/'/g, "\\'")}', '${(site.entry_fee || '').replace(/'/g, "\\'")}', '${(site.contact_info || '').replace(/'/g, "\\'")}', ${site.is_published})">
+            <td class="py-5 font-semibold text-gray-900">${site.name}</td>
+            <td class="py-5 text-gray-600">${site.counties?.name || '-'}</td>
+            <td class="py-5 text-gray-600">${site.category || '-'}</td>
+            <td class="py-5"><span class="px-3 py-1 rounded text-sm font-semibold ${site.is_published ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-700'}">${site.is_published ? 'Yes' : 'No'}</span></td>
+            <td class="py-5"><div class="flex gap-2" onclick="event.stopPropagation()"><button onclick="openEditTourismModal(${site.id}, '${site.name.replace(/'/g, "\\'")}', ${site.county_id}, '${(site.category || '').replace(/'/g, "\\'")}', '${(site.description || '').replace(/'/g, "\\'")}', '${(site.location || '').replace(/'/g, "\\'")}', '${(site.entry_fee || '').replace(/'/g, "\\'")}', '${(site.contact_info || '').replace(/'/g, "\\'")}', ${site.is_published})" class="bg-blue-600 hover:bg-blue-500 text-white px-3 py-2 rounded text-sm">Edit</button><button onclick="deleteTourism(${site.id})" class="bg-red-600 hover:bg-red-500 text-white px-3 py-2 rounded text-sm">Delete</button></div></td>
+          </tr>
+        `
+      })
+    }
+
+    function applyEventFilters() {
+      const countyId = document.getElementById('eventCountyFilter').value
+      const status = document.getElementById('eventStatusFilter').value
+      const search = document.getElementById('eventSearchFilter').value.toLowerCase()
+
+      let filtered = allEvents
+      if (countyId) filtered = filtered.filter(e => e.county_id == countyId)
+      if (status) filtered = filtered.filter(e => e.status === status)
+      if (search) filtered = filtered.filter(e => e.title.toLowerCase().includes(search))
+
+      renderEventsTable(filtered)
+    }
+
+    function renderEventsTable(data) {
+      const table = document.getElementById('eventsTable')
+      table.innerHTML = ''
+      data.forEach(event => {
+        const eventDate = new Date(event.event_date)
+        const formattedDate = eventDate.toLocaleDateString() + ' ' + eventDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+        table.innerHTML += `
+          <tr class="border-b border-gray-100 cursor-pointer hover:bg-gray-50" onclick="openEditEventModal(${event.id}, '${event.title.replace(/'/g, "\\'")}', ${event.county_id}, '${event.event_date}', '${event.end_date || ''}', '${(event.location || '').replace(/'/g, "\\'")}', '${(event.description || '').replace(/'/g, "\\'")}', '${event.status}', ${event.is_published})">
+            <td class="py-5 font-semibold text-gray-900">${event.title}</td>
+            <td class="py-5 text-gray-600">${event.counties?.name || '-'}</td>
+            <td class="py-5 text-gray-600 text-sm">${formattedDate}</td>
+            <td class="py-5"><span class="px-3 py-1 rounded text-sm font-semibold ${event.status === 'upcoming' ? 'bg-blue-100 text-blue-700' : event.status === 'ongoing' ? 'bg-green-100 text-green-700' : event.status === 'past' ? 'bg-gray-100 text-gray-700' : 'bg-red-100 text-red-700'}">${event.status}</span></td>
+            <td class="py-5"><div class="flex gap-2" onclick="event.stopPropagation()"><button onclick="openEditEventModal(${event.id}, '${event.title.replace(/'/g, "\\'")}', ${event.county_id}, '${event.event_date}', '${event.end_date || ''}', '${(event.location || '').replace(/'/g, "\\'")}', '${(event.description || '').replace(/'/g, "\\'")}', '${event.status}', ${event.is_published})" class="bg-blue-600 hover:bg-blue-500 text-white px-3 py-2 rounded text-sm">Edit</button><button onclick="deleteEvent(${event.id})" class="bg-red-600 hover:bg-red-500 text-white px-3 py-2 rounded text-sm">Delete</button></div></td>
+          </tr>
+        `
+      })
+    }
+
+    function applyOpportunityFilters() {
+      const countyId = document.getElementById('opportunityCountyFilter').value
+      const type = document.getElementById('opportunityTypeFilter').value
+      const status = document.getElementById('opportunityStatusFilter').value
+      const search = document.getElementById('opportunitySearchFilter').value.toLowerCase()
+
+      let filtered = allOpportunities
+      if (countyId) filtered = filtered.filter(o => o.county_id == countyId)
+      if (type) filtered = filtered.filter(o => o.type === type)
+      if (status) filtered = filtered.filter(o => o.status === status)
+      if (search) filtered = filtered.filter(o => o.title.toLowerCase().includes(search))
+
+      renderOpportunitiesTable(filtered)
+    }
+
+    function renderOpportunitiesTable(data) {
+      const table = document.getElementById('opportunitiesTable')
+      table.innerHTML = ''
+      data.forEach(opp => {
+        const deadline = opp.deadline ? new Date(opp.deadline).toLocaleDateString() : '-'
+        table.innerHTML += `
+          <tr class="border-b border-gray-100 cursor-pointer hover:bg-gray-50" onclick="openEditOpportunityModal(${opp.id}, '${opp.title.replace(/'/g, "\\'")}', '${opp.type}', ${opp.county_id}, '${(opp.description || '').replace(/'/g, "\\'")}', '${opp.deadline || ''}', '${opp.status}', '${(opp.apply_url || '').replace(/'/g, "\\'")}', '${(opp.contact_email || '').replace(/'/g, "\\'")}', ${opp.is_published})">
+            <td class="py-5 font-semibold text-gray-900">${opp.title}</td>
+            <td class="py-5 text-gray-600">${opp.counties?.name || '-'}</td>
+            <td class="py-5 capitalize text-gray-600">${opp.type}</td>
+            <td class="py-5 text-gray-600 text-sm">${deadline}</td>
+            <td class="py-5"><span class="px-3 py-1 rounded text-sm font-semibold ${opp.status === 'open' ? 'bg-green-100 text-green-700' : opp.status === 'closing_soon' ? 'bg-yellow-100 text-yellow-700' : 'bg-red-100 text-red-700'}">${opp.status.replace(/_/g, ' ')}</span></td>
+            <td class="py-5"><div class="flex gap-2" onclick="event.stopPropagation()"><button onclick="openEditOpportunityModal(${opp.id}, '${opp.title.replace(/'/g, "\\'")}', '${opp.type}', ${opp.county_id}, '${(opp.description || '').replace(/'/g, "\\'")}', '${opp.deadline || ''}', '${opp.status}', '${(opp.apply_url || '').replace(/'/g, "\\'")}', '${(opp.contact_email || '').replace(/'/g, "\\'")}', ${opp.is_published})" class="bg-blue-600 hover:bg-blue-500 text-white px-3 py-2 rounded text-sm">Edit</button><button onclick="deleteOpportunity(${opp.id})" class="bg-red-600 hover:bg-red-500 text-white px-3 py-2 rounded text-sm">Delete</button></div></td>
+          </tr>
+        `
+      })
+    }
+
+    function applyUserFilters() {
+      const role = document.getElementById('userRoleFilter').value
+      const countyId = document.getElementById('userCountyFilter').value
+      const status = document.getElementById('userStatusFilter').value
+      const search = document.getElementById('userSearchFilter').value.toLowerCase()
+
+      let filtered = allUsers
+      if (role) filtered = filtered.filter(u => u.role === role)
+      if (countyId) filtered = filtered.filter(u => u.county_id == countyId)
+      if (status !== '') filtered = filtered.filter(u => u.is_active == (status === 'true'))
+      if (search) filtered = filtered.filter(u => (u.full_name && u.full_name.toLowerCase().includes(search)) || u.email.toLowerCase().includes(search))
+
+      renderUsersTable(filtered)
+    }
+
+    function renderUsersTable(data) {
+      const table = document.getElementById('usersManagementTable')
+      table.innerHTML = ''
+      data.forEach(user => {
+        const verifiedBadge = user.verified ? '<span class="text-green-600 font-semibold">✓</span>' : '<span class="text-gray-600 font-semibold">✗</span>'
+        const statusBadge = user.is_active ? '<span class="text-green-600 font-semibold">Active</span>' : '<span class="text-red-600 font-semibold">Inactive</span>'
+        table.innerHTML += `
+          <tr class="border-b border-gray-100 cursor-pointer hover:bg-gray-50" onclick="openEditUserRoleModal('${user.id}', '${user.full_name || ''}', '${user.email}', '${user.role}', ${user.is_active}, ${user.verified})">
+            <td class="py-5 font-semibold text-gray-900">${user.full_name || '-'}</td>
+            <td class="py-5 text-gray-600">${user.email}</td>
+            <td class="py-5 text-gray-600">${user.role ? user.role.replace(/_/g, ' ') : '-'}</td>
+            <td class="py-5 text-gray-600">${user.counties?.name || '-'}</td>
+            <td class="py-5">${verifiedBadge}</td>
+            <td class="py-5">${statusBadge}</td>
+            <td class="py-5 flex gap-3" onclick="event.stopPropagation()"><button onclick="openEditUserRoleModal('${user.id}', '${user.full_name || ''}', '${user.email}', '${user.role}', ${user.is_active}, ${user.verified})" class="text-blue-600 hover:text-blue-700 font-semibold">Edit</button></td>
+          </tr>
+        `
+      })
+    }
+
+    function applyDistrictFilters() {
+      const countyId = document.getElementById('districtCountyFilter').value
+      const search = document.getElementById('districtSearchFilter').value.toLowerCase()
+
+      let filtered = allDistricts
+      if (countyId) filtered = filtered.filter(d => d.county_id == countyId)
+      if (search) filtered = filtered.filter(d => d.name.toLowerCase().includes(search))
+
+      renderDistrictsTable(filtered)
+    }
+
+    function renderDistrictsTable(data) {
+      const table = document.getElementById('districtsTable')
+      table.innerHTML = ''
+      data.forEach(district => {
+        table.innerHTML += `
+          <tr class="border-b border-gray-100 cursor-pointer hover:bg-gray-50" onclick="openEditDistrictModal('${district.id}', '${district.name}', '${district.county_id}', '${district.description || ''}')">
+            <td class="py-5 font-semibold text-gray-900">${district.name}</td>
+            <td class="py-5 text-gray-600">${district.counties?.name || '-'}</td>
+            <td class="py-5 text-gray-600">${district.description || '-'}</td>
+            <td class="py-5 flex gap-3" onclick="event.stopPropagation()"><button onclick="openEditDistrictModal('${district.id}', '${district.name}', '${district.county_id}', '${district.description || ''}')" class="text-blue-600 hover:text-blue-700 font-semibold">Edit</button><button onclick="deleteDistrict(${district.id})" class="text-red-600 hover:text-red-700 font-semibold">Delete</button></td>
+          </tr>
+        `
+      })
+    }
+
+
+    // ================= INIT =================
+
+    // ================= ANALYTICS FUNCTIONS =================
+
+    async function loadAnalytics() {
+      try {
+        // Load analytics stats
+        const countiesResult = await supabaseClient.from('counties').select('*')
+        const contentResult = await supabaseClient.from('content').select('*')
+        const usersResult = await supabaseClient.from('users').select('*').eq('verified', true)
+        const tourismResult = await supabaseClient.from('tourism_sites').select('*').eq('is_published', true)
+        const eventsResult = await supabaseClient.from('events').select('*')
+        const opportunitiesResult = await supabaseClient.from('opportunities').select('*')
+
+        // Update main stats
+        document.getElementById('analyticsActiveCounties').textContent = countiesResult.data?.length || 0
+        document.getElementById('analyticsContentItems').textContent = contentResult.data?.length || 0
+        document.getElementById('analyticsActiveUsers').textContent = usersResult.data?.length || 0
+        document.getElementById('analyticsTourismSites').textContent = tourismResult.data?.length || 0
+
+        // Content by Status breakdown
+        const contentByStatus = {}
+        contentResult.data?.forEach(c => {
+          contentByStatus[c.status] = (contentByStatus[c.status] || 0) + 1
+        })
+        displayAnalyticsBars('analyticsContentStatus', contentByStatus, ['draft', 'pending_review', 'published', 'rejected'])
+
+        // Content by Type breakdown
+        const contentByType = {}
+        contentResult.data?.forEach(c => {
+          contentByType[c.type] = (contentByType[c.type] || 0) + 1
+        })
+        displayAnalyticsBars('analyticsContentType', contentByType, ['story', 'announcement', 'article'])
+
+        // Events by Status breakdown
+        const eventsByStatus = {}
+        eventsResult.data?.forEach(e => {
+          eventsByStatus[e.status] = (eventsByStatus[e.status] || 0) + 1
+        })
+        displayAnalyticsBars('analyticsEventStatus', eventsByStatus, ['upcoming', 'ongoing', 'past', 'cancelled'])
+
+        // Opportunities by Type breakdown
+        const opportunitiesByType = {}
+        opportunitiesResult.data?.forEach(o => {
+          opportunitiesByType[o.type] = (opportunitiesByType[o.type] || 0) + 1
+        })
+        displayAnalyticsBars('analyticsOpportunityType', opportunitiesByType, ['scholarship', 'internship', 'training', 'fellowship', 'grant', 'job'])
+
+      } catch (error) {
+        console.error('Error loading analytics:', error)
+      }
+    }
+
+    function displayAnalyticsBars(elementId, data, labels) {
+      const container = document.getElementById(elementId)
+      container.innerHTML = ''
+      
+      const maxValue = Math.max(...Object.values(data), 1)
+      
+      labels.forEach(label => {
+        const count = data[label] || 0
+        const percentage = (count / maxValue) * 100
+        const displayLabel = label.replace(/_/g, ' ').charAt(0).toUpperCase() + label.replace(/_/g, ' ').slice(1)
+        
+        container.innerHTML += `
+          <div>
+            <div class="flex justify-between mb-2">
+              <span class="text-sm font-semibold text-gray-700">${displayLabel}</span>
+              <span class="text-sm font-bold text-gray-900">${count}</span>
+            </div>
+            <div class="w-full bg-gray-200 rounded-full h-2">
+              <div class="bg-blue-600 h-2 rounded-full transition-all" style="width: ${percentage}%"></div>
+            </div>
+          </div>
+        `
+      })
+    }
+
+    // ================= SETTINGS FUNCTIONS =================
+
+    function saveSettings() {
+      const settings = {
+        platformName: document.getElementById('settingsPlatformName').value,
+        platformDescription: document.getElementById('settingsPlatformDescription').value,
+        supportEmail: document.getElementById('settingsSupportEmail').value,
+        requireApproval: document.getElementById('settingsRequireApproval').checked,
+        autoPublish: document.getElementById('settingsAutoPublish').checked,
+        itemsPerPage: document.getElementById('settingsItemsPerPage').value,
+        sessionTimeout: document.getElementById('settingsSessionTimeout').value
+      }
+      
+      localStorage.setItem('platformSettings', JSON.stringify(settings))
+      alert('Settings saved successfully!')
+    }
+
+    function resetSettings() {
+      if (confirm('Are you sure you want to reset all settings to defaults?')) {
+        document.getElementById('settingsPlatformName').value = 'Liberia Counties Platform'
+        document.getElementById('settingsPlatformDescription').value = 'A comprehensive digital platform for showcasing and managing Liberia\'s counties'
+        document.getElementById('settingsSupportEmail').value = 'support@liberiacounties.com'
+        document.getElementById('settingsRequireApproval').checked = true
+        document.getElementById('settingsAutoPublish').checked = false
+        document.getElementById('settingsItemsPerPage').value = 20
+        document.getElementById('settingsSessionTimeout').value = 30
+        
+        localStorage.removeItem('platformSettings')
+        alert('Settings reset to defaults!')
+      }
+    }
+
+    function loadSettings() {
+      const saved = localStorage.getItem('platformSettings')
+      if (saved) {
+        const settings = JSON.parse(saved)
+        document.getElementById('settingsPlatformName').value = settings.platformName || 'Liberia Counties Platform'
+        document.getElementById('settingsPlatformDescription').value = settings.platformDescription || 'A comprehensive digital platform for showcasing and managing Liberia\'s counties'
+        document.getElementById('settingsSupportEmail').value = settings.supportEmail || 'support@liberiacounties.com'
+        document.getElementById('settingsRequireApproval').checked = settings.requireApproval !== false
+        document.getElementById('settingsAutoPublish').checked = settings.autoPublish || false
+        document.getElementById('settingsItemsPerPage').value = settings.itemsPerPage || 20
+        document.getElementById('settingsSessionTimeout').value = settings.sessionTimeout || 30
+      }
+    }
+
+    async function initDashboard() {
+
+      await checkAuth()
+      await loadStats()
+      await loadCounties()
+      await loadCountiesForSelect()
+      await loadContent()
+      await loadTourism()
+      await loadEvents()
+      await loadOpportunities()
+      await loadUsersManagement()
+      await loadDistricts()
+      await loadAnalytics()
+      loadSettings()
+
+    }
+
+
+    initDashboard()
+
+  </script>
+
+</body>
+</html>

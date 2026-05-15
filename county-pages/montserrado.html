@@ -1,0 +1,939 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Montserrado County – Heart of the Nation</title>
+<script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+<script src="https://unpkg.com/vue-router@4/dist/vue-router.global.js"></script>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+<!-- AUTHENTICATION & PROTECTION -->
+<script src="../../supabaseClient.js"></script>
+<script src="js/county-page-protection.js"></script>
+
+<script>
+tailwind.config = {
+  theme: {
+    extend: {
+      colors: {
+        navy:  { DEFAULT:'#0A1F44', light:'#1A3A6E', pale:'#E8EEF8', dark:'#060D1E' },
+        scarlet:{ DEFAULT:'#B71C2E', light:'#D32F45', pale:'#FDE8EB' },
+        gold:  { DEFAULT:'#C8960C', light:'#F0B429', pale:'#FFF8E1' },
+        ink:   { DEFAULT:'#1A1E2A', muted:'#5A607A', border:'#D4D9E8' }
+      },
+      fontFamily: {
+        display:['"Playfair Display"','serif'],
+        body:   ['"DM Sans"','sans-serif'],
+      }
+    }
+  }
+}
+</script>
+<style>
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{font-family:'DM Sans',sans-serif;background:#F4F6FB;}
+  .page-enter-active,.page-leave-active{transition:opacity .22s ease,transform .22s ease;}
+  .page-enter-from{opacity:0;transform:translateY(10px);}
+  .page-leave-to{opacity:0;transform:translateY(-6px);}
+  a{text-decoration:none;}
+  ::-webkit-scrollbar{width:4px;}
+  ::-webkit-scrollbar-thumb{background:#0A1F44;border-radius:4px;}
+  .nav-active{color:#F0B429 !important;background:rgba(255,255,255,0.1) !important;}
+  button{font-family:'DM Sans',sans-serif;}
+</style>
+</head>
+<body>
+<div id="app">
+
+  <!-- NAV -->
+  <nav class="fixed top-0 left-0 right-0 z-50 border-b-2 border-gold" style="height:68px;background:#060D1E">
+    <div class="max-w-6xl mx-auto h-full flex items-center justify-between px-6">
+      <router-link to="/" class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-full bg-gold flex items-center justify-center font-display font-black text-navy-dark text-sm flex-shrink-0">MC</div>
+        <div>
+          <div class="font-display text-white font-bold text-base leading-tight">Montserrado County</div>
+          <div class="text-gold-light text-xs tracking-widest uppercase font-body font-light" style="font-size:.6rem">Liberia · Digital Platform</div>
+        </div>
+      </router-link>
+      <div class="hidden md:flex items-center gap-0.5">
+        <router-link v-for="l in nav" :key="l.to" :to="l.to"
+          class="text-white/70 hover:text-white hover:bg-white/10 px-3 py-1.5 rounded-lg text-sm font-medium transition-all"
+          active-class="nav-active">{{ l.label }}</router-link>
+      </div>
+      <button class="md:hidden text-white text-2xl bg-transparent border-0 cursor-pointer" @click="mob=true">☰</button>
+    </div>
+  </nav>
+
+  <!-- MOBILE DRAWER -->
+  <transition name="page">
+    <div v-if="mob" class="fixed inset-0 z-50 flex flex-col px-8 pt-20 pb-8" style="background:#060D1E">
+      <button class="absolute top-5 right-6 text-white text-2xl bg-transparent border-0 cursor-pointer" @click="mob=false">✕</button>
+      <router-link v-for="l in nav" :key="l.to" :to="l.to"
+        class="font-display text-2xl text-white/80 hover:text-gold-light py-4 border-b border-white/10 transition-colors"
+        @click="mob=false">{{ l.label }}</router-link>
+    </div>
+  </transition>
+
+  <!-- PAGE -->
+  <div style="padding-top:68px;min-height:calc(100vh - 68px)">
+    <router-view v-slot="{Component}">
+      <transition name="page" mode="out-in">
+        <component :is="Component"/>
+      </transition>
+    </router-view>
+  </div>
+
+  <!-- FOOTER -->
+  <footer style="background:#060D1E" class="pt-12 pb-6 px-6">
+    <div class="max-w-6xl mx-auto">
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-10 pb-10 border-b border-white/10 mb-6">
+        <div class="col-span-2 md:col-span-1">
+          <div class="flex items-center gap-3 mb-3">
+            <div class="w-9 h-9 rounded-full bg-gold flex items-center justify-center font-display font-black text-navy-dark text-xs">MC</div>
+            <div class="font-display text-white font-bold leading-tight">Montserrado</div>
+          </div>
+          <p class="text-white/40 text-sm leading-relaxed max-w-xs">Heart of the Nation — connecting citizens, showcasing heritage, and driving development in Greater Monrovia and beyond.</p>
+        </div>
+        <div v-for="col in footerCols" :key="col.title">
+          <h5 class="text-gold-light text-xs font-semibold tracking-widest uppercase mb-4">{{ col.title }}</h5>
+          <router-link v-for="l in col.links" :key="l.label" :to="l.to"
+            class="block text-white/45 hover:text-white text-sm mb-2 transition-colors">{{ l.label }}</router-link>
+        </div>
+      </div>
+      <div class="flex flex-col md:flex-row justify-between items-center gap-2">
+        <p class="text-white/25 text-xs">© 2025 Montserrado County Digital Platform · ExploreLiberia</p>
+        <p class="text-white/20 text-xs tracking-widest">UNITY · PROGRESS · NATION</p>
+      </div>
+    </div>
+  </footer>
+</div>
+
+<script>
+const { createApp, ref, computed } = Vue;
+const { createRouter, createWebHashHistory } = VueRouter;
+
+/* ══ HOME ══ */
+const PageHome = {
+  template:`<div>
+    <section class="min-h-screen flex flex-col items-center justify-center text-center px-6 relative overflow-hidden" style="background:#060D1E;padding-bottom:3rem">
+      <div class="absolute inset-0 pointer-events-none" style="background:radial-gradient(circle at 20% 50%,rgba(183,28,46,0.3) 0%,transparent 55%),radial-gradient(circle at 80% 20%,rgba(10,31,68,0.6) 0%,transparent 40%)"></div>
+      <div class="absolute inset-0 pointer-events-none" style="background-image:linear-gradient(rgba(255,255,255,0.02) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,0.02) 1px,transparent 1px);background-size:44px 44px"></div>
+      <div class="relative z-10 flex flex-col items-center w-full max-w-3xl">
+        <div class="inline-flex items-center gap-2 border border-gold/35 text-gold-light px-5 py-1.5 rounded-full text-xs font-semibold tracking-widest uppercase mb-8" style="background:rgba(200,150,12,0.1)">🇱🇷 Heart of the Nation — Liberia</div>
+        <h1 class="font-display font-black text-white leading-tight mb-5" style="font-size:clamp(2.6rem,6vw,5.5rem)">Where Liberia<br><em class="not-italic" style="color:#F0B429">Beats Strongest.</em></h1>
+        <p class="text-white/60 text-lg max-w-lg mb-8 leading-relaxed">Discover the history, culture, leadership, and opportunities of Montserrado County — home to Monrovia and the pulse of a nation.</p>
+        <div class="flex items-center rounded-xl px-4 py-1 w-full max-w-md mb-12 border border-white/15" style="background:rgba(255,255,255,0.08)">
+          <input v-model="q" @keyup.enter="search" class="flex-1 bg-transparent border-0 outline-none text-white py-2 text-sm placeholder-white/35" placeholder="Search places, leaders, opportunities…"/>
+          <button @click="search" class="font-semibold text-sm px-4 py-2 rounded-lg border-0 cursor-pointer transition-colors" style="background:#B71C2E;color:white">Explore →</button>
+        </div>
+        <div class="flex items-center gap-8 flex-wrap justify-center">
+          <template v-for="(s,i) in stats" :key="s.label">
+            <div class="text-center">
+              <div class="font-display font-bold text-3xl" style="color:#F0B429">{{ s.num }}</div>
+              <div class="text-white/45 text-xs tracking-widest uppercase mt-0.5">{{ s.label }}</div>
+            </div>
+            <div v-if="i<stats.length-1" class="w-px h-10 bg-white/10 hidden sm:block"></div>
+          </template>
+        </div>
+      </div>
+    </section>
+
+    <!-- QUICK ACCESS -->
+    <div style="background:#0A1F44">
+      <div class="max-w-6xl mx-auto grid grid-cols-2 md:grid-cols-4">
+        <router-link v-for="h in highlights" :key="h.to" :to="h.to" class="flex flex-col px-6 py-5 border-r border-white/10 last:border-r-0 hover:bg-white/6 transition-colors group">
+          <span class="text-2xl mb-2">{{ h.icon }}</span>
+          <span class="text-xs font-semibold tracking-widest uppercase mb-1" style="color:#F0B429">{{ h.label }}</span>
+          <span class="text-white/80 text-sm font-medium group-hover:text-white transition-colors">{{ h.title }}</span>
+        </router-link>
+      </div>
+    </div>
+
+    <!-- ABOUT TEASER -->
+    <section class="bg-white py-20 px-6">
+      <div class="max-w-6xl mx-auto grid md:grid-cols-2 gap-16 items-center">
+        <div>
+          <div class="text-xs font-semibold tracking-widest uppercase mb-2" style="color:#C8960C">About Montserrado</div>
+          <h2 class="font-display font-bold leading-tight mb-4" style="font-size:clamp(1.8rem,3vw,2.6rem);color:#060D1E">The Heart of the Nation</h2>
+          <p class="leading-relaxed mb-4" style="color:#5A607A">Montserrado County is Liberia's most populous county and home to the nation's capital, Monrovia. It sits on the Atlantic coast and serves as the political, economic, cultural, and educational center of the entire country.</p>
+          <p class="leading-relaxed mb-6" style="color:#5A607A">Founded by freed American slaves in 1822, Monrovia is one of Africa's oldest modern cities — named after U.S. President James Monroe. Today it is a dynamic urban center of over 1.5 million people driving Liberia's future.</p>
+          <router-link to="/about" class="inline-flex items-center gap-2 text-white px-6 py-3 rounded-lg font-semibold text-sm transition-colors" style="background:#0A1F44">Discover More →</router-link>
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div v-for="d in districtSnap" :key="d.name" class="rounded-xl px-4 py-3" style="background:#E8EEF8;border:1px solid #D4D9E8;border-left:2px solid #0A1F44">
+            <div class="font-semibold text-sm" style="color:#0A1F44">{{ d.name }}</div>
+            <div class="text-xs mt-0.5" style="color:#5A607A">{{ d.note }}</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TOURISM TEASER -->
+    <section class="py-20 px-6" style="background:#F4F6FB">
+      <div class="max-w-6xl mx-auto">
+        <div class="flex items-end justify-between mb-8 flex-wrap gap-4">
+          <div>
+            <div class="text-xs font-semibold tracking-widest uppercase mb-2" style="color:#C8960C">Tourism & Landmarks</div>
+            <h2 class="font-display font-bold" style="font-size:clamp(1.6rem,3vw,2.4rem);color:#060D1E">Discover Montserrado</h2>
+          </div>
+          <router-link to="/tourism" class="font-semibold text-sm" style="color:#0A1F44">View All Sites →</router-link>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+          <div v-for="s in featuredSites" :key="s.name" class="bg-white rounded-2xl overflow-hidden border shadow-sm hover:-translate-y-1 hover:shadow-lg transition-all duration-300" style="border-color:#D4D9E8">
+            <div class="h-44 flex items-center justify-center text-5xl relative" :style="{background:s.bg}">
+              {{ s.emoji }}
+              <span class="absolute top-3 right-3 text-gold-light text-xs font-semibold px-2.5 py-1 rounded-full" style="background:rgba(6,13,30,0.75)">{{ s.cat }}</span>
+            </div>
+            <div class="p-5">
+              <h3 class="font-semibold mb-1.5" style="color:#060D1E">{{ s.name }}</h3>
+              <p class="text-sm leading-relaxed mb-3" style="color:#5A607A">{{ s.desc }}</p>
+              <div class="text-xs font-medium" style="color:#0A1F44">📍 {{ s.loc }}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CTA -->
+    <section class="py-16 px-6 text-center" style="background:#0A1F44">
+      <div class="max-w-2xl mx-auto">
+        <h2 class="font-display font-bold text-white text-3xl mb-4">Share Your Montserrado Story</h2>
+        <p class="text-white/60 mb-8 leading-relaxed">Every voice matters. Your story is part of Liberia's living history.</p>
+        <router-link to="/stories" class="inline-flex items-center gap-2 font-semibold px-8 py-3 rounded-xl transition-colors" style="background:#C8960C;color:#060D1E">Read Stories →</router-link>
+      </div>
+    </section>
+  </div>`,
+  setup(){
+    const { useRouter } = VueRouter;
+    const router = useRouter();
+    const q = ref('');
+    const stats = [
+      { num:'5',    label:'Districts' },
+      { num:'1.5M+',label:'Population' },
+      { num:'1822', label:'Monrovia Founded' },
+      { num:'1847', label:'Independence' },
+    ];
+    const highlights = [
+      { to:'/tourism',    icon:'🏛️', label:'Landmarks',   title:'History & Monuments' },
+      { to:'/education',  icon:'🎓', label:'Education',   title:'Universities & Schools' },
+      { to:'/leadership', icon:'👥', label:'Leadership',  title:'Past & Present Leaders' },
+      { to:'/community',  icon:'🤝', label:'Community',   title:'Events & City Life' },
+    ];
+    const districtSnap = [
+      { name:'Greater Monrovia', note:'Capital city district' },
+      { name:'Careysburg',       note:'Northern suburban district' },
+      { name:'St. Paul River',   note:'Western riverine district' },
+      { name:'Todee',            note:'Inland rural district' },
+      { name:'Bushrod Island',   note:'Industrial & port district' },
+    ];
+    const featuredSites = [
+      { name:'Providence Island',     cat:'Historical', emoji:'⛪', bg:'#0A1528', desc:'The historic landing site of freed American slaves in 1822 — the birthplace of modern Liberia.',         loc:'Monrovia Estuary' },
+      { name:'Ducor Palace Hotel',    cat:'Heritage',   emoji:'🏨', bg:'#1A0A0A', desc:'An iconic hilltop landmark symbolizing Liberia\'s golden era — now a heritage restoration project.',      loc:'Capitol Hill, Monrovia' },
+      { name:'Waterside Market',      cat:'Cultural',   emoji:'🏪', bg:'#1A1200', desc:'The vibrant heart of Monrovia\'s commercial life — a bustling market reflecting the city\'s energy.',    loc:'Central Monrovia' },
+    ];
+    function search(){
+      const map={'/tourism':['tourism','landmark','beach','market'],'/education':['school','uni','learn'],'/leadership':['leader','president','official'],'/community':['event','community','city'],'/about':['district','about','history']};
+      const qv=q.value.toLowerCase();
+      for(const [path,kws] of Object.entries(map)){if(kws.some(k=>qv.includes(k))){router.push(path);return;}}
+      router.push('/about');
+    }
+    return { q, stats, highlights, districtSnap, featuredSites, search };
+  }
+};
+
+/* ══ ABOUT ══ */
+const PageAbout = {
+  template:`<div>
+    <div class="px-6 py-20 text-center relative overflow-hidden" style="background:#060D1E">
+      <div class="absolute inset-0" style="background:radial-gradient(circle at 50% 80%,rgba(10,31,68,0.8) 0%,transparent 60%)"></div>
+      <div class="relative z-10">
+        <div class="text-xs font-semibold tracking-widest uppercase mb-3" style="color:#F0B429">Our Story</div>
+        <h1 class="font-display font-black text-white mb-4" style="font-size:clamp(2.2rem,5vw,4rem)">About Montserrado County</h1>
+        <p class="text-white/55 max-w-xl mx-auto leading-relaxed">The political, economic, and cultural capital of Liberia — a county built on freedom, resilience, and ambition.</p>
+      </div>
+    </div>
+
+    <section class="bg-white py-20 px-6">
+      <div class="max-w-6xl mx-auto grid md:grid-cols-2 gap-16 items-start">
+        <div>
+          <div class="text-xs font-semibold tracking-widest uppercase mb-2" style="color:#C8960C">Overview</div>
+          <h2 class="font-display font-bold text-3xl mb-5" style="color:#060D1E">Heart of the Nation</h2>
+          <p class="leading-relaxed mb-4" style="color:#5A607A">Montserrado County is the smallest yet most populous county in Liberia, covering an area along the Atlantic coast and centered on the capital city of Monrovia. It is Liberia's economic powerhouse, home to the seat of government, the nation's major port, central bank, supreme court, and leading universities.</p>
+          <p class="leading-relaxed mb-4" style="color:#5A607A">Founded in 1822 when freed American and Caribbean slaves first landed on Providence Island, Monrovia became the capital of Africa's first independent republic in 1847. The city's name honors U.S. President James Monroe, who supported the settlement program.</p>
+          <p class="leading-relaxed" style="color:#5A607A">Today, Montserrado County is home to more than a quarter of Liberia's entire population, making it the engine of the national economy and the epicenter of Liberian culture, politics, and commerce.</p>
+        </div>
+        <div class="space-y-3">
+          <div v-for="f in facts" :key="f.label" class="flex items-start gap-4 p-4 rounded-xl border" style="background:#E8EEF8;border-color:#D4D9E8">
+            <span class="text-2xl flex-shrink-0">{{ f.icon }}</span>
+            <div>
+              <div class="text-xs font-semibold uppercase tracking-wider mb-0.5" style="color:#5A607A">{{ f.label }}</div>
+              <div class="font-semibold" style="color:#060D1E">{{ f.value }}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- DISTRICTS -->
+    <section class="py-20 px-6" style="background:#F4F6FB">
+      <div class="max-w-6xl mx-auto">
+        <div class="text-xs font-semibold tracking-widest uppercase mb-2" style="color:#C8960C">Administrative Divisions</div>
+        <h2 class="font-display font-bold text-3xl mb-3" style="color:#060D1E">5 Districts of Montserrado</h2>
+        <p class="mb-10 max-w-lg" style="color:#5A607A">Montserrado County is divided into 5 administrative districts, ranging from the dense urban core of Greater Monrovia to the rural hinterlands of Todee.</p>
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+          <div v-for="d in districts" :key="d.name" class="bg-white rounded-xl p-5 hover:shadow-md transition-shadow" style="border:1px solid #D4D9E8;border-left:4px solid #0A1F44">
+            <h3 class="font-semibold mb-1" style="color:#0A1F44">{{ d.name }}</h3>
+            <p class="text-sm mb-3" style="color:#5A607A">{{ d.desc }}</p>
+            <div class="flex flex-wrap gap-1.5">
+              <span v-for="tag in d.tags" :key="tag" class="text-xs font-medium px-2 py-0.5 rounded-full" style="background:#E8EEF8;color:#0A1F44">{{ tag }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- GEOGRAPHY -->
+    <section class="bg-white py-20 px-6">
+      <div class="max-w-6xl mx-auto">
+        <div class="text-xs font-semibold tracking-widest uppercase mb-2" style="color:#C8960C">Geography & Waterways</div>
+        <h2 class="font-display font-bold text-3xl mb-3" style="color:#060D1E">Coastline, Rivers & Landscape</h2>
+        <p class="mb-10 max-w-lg" style="color:#5A607A">Montserrado County sits at the Atlantic coast of West Africa, defined by beaches, estuaries, and the St. Paul River system.</p>
+        <div class="grid md:grid-cols-3 gap-5">
+          <div v-for="g in geography" :key="g.name" class="rounded-xl p-5 border" style="background:#E8EEF8;border-color:#D4D9E8">
+            <div class="text-3xl mb-3">{{ g.icon }}</div>
+            <h4 class="font-semibold mb-1" style="color:#060D1E">{{ g.name }}</h4>
+            <p class="text-sm leading-relaxed" style="color:#5A607A">{{ g.desc }}</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TIMELINE -->
+    <section class="py-20 px-6" style="background:#0A1F44">
+      <div class="max-w-4xl mx-auto">
+        <div class="text-xs font-semibold tracking-widest uppercase mb-2" style="color:rgba(240,180,41,0.7)">History</div>
+        <h2 class="font-display font-bold text-white text-3xl mb-12">A Timeline of Montserrado</h2>
+        <div class="relative">
+          <div class="absolute top-0 bottom-0 bg-white/15" style="left:16px;width:1px"></div>
+          <div v-for="e in timeline" :key="e.year" class="pl-12 pb-10 relative">
+            <div class="absolute top-1 w-8 h-8 rounded-full border-2 flex items-center justify-center" style="left:0;background:#0A1F44;border-color:rgba(200,150,12,0.4)">
+              <div class="w-2 h-2 rounded-full" style="background:#C8960C"></div>
+            </div>
+            <div class="text-xs font-bold tracking-widest mb-1" style="color:#F0B429">{{ e.year }}</div>
+            <h3 class="font-semibold text-white mb-1">{{ e.title }}</h3>
+            <p class="text-sm leading-relaxed text-white/55">{{ e.desc }}</p>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>`,
+  setup(){
+    const facts = [
+      { icon:'📍', label:'Location',     value:'Atlantic Coast, Northwestern Liberia' },
+      { icon:'🏙️', label:'County Seat',  value:'Monrovia (National Capital)' },
+      { icon:'👥', label:'Population',   value:'1.5+ Million (largest in Liberia)' },
+      { icon:'🗺️', label:'Districts',    value:'5 Administrative Districts' },
+      { icon:'🌊', label:'Coastline',    value:'Atlantic Ocean & St. Paul River' },
+      { icon:'🏛️', label:'Founded',      value:'1822 (Monrovia) · 1847 (Republic)' },
+    ];
+    const districts = [
+      { name:'Greater Monrovia', desc:'The nation\'s capital city and largest urban center in Liberia.', tags:['Capital','Urban','Commerce','Government'] },
+      { name:'Careysburg',       desc:'A northern suburban district with growing residential communities.', tags:['Suburban','Residential'] },
+      { name:'St. Paul River',   desc:'Western district along the St. Paul River estuary and coastline.', tags:['Riverine','Fishing','Agriculture'] },
+      { name:'Todee',            desc:'A largely rural inland district with farming communities.', tags:['Rural','Farming','Forests'] },
+      { name:'Bushrod Island',   desc:'An industrial and port district connected to central Monrovia by bridge.', tags:['Port','Industrial','Commerce'] },
+    ];
+    const geography = [
+      { icon:'🌊', name:'Atlantic Ocean Coastline', desc:'Montserrado County boasts miles of Atlantic coastline including Monrovia\'s urban beaches and fishing villages.' },
+      { icon:'🌿', name:'St. Paul River', desc:'One of Liberia\'s major rivers, forming part of the county border and supporting communities with water, fishing, and transport.' },
+      { icon:'🏝️', name:'Bushrod Island', desc:'A large island connected to mainland Monrovia, home to the Free Port of Monrovia — Liberia\'s most important commercial harbor.' },
+    ];
+    const timeline = [
+      { year:'1822', title:'Free Settlers Land at Providence Island', desc:'Freed American and Caribbean slaves, supported by the American Colonization Society, establish the first settlement on Providence Island in the St. Paul River estuary.' },
+      { year:'1824', title:'Monrovia Named & Established',            desc:'The settlement is named Monrovia in honor of U.S. President James Monroe. It becomes the main town of the colony of Liberia.' },
+      { year:'1847', title:'Republic of Liberia Declared',             desc:'Liberia declares independence on July 26, 1847 — the first African republic. Monrovia is declared the national capital.' },
+      { year:'1926', title:'Firestone Plantation Era',                 desc:'The Firestone Rubber Company establishes the world\'s largest rubber plantation near Monrovia, transforming Liberia\'s economy.' },
+      { year:'1980', title:'Military Coup Changes Everything',         desc:'President William Tolbert is killed in a military coup led by Samuel Doe. Monrovia enters a turbulent political era.' },
+      { year:'1989–2003', title:'Civil War & Siege of Monrovia',       desc:'Monrovia becomes the epicenter of Liberia\'s devastating civil wars. The city suffers massive destruction but its people survive with remarkable resilience.' },
+      { year:'2006', title:'President Ellen Johnson Sirleaf',          desc:'Liberia elects Africa\'s first female president. Monrovia begins a major period of reconstruction and urban development.' },
+      { year:'2018–Now', title:'Modern Monrovia',                      desc:'Under successive administrations, Monrovia continues rebuilding — new roads, universities, businesses, and a growing youth population driving the city\'s future.' },
+    ];
+    return { facts, districts, geography, timeline };
+  }
+};
+
+/* ══ TOURISM ══ */
+const PageTourism = {
+  template:`<div>
+    <div class="px-6 py-20 text-center relative overflow-hidden" style="background:#060D1E">
+      <div class="absolute inset-0" style="background:radial-gradient(circle at 30% 70%,rgba(183,28,46,0.2) 0%,transparent 60%)"></div>
+      <div class="relative z-10">
+        <div class="text-xs font-semibold tracking-widest uppercase mb-3" style="color:#F0B429">Tourism & Landmarks</div>
+        <h1 class="font-display font-black text-white mb-4" style="font-size:clamp(2.2rem,5vw,4rem)">Discover Montserrado County</h1>
+        <p class="text-white/55 max-w-xl mx-auto leading-relaxed">Historic landmarks, urban beaches, cultural markets, and the vibrant life of Monrovia.</p>
+      </div>
+    </div>
+
+    <section class="py-16 px-6" style="background:#F4F6FB">
+      <div class="max-w-6xl mx-auto">
+        <div class="flex gap-2 flex-wrap mb-8">
+          <button v-for="cat in cats" :key="cat" @click="active=cat"
+            :style="active===cat?'background:#0A1F44;color:white;border-color:#0A1F44':'background:white;border-color:#D4D9E8;color:#5A607A'"
+            class="px-4 py-2 rounded-full border text-sm font-medium transition-all cursor-pointer">{{ cat }}</button>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+          <div v-for="s in filtered" :key="s.name"
+            class="bg-white rounded-2xl overflow-hidden border shadow-sm hover:-translate-y-1.5 hover:shadow-xl transition-all duration-300 cursor-pointer"
+            style="border-color:#D4D9E8" @click="sel=s">
+            <div class="h-52 flex items-center justify-center text-6xl relative" :style="{background:s.bg}">
+              {{ s.emoji }}
+              <span class="absolute top-3 right-3 text-gold-light text-xs font-semibold px-2.5 py-1 rounded-full" style="background:rgba(6,13,30,0.75)">{{ s.cat }}</span>
+            </div>
+            <div class="p-5">
+              <h3 class="font-semibold mb-1.5" style="color:#060D1E">{{ s.name }}</h3>
+              <p class="text-sm leading-relaxed mb-3" style="color:#5A607A">{{ s.desc }}</p>
+              <div class="flex items-center justify-between">
+                <div class="text-xs font-medium" style="color:#0A1F44">📍 {{ s.loc }}</div>
+                <span class="text-xs font-semibold" style="color:#B71C2E">Details →</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- MODAL -->
+    <div v-if="sel" class="fixed inset-0 z-50 flex items-center justify-center px-4" style="background:rgba(6,13,30,0.8)" @click.self="sel=null">
+      <div class="bg-white rounded-2xl overflow-hidden max-w-lg w-full shadow-2xl">
+        <div class="h-56 flex items-center justify-center text-7xl relative" :style="{background:sel.bg}">
+          {{ sel.emoji }}
+          <button @click="sel=null" class="absolute top-4 right-4 text-white rounded-full w-8 h-8 flex items-center justify-center border-0 cursor-pointer text-lg" style="background:rgba(0,0,0,0.5)">✕</button>
+        </div>
+        <div class="p-6">
+          <span class="text-xs font-semibold px-3 py-1 rounded-full" style="background:#E8EEF8;color:#0A1F44">{{ sel.cat }}</span>
+          <h2 class="font-display font-bold text-2xl mt-3 mb-2" style="color:#060D1E">{{ sel.name }}</h2>
+          <div class="text-sm font-medium mb-4" style="color:#0A1F44">📍 {{ sel.loc }}</div>
+          <p class="leading-relaxed" style="color:#5A607A">{{ sel.extra }}</p>
+        </div>
+      </div>
+    </div>
+
+    <section class="bg-white py-16 px-6">
+      <div class="max-w-6xl mx-auto">
+        <div class="text-xs font-semibold tracking-widest uppercase mb-2" style="color:#C8960C">Visitor Tips</div>
+        <h2 class="font-display font-bold text-3xl mb-8" style="color:#060D1E">Exploring Monrovia</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div v-for="tip in tips" :key="tip.title" class="rounded-xl p-5 border" style="background:#E8EEF8;border-color:#D4D9E8">
+            <div class="text-2xl mb-3">{{ tip.icon }}</div>
+            <h4 class="font-semibold text-sm mb-1.5" style="color:#060D1E">{{ tip.title }}</h4>
+            <p class="text-xs leading-relaxed" style="color:#5A607A">{{ tip.desc }}</p>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>`,
+  setup(){
+    const active=ref('All'); const sel=ref(null);
+    const cats=['All','Historical','Cultural','Nature','Entertainment'];
+    const sites=[
+      { name:'Providence Island',           cat:'Historical',    emoji:'⛪', bg:'#0A1528', desc:'The birthplace of Liberia — where freed slaves first landed in 1822.',                                             extra:'Providence Island sits at the mouth of the St. Paul River and is considered the most historically significant location in Liberia. The original settlement, a church, and historical markers commemorate the founding of modern Liberia. A must-visit for anyone seeking to understand Liberian history.',    loc:'Monrovia Estuary' },
+      { name:'Ducor Palace Hotel',          cat:'Historical',    emoji:'🏨', bg:'#1A0A0A', desc:'An iconic hilltop hotel and national heritage site, once the finest hotel in West Africa.',                       extra:'Built in 1960 on the highest point in Monrovia, the Ducor Palace Hotel was considered the crown jewel of West African hospitality in its era. Damaged during the civil war, it is now a symbol of Liberia\'s determination to restore its golden era heritage.',                                          loc:'Capitol Hill, Monrovia' },
+      { name:'Capitol Building',            cat:'Historical',    emoji:'🏛️', bg:'#0D1525', desc:'The seat of the Liberian Legislature — a symbol of Africa\'s oldest republic.',                                   extra:'The Capitol Building houses Liberia\'s Senate and House of Representatives. Located on Capitol Hill, its classical architecture reflects the influence of American design on early Liberian governance. Guided tours offer insight into Liberia\'s remarkable political history.',                          loc:'Capitol Hill, Monrovia' },
+      { name:'Waterside Market',            cat:'Cultural',      emoji:'🏪', bg:'#1A1200', desc:'Monrovia\'s most famous market — a kaleidoscope of trade, culture, and city energy.',                             extra:'Waterside Market is the beating commercial heart of Monrovia. Thousands of traders sell everything from fresh produce and fabrics to electronics and traditional crafts. It\'s the best place to experience the authentic rhythm of everyday Monrovia life.',                                                loc:'Central Monrovia' },
+      { name:'Kendeja Cultural Village',    cat:'Cultural',      emoji:'🥁', bg:'#2C1A00', desc:'A living cultural heritage site showcasing traditional Liberian arts, dance, and craftsmanship.',                  extra:'Kendeja Cultural Village is Liberia\'s premier institution for traditional cultural preservation. Regular performances of traditional dance, music, and storytelling represent all of Liberia\'s 16 ethnic groups. An essential cultural experience for visitors to Monrovia.',                              loc:'Congo Town, Monrovia' },
+      { name:'Monrovia City Beach',         cat:'Nature',        emoji:'🌊', bg:'#051520', desc:'Urban Atlantic beach popular with Monrovians for weekend recreation and ocean views.',                             extra:'Several urban beaches line Monrovia\'s coastline, offering swimming, fresh seafood, and spectacular Atlantic Ocean sunsets. The beaches are especially vibrant on weekends when Monrovians gather for recreation, music, and community.',                                                                     loc:'Monrovia Coastline' },
+      { name:'Elwa Beach',                  cat:'Nature',        emoji:'🏖️', bg:'#072030', desc:'One of Liberia\'s most popular beaches, a short drive from central Monrovia.',                                     extra:'Elwa Beach is a favorite destination for both locals and visitors, offering a long stretch of Atlantic sand backed by palm trees. The beach is known for its clean sand, fresh seafood vendors, and relaxed weekend atmosphere.',                                                                           loc:'South Monrovia' },
+      { name:'National Museum of Liberia',  cat:'Historical',    emoji:'🏺', bg:'#0D0A20', desc:'The national repository of Liberian cultural artifacts, history, and heritage collections.',                       extra:'The National Museum of Liberia houses one of the country\'s most important collections of historical artifacts, traditional objects, photographs, and documents tracing Liberia\'s history from precolonial times through independence and beyond.',                                                           loc:'Broad Street, Monrovia' },
+      { name:'Sinkor & Mamba Point',        cat:'Entertainment', emoji:'🍽️', bg:'#1A0D00', desc:'Monrovia\'s most vibrant neighborhoods for dining, nightlife, and urban culture.',                                extra:'Sinkor and Mamba Point are the cosmopolitan heart of modern Monrovia — home to the best restaurants, cafés, embassies, and entertainment venues. These neighborhoods reflect the international character of Liberia\'s capital city.',                                                                     loc:'Sinkor, Monrovia' },
+    ];
+    const filtered=computed(()=>active.value==='All'?sites:sites.filter(s=>s.cat===active.value));
+    const tips=[
+      { icon:'🚕', title:'Getting Around',    desc:'Yellow taxis are everywhere and affordable. Ride-hailing apps are growing in Monrovia. Motorbike taxis for shorter trips.' },
+      { icon:'🏨', title:'Where to Stay',     desc:'Mamba Point and Sinkor have the best hotels. Budget guesthouses available in Congo Town and Paynesville.' },
+      { icon:'🌅', title:'Best Experiences',  desc:'Visit Waterside Market in the morning. Beaches are best on weekend afternoons. Kendeja performances on weekends.' },
+      { icon:'💱', title:'Currency & Costs',  desc:'Liberian Dollar and US Dollar both accepted. ATMs available in Monrovia. Negotiate prices at markets.' },
+    ];
+    return { active, sel, cats, filtered, tips };
+  }
+};
+
+/* ══ LEADERSHIP ══ */
+const PageLeadership = {
+  template:`<div>
+    <div class="px-6 py-20 text-center relative overflow-hidden" style="background:#060D1E">
+      <div class="absolute inset-0" style="background:radial-gradient(circle at 70% 30%,rgba(183,28,46,0.12) 0%,transparent 50%)"></div>
+      <div class="relative z-10">
+        <div class="text-xs font-semibold tracking-widest uppercase mb-3" style="color:#F0B429">Leadership & Legacy</div>
+        <h1 class="font-display font-black text-white mb-4" style="font-size:clamp(2.2rem,5vw,4rem)">Leaders of Montserrado</h1>
+        <p class="text-white/55 max-w-xl mx-auto leading-relaxed">From Liberia's founding fathers to today's representatives — those who shaped the nation's capital.</p>
+      </div>
+    </div>
+
+    <section class="py-16 px-6" style="background:#F4F6FB">
+      <div class="max-w-6xl mx-auto">
+        <div class="flex gap-2 flex-wrap mb-10">
+          <button v-for="era in eras" :key="era" @click="activeEra=era"
+            :style="activeEra===era?'background:#0A1F44;color:white;border-color:#0A1F44':'background:white;border-color:#D4D9E8;color:#5A607A'"
+            class="px-4 py-2 rounded-full border text-sm font-medium transition-all cursor-pointer">{{ era }}</button>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+          <div v-for="l in filtered" :key="l.name"
+            class="bg-white rounded-2xl p-6 border hover:shadow-lg hover:-translate-y-1 transition-all duration-300" style="border-color:#D4D9E8">
+            <div class="flex items-start gap-4 mb-4">
+              <div class="w-14 h-14 rounded-full flex items-center justify-center font-display font-bold text-lg flex-shrink-0 border-2" style="background:#0A1F44;color:#F0B429;border-color:rgba(200,150,12,0.25)">{{ l.initials }}</div>
+              <div>
+                <h3 class="font-semibold leading-tight" style="color:#060D1E">{{ l.name }}</h3>
+                <div class="text-xs font-semibold mt-0.5" style="color:#B71C2E">{{ l.role }}</div>
+                <div class="text-xs mt-0.5" style="color:#5A607A">{{ l.period }}</div>
+              </div>
+            </div>
+            <p class="text-sm leading-relaxed mb-4" style="color:#5A607A">{{ l.bio }}</p>
+            <div class="flex flex-wrap gap-1.5">
+              <span v-for="tag in l.tags" :key="tag" class="text-xs font-medium px-2 py-0.5 rounded-full" style="background:#E8EEF8;color:#0A1F44">{{ tag }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- REPS -->
+    <section class="bg-white py-16 px-6">
+      <div class="max-w-6xl mx-auto">
+        <div class="text-xs font-semibold tracking-widest uppercase mb-2" style="color:#C8960C">Current Representatives</div>
+        <h2 class="font-display font-bold text-3xl mb-3" style="color:#060D1E">Legislative Representatives</h2>
+        <p class="mb-8 max-w-lg" style="color:#5A607A">Montserrado County's electoral districts are represented in the national House of Representatives.</p>
+        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+          <div v-for="r in reps" :key="r.name" class="rounded-xl p-4 text-center border hover:shadow-md transition-all" style="border-color:#D4D9E8">
+            <div class="w-10 h-10 rounded-full flex items-center justify-center font-display font-bold text-xs mx-auto mb-2" style="background:#E8EEF8;border:1px solid #0A1F44;color:#0A1F44">{{ r.initials }}</div>
+            <div class="font-semibold text-sm leading-tight" style="color:#060D1E">{{ r.name }}</div>
+            <div class="text-xs font-semibold mt-0.5" style="color:#B71C2E">District {{ r.district }}</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="py-16 px-6" style="background:#0A1F44">
+      <div class="max-w-3xl mx-auto text-center">
+        <div class="font-display text-white mb-6" style="font-size:3.5rem">"</div>
+        <p class="font-display text-white text-2xl font-medium leading-relaxed mb-6">Monrovia was built by those who dared to be free. It will be built again by those who dare to be great.</p>
+        <div class="text-xs tracking-widest uppercase" style="color:rgba(255,255,255,0.35)">Montserrado County, Est. 1822</div>
+      </div>
+    </section>
+  </div>`,
+  setup(){
+    const activeEra=ref('All');
+    const eras=['All','National Leaders','County Leaders','Historical'];
+    const leaders=[
+      { initials:'EJS', name:'Ellen Johnson Sirleaf',  role:'Former President of Liberia',       period:'2006 – 2018',       eraTag:'National Leaders',  bio:'Africa\'s first female president and Nobel Peace Prize laureate. Led Liberia\'s post-war reconstruction and governance reforms from Monrovia.',          tags:['Nobel Prize','First Female President','Reconstruction'] },
+      { initials:'GW',  name:'George Weah',            role:'Former President of Liberia',       period:'2018 – 2024',       eraTag:'National Leaders',  bio:'FIFA World Player of the Year and international football legend who became Liberia\'s President, bringing global attention to the nation.',          tags:['President','Football Legend','Youth Icon'] },
+      { initials:'JB',  name:'Joseph Boakai',           role:'President of Liberia',              period:'2024 – Present',    eraTag:'National Leaders',  bio:'Current President of Liberia, serving as the head of state in Monrovia, focused on economic development and anti-corruption initiatives.',            tags:['President','Current','Development'] },
+      { initials:'WT',  name:'William V.S. Tubman',    role:'President of Liberia',              period:'1944 – 1971',       eraTag:'Historical',        bio:'Liberia\'s longest-serving president, who opened the country to foreign investment and extended voting rights to indigenous Liberians.',               tags:['Historical','President','Development'] },
+      { initials:'WS',  name:'William Tolbert Jr.',    role:'President of Liberia',              period:'1971 – 1980',       eraTag:'Historical',        bio:'The last president of the True Whig Party era, whose administration ended with the 1980 military coup that transformed Liberian politics.',             tags:['Historical','President'] },
+      { initials:'FK',  name:'Fonati Koffa',           role:'Speaker, House of Representatives', period:'2024 – Present',    eraTag:'County Leaders',    bio:'Speaker of the House of Representatives from Montserrado County, presiding over Liberia\'s national legislature.',                                    tags:['Speaker','Legislature','Current'] },
+      { initials:'AK',  name:'Abu Kamara',             role:'Mayor of Monrovia',                 period:'Recent',            eraTag:'County Leaders',    bio:'Led Monrovia City Corporation focusing on urban development, waste management, and city infrastructure improvements.',                               tags:['Mayor','Urban Development'] },
+      { initials:'JS',  name:'Joseph Jenkins Roberts', role:'First President of Liberia',        period:'1848 – 1856',       eraTag:'Historical',        bio:'The first President of Liberia and a founding father of the nation, born in Virginia and settled in Monrovia as a trader before entering politics.',  tags:['Founding Father','First President'] },
+    ];
+    const filtered=computed(()=>activeEra.value==='All'?leaders:leaders.filter(l=>l.eraTag===activeEra.value));
+    const reps=[
+      { initials:'MG', name:'Mariamu Fofana',       district:'1' },
+      { initials:'SK', name:'Samuel Kofi Woods',    district:'2' },
+      { initials:'FK', name:'Fonati Koffa',         district:'3' },
+      { initials:'AY', name:'Acarous Gray',         district:'4' },
+      { initials:'RK', name:'Richard Koon',         district:'5' },
+      { initials:'BK', name:'Bhofal Chambers',      district:'6' },
+      { initials:'TC', name:'Thomas Goshua',        district:'7' },
+      { initials:'YK', name:'Yekeh Kolubah',        district:'8' },
+    ];
+    return { activeEra, eras, filtered, reps };
+  }
+};
+
+/* ══ EDUCATION ══ */
+const PageEducation = {
+  template:`<div>
+    <div class="px-6 py-20 text-center relative overflow-hidden" style="background:#060D1E">
+      <div class="absolute inset-0" style="background:radial-gradient(circle at 50% 100%,rgba(10,31,68,0.6) 0%,transparent 55%)"></div>
+      <div class="relative z-10">
+        <div class="text-xs font-semibold tracking-widest uppercase mb-3" style="color:#F0B429">Education & Healthcare</div>
+        <h1 class="font-display font-black text-white mb-4" style="font-size:clamp(2.2rem,5vw,4rem)">Liberia's Academic Capital</h1>
+        <p class="text-white/55 max-w-xl mx-auto leading-relaxed">Home to Liberia's top universities, hospitals, and professional institutions — Monrovia is the nation's center of learning.</p>
+      </div>
+    </div>
+
+    <div class="bg-white border-b sticky top-[68px] z-40" style="border-color:#D4D9E8">
+      <div class="max-w-6xl mx-auto px-6 flex gap-0 overflow-x-auto">
+        <button v-for="t in tabs" :key="t.id" @click="tab=t.id"
+          :style="tab===t.id?'border-bottom:2px solid #0A1F44;color:#0A1F44':'color:#5A607A'"
+          class="px-6 py-4 text-sm font-medium transition-colors border-b-2 border-transparent cursor-pointer bg-transparent whitespace-nowrap">
+          {{ t.icon }} {{ t.label }}</button>
+      </div>
+    </div>
+
+    <section class="py-16 px-6" style="background:#F4F6FB">
+      <div class="max-w-6xl mx-auto">
+
+        <template v-if="tab==='universities'">
+          <div class="text-xs font-semibold tracking-widest uppercase mb-2" style="color:#C8960C">Higher Education</div>
+          <h2 class="font-display font-bold text-3xl mb-3" style="color:#060D1E">Universities & Colleges</h2>
+          <p class="mb-10 max-w-lg" style="color:#5A607A">Montserrado County is Liberia's academic capital, home to the nation's flagship universities and professional schools.</p>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-12">
+            <div v-for="i in universities" :key="i.name" class="bg-white rounded-2xl p-6 border hover:shadow-md transition-shadow flex gap-4" style="border-color:#D4D9E8">
+              <div class="w-12 h-12 rounded-xl flex items-center justify-center text-2xl flex-shrink-0" style="background:#E8EEF8">{{ i.icon }}</div>
+              <div>
+                <h3 class="font-semibold mb-0.5" style="color:#060D1E">{{ i.name }}</h3>
+                <div class="text-xs font-medium mb-2" style="color:#0A1F44">📍 {{ i.location }}</div>
+                <p class="text-sm leading-relaxed mb-2" style="color:#5A607A">{{ i.desc }}</p>
+                <span class="text-xs font-semibold px-2.5 py-0.5 rounded-full" style="background:#E8EEF8;color:#0A1F44">{{ i.tag }}</span>
+              </div>
+            </div>
+          </div>
+        </template>
+
+        <template v-if="tab==='health'">
+          <div class="text-xs font-semibold tracking-widest uppercase mb-2" style="color:#C8960C">Healthcare</div>
+          <h2 class="font-display font-bold text-3xl mb-3" style="color:#060D1E">Hospitals & Medical Centers</h2>
+          <p class="mb-10 max-w-lg" style="color:#5A607A">Montserrado County houses Liberia's most important hospitals, providing national referral care for the entire country.</p>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-10">
+            <div v-for="h in hospitals" :key="h.name" class="bg-white rounded-2xl p-6 border hover:shadow-md transition-shadow" style="border-color:#D4D9E8">
+              <div class="flex items-start gap-4">
+                <div class="w-12 h-12 rounded-xl flex items-center justify-center text-2xl flex-shrink-0" style="background:#E8EEF8">{{ h.icon }}</div>
+                <div>
+                  <h3 class="font-semibold mb-0.5" style="color:#060D1E">{{ h.name }}</h3>
+                  <div class="text-xs font-medium mb-1.5" style="color:#0A1F44">📍 {{ h.location }}</div>
+                  <span class="text-xs font-semibold px-2.5 py-0.5 rounded-full mb-2 inline-block" style="background:#E8EEF8;color:#0A1F44">{{ h.tag }}</span>
+                  <p class="text-sm leading-relaxed mt-2 mb-3" style="color:#5A607A">{{ h.desc }}</p>
+                  <div class="flex flex-wrap gap-1.5">
+                    <span v-for="s in h.services" :key="s" class="text-xs px-2 py-0.5 rounded-full" style="background:#E8EEF8;color:#0A1F44">{{ s }}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </template>
+
+      </div>
+    </section>
+  </div>`,
+  setup(){
+    const tab=ref('universities');
+    const tabs=[
+      { id:'universities', icon:'🎓', label:'Universities' },
+      { id:'health',       icon:'🏥', label:'Healthcare' },
+    ];
+    const universities=[
+      { icon:'🎓', name:'University of Liberia',               location:'Fendell Campus, Monrovia',   desc:'Liberia\'s oldest and largest public university, founded in 1851. Offers degrees across all major disciplines — the flagship institution of Liberian higher education.',   tag:'Public University · Est. 1851' },
+      { icon:'⚖️', name:'Louis Arthur Grimes School of Law',   location:'Monrovia',                   desc:'Liberia\'s premier law school, training the nation\'s judges, attorneys, and legal professionals for over a century.',                                                  tag:'Law School' },
+      { icon:'🏥', name:'A.M. Dogliotti College of Medicine',  location:'John F. Kennedy Hospital',   desc:'Liberia\'s primary medical school, producing doctors and medical specialists who serve the national health system.',                                                       tag:'Medical School' },
+      { icon:'🔬', name:'United Methodist University',         location:'Monrovia',                   desc:'A private university affiliated with the United Methodist Church, offering programs in business, education, and sciences.',                                              tag:'Private University' },
+      { icon:'📡', name:'African Methodist Episcopal University', location:'Monrovia',                desc:'AME University offers undergraduate and graduate programs serving students from across Liberia and the region.',                                                          tag:'Private University' },
+      { icon:'🌐', name:'Monrovia Consolidated School System', location:'Greater Monrovia',           desc:'The public school system serving hundreds of thousands of students in Greater Monrovia across primary, junior high, and senior high levels.',                            tag:'Public School System' },
+    ];
+    const hospitals=[
+      { icon:'🏥', name:'John F. Kennedy Memorial Medical Center', location:'Sinkor, Monrovia',   tag:'National Referral Hospital', desc:'Liberia\'s premier national referral hospital and the largest medical facility in the country. Provides specialist care across all major disciplines.',       services:['Surgery','Cardiology','Oncology','Emergency','ICU','Maternity'] },
+      { icon:'🏨', name:'Redemption Hospital',                      location:'New Kru Town',       tag:'Public Hospital',           desc:'A major public hospital serving some of Monrovia\'s most densely populated communities with essential and emergency medical care.',                          services:['Emergency','Primary Care','Maternity','Pediatrics'] },
+      { icon:'🩺', name:'Eternal Love Winning Africa (ELWA) Hospital', location:'Paynesville',    tag:'Mission Hospital',           desc:'A Christian mission hospital providing quality healthcare and community health services on the outskirts of Monrovia.',                                    services:['Primary Care','Surgery','Maternity','Community Health'] },
+      { icon:'💊', name:'Capitol Hill Hospital',                    location:'Capitol Hill',        tag:'Government Hospital',       desc:'A government-run hospital serving civil servants and the general public in the Capitol Hill government district of Monrovia.',                             services:['Primary Care','Outpatient','Pharmacy'] },
+    ];
+    return { tab, tabs, universities, hospitals };
+  }
+};
+
+/* ══ OPPORTUNITIES ══ */
+const PageOpportunities = {
+  template:`<div>
+    <div class="px-6 py-20 text-center relative overflow-hidden" style="background:#060D1E">
+      <div class="absolute inset-0" style="background:radial-gradient(circle at 50% 50%,rgba(10,31,68,0.7) 0%,transparent 55%)"></div>
+      <div class="relative z-10">
+        <div class="text-xs font-semibold tracking-widest uppercase mb-3" style="color:#F0B429">Opportunities</div>
+        <h1 class="font-display font-black text-white mb-4" style="font-size:clamp(2.2rem,5vw,4rem)">Opportunities in Montserrado</h1>
+        <p class="text-white/55 max-w-xl mx-auto leading-relaxed">Scholarships, internships, training programs, and career opportunities in Liberia's capital county.</p>
+      </div>
+    </div>
+
+    <div class="bg-white border-b py-4 px-6 sticky top-[68px] z-40" style="border-color:#D4D9E8">
+      <div class="max-w-6xl mx-auto flex gap-2 flex-wrap">
+        <button v-for="t in types" :key="t" @click="activeType=t"
+          :style="activeType===t?'background:#B71C2E;color:white;border-color:#B71C2E':'background:white;border-color:#D4D9E8;color:#5A607A'"
+          class="px-4 py-1.5 rounded-full border text-sm font-medium transition-all cursor-pointer">{{ t }}</button>
+      </div>
+    </div>
+
+    <section class="py-16 px-6" style="background:#F4F6FB">
+      <div class="max-w-6xl mx-auto">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+          <div v-for="o in filtered" :key="o.title"
+            class="bg-white rounded-2xl p-6 border hover:-translate-y-1 hover:shadow-xl transition-all duration-300" style="border-color:#D4D9E8">
+            <div class="flex items-center justify-between mb-3">
+              <span class="text-xs font-bold tracking-widest uppercase" style="color:#C8960C">{{ o.type }}</span>
+              <span class="text-xs text-white font-semibold px-2.5 py-1 rounded-full" :style="{background:o.urg==='Open'?'#0A1F44':o.urg==='Closing Soon'?'#C8960C':'#5A607A'}">{{ o.urg }}</span>
+            </div>
+            <h3 class="font-semibold mb-2 leading-tight" style="color:#060D1E">{{ o.title }}</h3>
+            <p class="text-sm leading-relaxed mb-4" style="color:#5A607A">{{ o.desc }}</p>
+            <div class="flex flex-wrap gap-1.5 mb-4">
+              <span v-for="tag in o.tags" :key="tag" class="text-xs font-medium px-2 py-0.5 rounded-full" style="background:#E8EEF8;color:#0A1F44">{{ tag }}</span>
+            </div>
+            <div class="border-t pt-3 flex items-center justify-between" style="border-color:#D4D9E8">
+              <div class="text-xs flex items-center gap-1.5" style="color:#5A607A">
+                <span class="w-1.5 h-1.5 rounded-full flex-shrink-0" style="background:#C8960C"></span>Deadline: {{ o.dl }}
+              </div>
+              <span class="text-xs font-semibold cursor-pointer" style="color:#B71C2E">Apply →</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>`,
+  setup(){
+    const activeType=ref('All');
+    const types=['All','Scholarship','Internship','Training','Fellowship','Job'];
+    const opps=[
+      { type:'Scholarship', title:'University of Liberia National Scholarship',  desc:'Merit-based scholarships for outstanding Liberian students entering the University of Liberia across all faculties.',         dl:'March 2026',       urg:'Open',         tags:['University of Liberia','Merit','National'] },
+      { type:'Internship',  title:'National Legislature Internship Program',      desc:'Work alongside legislators and policy staff at the Capitol Building. Open to law, political science, and social science students.', dl:'June 2026',        urg:'Open',         tags:['Government','Policy','Law Students'] },
+      { type:'Training',    title:'JFK Hospital Clinical Attachment Program',     desc:'Clinical training rotations for medical students at John F. Kennedy Medical Center, Liberia\'s national referral hospital.',     dl:'Rolling',          urg:'Open',         tags:['Medical','JFK Hospital','Clinical'] },
+      { type:'Fellowship',  title:'Monrovia Urban Development Fellowship',        desc:'6-month fellowship for urban planners, architects, and engineers contributing to Monrovia\'s city development projects.',         dl:'April 2026',       urg:'Closing Soon', tags:['Urban Planning','Engineering','Development'] },
+      { type:'Job',         title:'Monrovia City Corporation Recruitment',         desc:'The Monrovia City Corporation is recruiting for urban services, administration, and public works departments.',                   dl:'Open Year-Round',  urg:'Open',         tags:['City Government','Public Service'] },
+      { type:'Scholarship', title:'A.M. Dogliotti Medical School Scholarship',    desc:'Full scholarship for top-performing students entering Liberia\'s premier medical school at JFK Hospital.',                       dl:'May 2026',         urg:'Open',         tags:['Medical School','Full Scholarship','Competitive'] },
+      { type:'Training',    title:'Louis Grimes Law School Bar Prep Program',     desc:'Free bar examination preparation for law graduates preparing to qualify for Liberia\'s bar association.',                         dl:'Rolling',          urg:'Open',         tags:['Law','Bar Exam','Free'] },
+      { type:'Fellowship',  title:'National Investment Commission Fellowship',    desc:'Policy and business development fellowship at Liberia\'s investment promotion body, working on FDI attraction.',                 dl:'July 2026',        urg:'Open',         tags:['Investment','Business','Policy'] },
+    ];
+    const filtered=computed(()=>activeType.value==='All'?opps:opps.filter(o=>o.type===activeType.value));
+    return { activeType, types, filtered };
+  }
+};
+
+/* ══ STORIES ══ */
+const PageStories = {
+  template:`<div>
+    <div class="px-6 py-20 text-center relative overflow-hidden" style="background:#060D1E">
+      <div class="absolute inset-0" style="background:radial-gradient(circle at 80% 50%,rgba(10,31,68,0.6) 0%,transparent 50%)"></div>
+      <div class="relative z-10">
+        <div class="text-xs font-semibold tracking-widest uppercase mb-3" style="color:#F0B429">Stories & Voices</div>
+        <h1 class="font-display font-black text-white mb-4" style="font-size:clamp(2.2rem,5vw,4rem)">Voices from Monrovia</h1>
+        <p class="text-white/55 max-w-xl mx-auto leading-relaxed">Stories from the heart of Liberia — resilience, ambition, and the everyday life of Montserrado.</p>
+      </div>
+    </div>
+
+    <section class="py-16 px-6" style="background:#F4F6FB">
+      <div class="max-w-6xl mx-auto">
+        <div class="bg-white rounded-2xl overflow-hidden border shadow-sm mb-10" style="border-color:#D4D9E8">
+          <div class="md:flex">
+            <div class="md:w-2/5 flex items-center justify-center text-8xl" style="background:#0A1F44;min-height:220px">🇱🇷</div>
+            <div class="md:w-3/5 p-8">
+              <span class="text-xs font-bold px-3 py-1 rounded-full tracking-wider uppercase" style="background:#FFF8E1;color:#C8960C">Featured · National Pride</span>
+              <h2 class="font-display font-bold text-3xl mt-4 mb-3 leading-tight" style="color:#060D1E">Monrovia Rising: The City That Refused to Give Up</h2>
+              <p class="leading-relaxed mb-4" style="color:#5A607A">From the rubble of two civil wars to a city of 1.5 million dreams — Monrovia's story is one of the most extraordinary urban recoveries in African history. This is the story of its people.</p>
+              <div class="flex items-center gap-3 pt-4 border-t" style="border-color:#D4D9E8">
+                <div class="w-9 h-9 rounded-full flex items-center justify-center font-bold text-xs" style="background:#E8EEF8;border:2px solid #0A1F44;color:#0A1F44">MK</div>
+                <div>
+                  <div class="font-semibold text-sm" style="color:#060D1E">Musu Kamara</div>
+                  <div class="text-xs" style="color:#5A607A">Monrovia · Community Journalist</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="flex gap-2 flex-wrap mb-8">
+          <button v-for="cat in cats" :key="cat" @click="activeCat=cat"
+            :style="activeCat===cat?'background:#0A1F44;color:white;border-color:#0A1F44':'background:white;border-color:#D4D9E8;color:#5A607A'"
+            class="px-4 py-1.5 rounded-full border text-sm font-medium transition-all cursor-pointer">{{ cat }}</button>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+          <div v-for="s in filtered" :key="s.title"
+            class="bg-white rounded-2xl overflow-hidden border hover:shadow-lg hover:-translate-y-1 transition-all" style="border-color:#D4D9E8">
+            <div class="h-40 flex items-center justify-center text-5xl" :style="{background:s.bg}">{{ s.emoji }}</div>
+            <div class="p-5">
+              <span class="text-xs font-bold tracking-widest uppercase mb-2 inline-block" :style="{color:s.tagColor}">{{ s.tag }}</span>
+              <h3 class="font-semibold mb-2 leading-snug" style="color:#060D1E">{{ s.title }}</h3>
+              <p class="text-sm leading-relaxed mb-4" style="color:#5A607A">{{ s.preview }}</p>
+              <div class="flex items-center gap-2.5 pt-3 border-t" style="border-color:#D4D9E8">
+                <div class="w-7 h-7 rounded-full flex items-center justify-center font-bold text-xs" style="background:#E8EEF8;border:1px solid #0A1F44;color:#0A1F44">{{ s.author[0] }}</div>
+                <div>
+                  <div class="text-xs font-semibold" style="color:#060D1E">{{ s.author }}</div>
+                  <div class="text-xs" style="color:#5A607A">{{ s.role }}</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="py-16 px-6 text-center" style="background:#0A1F44">
+      <div class="max-w-2xl mx-auto">
+        <h2 class="font-display font-bold text-white text-3xl mb-4">Share Your Monrovia Story</h2>
+        <p class="text-white/60 mb-8 leading-relaxed">Your experience living in Montserrado County is part of Liberia's national story.</p>
+        <a href="mailto:stories@montserrado.lr" class="inline-flex items-center gap-2 font-semibold px-8 py-3 rounded-xl transition-colors" style="background:#C8960C;color:#060D1E">Submit Your Story →</a>
+      </div>
+    </section>
+  </div>`,
+  setup(){
+    const activeCat=ref('All');
+    const cats=['All','Resilience','Youth','Business','Culture','Politics'];
+    const stories=[
+      { tag:'Resilience',  tagColor:'#0A1F44', emoji:'🏙️', bg:'#0A1528', title:'How Monrovia Rebuilt Itself After Two Civil Wars',                    preview:'The extraordinary story of a city that rose from destruction to become one of West Africa\'s most dynamic capitals.',              author:'Musu Kamara',   role:'Monrovia Journalist' },
+      { tag:'Youth',       tagColor:'#B71C2E', emoji:'⚽', bg:'#1A0A0A', title:'From Waterside to the World — Following in George Weah\'s Footsteps', preview:'Young footballers in Monrovia dream big, inspired by the boy from Clara Town who became FIFA World Player of the Year.',       author:'James Kollie',  role:'Paynesville Youth' },
+      { tag:'Business',    tagColor:'#C8960C', emoji:'🏪', bg:'#1A1200', title:'The Market Women Who Rebuilt Monrovia\'s Economy',                     preview:'Waterside Market\'s resilient traders who kept commerce alive through crisis and led Monrovia\'s economic recovery.',           author:'Agnes Freeman', role:'Waterside Trader' },
+      { tag:'Culture',     tagColor:'#0A1F44', emoji:'🎵', bg:'#1A0A20', title:'Liberian Hip-Hop: Monrovia\'s Voice to the World',                     preview:'How a generation of Monrovia musicians is telling Liberia\'s story through music that\'s reaching global audiences.',             author:'DJ Culture',    role:'Monrovia Artist' },
+      { tag:'Politics',    tagColor:'#B71C2E', emoji:'🏛️', bg:'#0A0A20', title:'First-Time Voters in Monrovia: What Democracy Means to Gen Z',        preview:'Young Monrovians who turned 18 during the 2023 elections share what it meant to vote for the first time in their lives.',      author:'Student Voices',role:'University of Liberia' },
+      { tag:'Resilience',  tagColor:'#0A1F44', emoji:'🌊', bg:'#051525', title:'Clara Town Rising: From Slum to Community of Pride',                   preview:'How residents of one of Monrovia\'s most vulnerable communities organized to transform their neighborhood.',                   author:'Clara Town Youth',role:'Bushrod Island' },
+    ];
+    const filtered=computed(()=>activeCat.value==='All'?stories:stories.filter(s=>s.tag===activeCat.value));
+    return { activeCat, cats, filtered };
+  }
+};
+
+/* ══ COMMUNITY ══ */
+const PageCommunity = {
+  template:`<div>
+    <div class="px-6 py-20 text-center relative overflow-hidden" style="background:#0A1F44">
+      <div class="absolute inset-0" style="background:radial-gradient(circle at 50% 100%,rgba(0,0,0,0.25) 0%,transparent 60%)"></div>
+      <div class="relative z-10">
+        <div class="text-xs font-semibold tracking-widest uppercase mb-3" style="color:rgba(240,180,41,0.8)">Community & Updates</div>
+        <h1 class="font-display font-black text-white mb-4" style="font-size:clamp(2.2rem,5vw,4rem)">What's Happening in Monrovia</h1>
+        <p class="text-white/60 max-w-xl mx-auto leading-relaxed">Stay connected with announcements, events, and community initiatives across Montserrado County.</p>
+      </div>
+    </div>
+
+    <div class="bg-white border-b sticky top-[68px] z-40" style="border-color:#D4D9E8">
+      <div class="max-w-6xl mx-auto px-6 flex gap-0 overflow-x-auto">
+        <button v-for="t in types" :key="t.id" @click="activeType=t.id"
+          :style="activeType===t.id?'border-bottom:2px solid #0A1F44;color:#0A1F44':'color:#5A607A'"
+          class="px-5 py-4 text-sm font-medium transition-colors border-b-2 border-transparent cursor-pointer bg-transparent whitespace-nowrap">
+          {{ t.icon }} {{ t.label }}</button>
+      </div>
+    </div>
+
+    <section class="py-16 px-6" style="background:#F4F6FB">
+      <div class="max-w-6xl mx-auto">
+        <div class="rounded-2xl p-6 mb-10 flex items-start gap-5" style="background:#060D1E">
+          <span class="text-4xl flex-shrink-0">📢</span>
+          <div>
+            <div class="text-xs font-semibold tracking-widest uppercase mb-1" style="color:#F0B429">Latest Update</div>
+            <h3 class="font-semibold text-white text-lg mb-1">Monrovia Ring Road Phase 2 Construction Begins</h3>
+            <p class="text-sm leading-relaxed" style="color:rgba(255,255,255,0.55)">Phase 2 of the Monrovia Ring Road project has begun, connecting more communities to the city's arterial road network and reducing traffic congestion across Greater Monrovia.</p>
+            <div class="text-xs mt-2" style="color:rgba(255,255,255,0.3)">Announced: 2025</div>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+          <div v-for="u in filtered" :key="u.title"
+            class="bg-white rounded-2xl p-5 border hover:shadow-md hover:-translate-y-0.5 transition-all" style="border-color:#D4D9E8">
+            <div class="flex items-center gap-2 mb-3">
+              <span class="text-lg">{{ u.icon }}</span>
+              <span class="text-xs font-bold tracking-widest uppercase" :style="{color:u.tc}">{{ u.type }}</span>
+            </div>
+            <h3 class="font-semibold mb-2 leading-tight" style="color:#060D1E">{{ u.title }}</h3>
+            <p class="text-sm leading-relaxed mb-4" style="color:#5A607A">{{ u.desc }}</p>
+            <div class="flex items-center justify-between border-t pt-3" style="border-color:#D4D9E8">
+              <div class="text-xs" style="color:#5A607A">{{ u.date }}</div>
+              <div v-if="u.loc" class="text-xs font-medium" style="color:#0A1F44">📍 {{ u.loc }}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="bg-white py-16 px-6">
+      <div class="max-w-6xl mx-auto">
+        <div class="text-xs font-semibold tracking-widest uppercase mb-2" style="color:#C8960C">Youth Hub</div>
+        <h2 class="font-display font-bold text-3xl mb-3" style="color:#060D1E">Youth Initiatives in Montserrado</h2>
+        <p class="mb-10 max-w-lg" style="color:#5A607A">Monrovia's youth are leading change across technology, arts, sports, and community development.</p>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+          <div v-for="yi in youthInits" :key="yi.title" class="rounded-2xl p-6 flex gap-5 items-start border hover:shadow-md transition-all" style="border-color:#D4D9E8">
+            <div class="w-12 h-12 rounded-xl flex items-center justify-center text-2xl flex-shrink-0" style="background:#E8EEF8">{{ yi.icon }}</div>
+            <div>
+              <h4 class="font-semibold mb-1.5" style="color:#060D1E">{{ yi.title }}</h4>
+              <p class="text-sm leading-relaxed mb-2" style="color:#5A607A">{{ yi.desc }}</p>
+              <div class="text-xs font-semibold" style="color:#0A1F44">{{ yi.stat }}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>`,
+  setup(){
+    const activeType=ref('all');
+    const types=[
+      { id:'all',          icon:'🌐', label:'All Updates' },
+      { id:'announcement', icon:'📢', label:'Announcements' },
+      { id:'event',        icon:'📅', label:'Events' },
+      { id:'youth',        icon:'💡', label:'Youth' },
+    ];
+    const updates=[
+      { icon:'🛣️', type:'Announcement', tc:'#0A1F44', title:'Monrovia Ring Road Phase 2 Begins',              desc:'New road infrastructure connecting outer communities to Monrovia\'s arterial network, reducing congestion.',           date:'2025',          loc:'Greater Monrovia' },
+      { icon:'🎓', type:'Event',        tc:'#B71C2E', title:'University of Liberia Convocation 2026',           desc:'Annual graduation ceremony for Liberia\'s largest university, celebrating the nation\'s newest graduates.',        date:'June 2026',     loc:'UL Campus, Fendell' },
+      { icon:'💉', type:'Announcement', tc:'#0A1F44', title:'JFK Hospital Free Cancer Screening Week',          desc:'John F. Kennedy Medical Center offers free cancer screenings for all Monrovians during National Health Week.',      date:'May 2026',      loc:'JFK Hospital, Sinkor' },
+      { icon:'⚽', type:'Youth',        tc:'#C8960C', title:'Monrovia Youth Football League Season Opens',       desc:'The annual youth football league returns with 24 teams from across Greater Monrovia competing in a 3-month season.', date:'April 2026',    loc:'Various Venues' },
+      { icon:'🏛️', type:'Event',        tc:'#B71C2E', title:'Liberia Independence Day Celebrations 2026',       desc:'July 26 Independence Day festivities centered at Capitol Hill with cultural performances and national ceremonies.',  date:'July 26, 2026', loc:'Capitol Hill' },
+      { icon:'💻', type:'Youth',        tc:'#C8960C', title:'Tech Monrovia: Annual Innovation Summit',           desc:'Young Liberian entrepreneurs and tech innovators showcase startups and solutions at the annual tech summit.',        date:'August 2026',   loc:'Monrovia City' },
+      { icon:'🌊', type:'Announcement', tc:'#0A1F44', title:'Monrovia Beach Cleanup Initiative Expands',        desc:'Monrovia City Corporation expands its coastal cleanup program to 5 beaches, supported by youth volunteers.',         date:'Ongoing 2026' },
+      { icon:'🎵', type:'Event',        tc:'#B71C2E', title:'Monrovia Cultural Festival 2026',                   desc:'Annual celebration of Liberian arts, music, dance, and food — the biggest cultural event on the national calendar.', date:'October 2026',  loc:'Kendeja Village' },
+      { icon:'📚', type:'Youth',        tc:'#C8960C', title:'Monrovia Youth Reads Library Network',              desc:'New community libraries opening in Clara Town, Paynesville, and Sinkor to expand literacy access for urban youth.', date:'2026' },
+    ];
+    const typeMap={ announcement:'Announcement', event:'Event', youth:'Youth' };
+    const filtered=computed(()=>activeType.value==='all'?updates:updates.filter(u=>u.type===typeMap[activeType.value]));
+    const youthInits=[
+      { icon:'💻', title:'Tech Monrovia — Digital Skills Hub',       desc:'Free coding, design, and digital marketing training for youth in partnership with international tech organizations.',        stat:'500+ trained annually · 3 centers' },
+      { icon:'⚽', title:'Monrovia Youth Football Academy',           desc:'Developing the next generation of Liberian football talent through structured youth academies across the city.',           stat:'24 teams · 400+ players' },
+      { icon:'🎨', title:'Monrovia Arts & Culture Initiative',        desc:'Youth-led arts program teaching music, visual arts, and performance at community centers across Greater Monrovia.',         stat:'8 community centers · 300+ youth' },
+      { icon:'🌊', title:'Clean Monrovia Environmental Youth Corps',  desc:'Youth environmental volunteers cleaning beaches, clearing drains, and planting trees across Montserrado County.',          stat:'Monthly campaigns · 1,000+ volunteers' },
+    ];
+    return { activeType, types, filtered, youthInits };
+  }
+};
+
+/* ══ ROUTER + APP ══ */
+const router=createRouter({
+  history:createWebHashHistory(),
+  routes:[
+    { path:'/',              component:PageHome },
+    { path:'/about',         component:PageAbout },
+    { path:'/tourism',       component:PageTourism },
+    { path:'/leadership',    component:PageLeadership },
+    { path:'/education',     component:PageEducation },
+    { path:'/opportunities', component:PageOpportunities },
+    { path:'/stories',       component:PageStories },
+    { path:'/community',     component:PageCommunity },
+  ],
+  scrollBehavior(){ return { top:0 }; }
+});
+
+// ══ INITIALIZE COUNTY PAGE PROTECTION ══
+(async () => {
+  console.log('🔐 Setting up County Page Access Protection...');
+  
+  const protection = new CountyPageProtection(window.supabaseClient);
+  await protection.initialize();
+  protection.setupRouterGuard(router);
+  
+  console.log('✓ Protection system ready');
+})();
+
+createApp({
+  setup(){
+    const mob=ref(false);
+    const nav=[
+      { to:'/about',         label:'About' },
+      { to:'/tourism',       label:'Tourism' },
+      { to:'/leadership',    label:'Leadership' },
+      { to:'/education',     label:'Education' },
+      { to:'/opportunities', label:'Opportunities' },
+      { to:'/stories',       label:'Stories' },
+      { to:'/community',     label:'Community' },
+    ];
+    const footerCols=[
+      { title:'Explore',   links:[{ to:'/tourism', label:'Landmarks' },{ to:'/about', label:'Districts' },{ to:'/leadership', label:'Leadership' },{ to:'/stories', label:'Stories' }] },
+      { title:'Resources', links:[{ to:'/education', label:'Universities' },{ to:'/education', label:'Hospitals' },{ to:'/opportunities', label:'Scholarships' },{ to:'/opportunities', label:'Internships' }] },
+      { title:'Community', links:[{ to:'/community', label:'Announcements' },{ to:'/community', label:'Events' },{ to:'/community', label:'Youth Hub' },{ to:'/stories', label:'Voices' }] },
+    ];
+    return { mob, nav, footerCols };
+  }
+}).use(router).mount('#app');
+</script>
+</body>
+</html>

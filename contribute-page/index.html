@@ -1,0 +1,1281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>www.countysphereliberia.org</title>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  
+  <!-- AUTHENTICATION DEPENDENCIES -->
+  <script src="../supabaseClient.js"></script>
+  <script src="../auth-guard.js"></script>
+  
+  <!-- PAGE PROTECTION -->
+  <script src="js/page-protection.js"></script>
+  
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Instrument+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --cream:    #FAF7F2;
+      --paper:    #F3EFE8;
+      --ink:      #1A1612;
+      --ink2:     #3D3830;
+      --ink3:     #6B6560;
+      --border:   #E2DDD5;
+      --border2:  #C8C3BB;
+      --forest:   #1B5E35;
+      --forest2:  #2E8B57;
+      --forest-lt:#E8F3EC;
+      --gold:     #C8960C;
+      --gold-lt:  #FFF4DC;
+      --red:      #C41E3A;
+      --red-lt:   #FFF0F2;
+      --blue:     #1D4ED8;
+      --blue-lt:  #EFF6FF;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Instrument Sans', sans-serif;
+      background: var(--cream);
+      color: var(--ink);
+      min-height: 100vh;
+    }
+
+    /* ── TOPBAR ── */
+    .topbar {
+      background: var(--ink);
+      padding: 0 2rem;
+      height: 56px;
+      display: flex; align-items: center; justify-content: space-between;
+      position: sticky; top: 0; z-index: 50;
+    }
+    .topbar-logo {
+      font-family: 'Instrument Sans', sans-serif;
+      font-size: 1rem; font-weight: 700; color: white;
+      letter-spacing: -0.3px;
+    }
+    .topbar-logo span { color: #60A5FA; }
+    .topbar-nav { display: flex; align-items: center; gap: 1rem; }
+    .topbar-link {
+      font-size: 0.8rem; color: rgba(255,255,255,0.55);
+      text-decoration: none; transition: color 0.2s;
+      background: none; border: none; cursor: pointer;
+      font-family: 'Instrument Sans', sans-serif;
+    }
+    .topbar-link:hover { color: white; }
+    .topbar-user {
+      display: flex; align-items: center; gap: 8px;
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 8px; padding: 5px 10px;
+    }
+    .topbar-avatar {
+      width: 24px; height: 24px; border-radius: 6px;
+      background: var(--forest);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.65rem; font-weight: 700; color: white;
+    }
+    .topbar-uname { font-size: 0.78rem; color: rgba(255,255,255,0.75); }
+
+    /* ── LAYOUT ── */
+    .layout {
+      max-width: 1100px; margin: 0 auto;
+      display: grid; grid-template-columns: 260px 1fr;
+      gap: 0; min-height: calc(100vh - 56px);
+    }
+
+    /* ── LEFT RAIL ── */
+    .left-rail {
+      border-right: 1px solid var(--border);
+      padding: 2rem 1.5rem;
+      position: sticky; top: 56px;
+      height: calc(100vh - 56px);
+      overflow-y: auto;
+    }
+
+    .rail-section { margin-bottom: 2rem; }
+    .rail-label {
+      font-size: 0.65rem; font-weight: 700;
+      color: var(--ink3); letter-spacing: 2px;
+      text-transform: uppercase; margin-bottom: 0.6rem;
+    }
+
+    .type-card {
+      display: flex; align-items: center; gap: 10px;
+      padding: 10px 12px; border-radius: 10px;
+      cursor: pointer; margin-bottom: 4px;
+      border: 1.5px solid transparent;
+      transition: all 0.18s;
+    }
+    .type-card:hover { background: var(--paper); border-color: var(--border); }
+    .type-card.active {
+      background: white;
+      border-color: var(--forest);
+      box-shadow: 0 0 0 3px var(--forest-lt);
+    }
+    .type-icon {
+      width: 34px; height: 34px; border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1rem; flex-shrink: 0;
+    }
+    .type-name { font-size: 0.85rem; font-weight: 600; color: var(--ink); }
+    .type-desc { font-size: 0.72rem; color: var(--ink3); margin-top: 1px; }
+
+    /* Tips card */
+    .tips-card {
+      background: var(--forest-lt);
+      border: 1px solid rgba(27,94,53,0.2);
+      border-radius: 12px; padding: 1rem;
+      margin-top: 1.5rem;
+    }
+    .tips-title {
+      font-size: 0.78rem; font-weight: 700;
+      color: var(--forest); margin-bottom: 0.6rem;
+      display: flex; align-items: center; gap: 6px;
+    }
+    .tip-item {
+      font-size: 0.75rem; color: var(--ink2);
+      padding: 4px 0; display: flex; gap: 6px;
+      line-height: 1.5;
+    }
+    .tip-item::before { content:'·'; color: var(--forest); flex-shrink:0; }
+
+    /* My submissions mini list */
+    .my-sub-item {
+      padding: 8px 0; border-bottom: 1px solid var(--border);
+      cursor: pointer;
+    }
+    .my-sub-item:last-child { border: none; }
+    .my-sub-title { font-size: 0.8rem; font-weight: 600; color: var(--ink); line-height: 1.3; }
+    .my-sub-meta  { font-size: 0.7rem; color: var(--ink3); margin-top: 2px; display: flex; align-items: center; gap: 6px; }
+    .status-dot { width: 6px; height: 6px; border-radius: 50%; display: inline-block; flex-shrink:0; }
+
+    /* ── MAIN EDITOR ── */
+    .editor-area { padding: 2rem 2.5rem; }
+
+    /* Form panels */
+    .form-panel { display: none; animation: slideUp 0.3s ease; }
+    .form-panel.active { display: block; }
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(12px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Editor header */
+    .editor-header { margin-bottom: 2rem; }
+    .editor-type-badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: var(--ink); color: white;
+      padding: 4px 12px; border-radius: 100px;
+      font-size: 0.7rem; font-weight: 700;
+      letter-spacing: 1px; text-transform: uppercase;
+      margin-bottom: 0.75rem;
+    }
+    .editor-title-input {
+      width: 100%; border: none; outline: none;
+      background: transparent;
+      font-family: 'DM Serif Display', serif;
+      font-size: 2.25rem; color: var(--ink);
+      line-height: 1.2; resize: none;
+      placeholder-color: var(--border2);
+    }
+    .editor-title-input::placeholder { color: var(--border2); }
+
+    .editor-divider {
+      height: 1px; background: var(--border);
+      margin: 1.25rem 0;
+    }
+
+    /* Metadata row */
+    .meta-row {
+      display: flex; flex-wrap: wrap; gap: 0.75rem;
+      margin-bottom: 1.5rem; align-items: center;
+    }
+    .meta-chip {
+      display: flex; align-items: center; gap: 6px;
+      background: var(--paper);
+      border: 1px solid var(--border);
+      border-radius: 8px; padding: 6px 12px;
+      font-size: 0.78rem; color: var(--ink2);
+      cursor: pointer; transition: all 0.18s;
+      position: relative;
+    }
+    .meta-chip:hover { border-color: var(--border2); background: white; }
+    .meta-chip select, .meta-chip input[type="date"] {
+      background: none; border: none; outline: none;
+      font-size: 0.78rem; color: var(--ink2);
+      cursor: pointer; font-family: 'Instrument Sans', sans-serif;
+      padding: 0;
+    }
+    .meta-chip-icon { font-size: 0.9rem; }
+
+    /* Body editor */
+    .body-editor {
+      width: 100%; min-height: 280px;
+      border: none; outline: none;
+      background: transparent; resize: none;
+      font-family: 'Instrument Sans', sans-serif;
+      font-size: 1.05rem; color: var(--ink2);
+      line-height: 1.85;
+    }
+    .body-editor::placeholder { color: var(--border2); }
+
+    /* Excerpt field */
+    .excerpt-field {
+      width: 100%; border: none; outline: none;
+      background: transparent; resize: none;
+      font-family: 'Instrument Sans', sans-serif;
+      font-size: 1rem; color: var(--ink3);
+      line-height: 1.7; font-style: italic;
+      min-height: 60px;
+    }
+    .excerpt-field::placeholder { color: var(--border2); }
+
+    /* Field label */
+    .field-label {
+      font-size: 0.68rem; font-weight: 700;
+      color: var(--ink3); letter-spacing: 1.5px;
+      text-transform: uppercase; margin-bottom: 0.5rem;
+      display: block;
+    }
+
+    /* Input field */
+    .std-input, .std-select, .std-textarea {
+      width: 100%;
+      background: white;
+      border: 1.5px solid var(--border);
+      border-radius: 10px; padding: 10px 14px;
+      font-size: 0.9rem; color: var(--ink);
+      font-family: 'Instrument Sans', sans-serif;
+      outline: none; transition: border-color 0.2s;
+    }
+    .std-input:focus, .std-select:focus, .std-textarea:focus {
+      border-color: var(--forest);
+      box-shadow: 0 0 0 3px var(--forest-lt);
+    }
+    .std-input::placeholder { color: var(--border2); }
+    .std-textarea { resize: vertical; min-height: 100px; }
+    .std-select { cursor: pointer; appearance: none; }
+
+    /* Form grid */
+    .fg { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.25rem; }
+    .fg .span2 { grid-column: span 2; }
+    .fgroup { display: flex; flex-direction: column; gap: 5px; }
+
+    /* Toolbar (story editor) */
+    .editor-toolbar {
+      display: flex; gap: 4px; flex-wrap: wrap;
+      padding: 8px 0; border-bottom: 1px solid var(--border);
+      margin-bottom: 1rem;
+    }
+    .toolbar-btn {
+      background: none; border: 1px solid transparent;
+      border-radius: 6px; padding: 4px 8px;
+      font-size: 0.8rem; color: var(--ink3);
+      cursor: pointer; transition: all 0.15s;
+      font-family: 'Instrument Sans', sans-serif;
+    }
+    .toolbar-btn:hover { background: var(--paper); border-color: var(--border); color: var(--ink); }
+    .toolbar-sep { width: 1px; background: var(--border); margin: 2px 4px; }
+
+    /* Word count */
+    .word-count {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.7rem; color: var(--ink3);
+      margin-top: 0.5rem;
+    }
+
+    /* Cover image upload */
+    .cover-drop {
+      border: 2px dashed var(--border);
+      border-radius: 12px; padding: 2rem 1.5rem;
+      text-align: center; cursor: pointer;
+      transition: all 0.2s; background: var(--paper);
+      margin-bottom: 1.5rem;
+    }
+    .cover-drop:hover { border-color: var(--forest); background: var(--forest-lt); }
+    .cover-drop.dragover { border-color: var(--forest); background: var(--forest-lt); }
+    .cover-drop-icon { font-size: 2rem; margin-bottom: 0.5rem; }
+    .cover-drop-text { font-size: 0.85rem; color: var(--ink3); }
+    .cover-drop-sub  { font-size: 0.72rem; color: var(--border2); margin-top: 4px; }
+    #cover-preview { display: none; position: relative; }
+    #cover-preview img { width: 100%; height: 200px; object-fit: cover; border-radius: 10px; }
+    #cover-preview button {
+      position: absolute; top: 8px; right: 8px;
+      background: rgba(0,0,0,0.6); color: white;
+      border: none; border-radius: 6px; padding: 4px 8px;
+      font-size: 0.72rem; cursor: pointer;
+    }
+
+    /* Tags input */
+    .tags-wrap {
+      display: flex; flex-wrap: wrap; gap: 6px; align-items: center;
+      background: white; border: 1.5px solid var(--border);
+      border-radius: 10px; padding: 7px 10px;
+      cursor: text; min-height: 42px;
+      transition: border-color 0.2s;
+    }
+    .tags-wrap:focus-within { border-color: var(--forest); box-shadow: 0 0 0 3px var(--forest-lt); }
+    .tag-chip {
+      background: var(--forest-lt);
+      border: 1px solid rgba(27,94,53,0.25);
+      color: var(--forest); border-radius: 100px;
+      padding: 3px 10px; font-size: 0.75rem; font-weight: 600;
+      display: flex; align-items: center; gap: 5px;
+    }
+    .tag-chip button {
+      background: none; border: none; cursor: pointer;
+      color: var(--forest); font-size: 0.7rem; padding: 0; line-height: 1;
+    }
+    .tag-input {
+      border: none; outline: none; font-size: 0.82rem;
+      color: var(--ink); background: none;
+      font-family: 'Instrument Sans', sans-serif;
+      min-width: 100px; flex: 1;
+    }
+
+    /* Action bar */
+    .action-bar {
+      position: sticky; bottom: 0;
+      background: var(--cream);
+      border-top: 1px solid var(--border);
+      padding: 1rem 2.5rem;
+      display: flex; align-items: center; gap: 0.75rem;
+      margin: 0 -2.5rem;
+    }
+    .btn {
+      padding: 10px 22px; border-radius: 10px;
+      font-size: 0.85rem; font-weight: 700;
+      cursor: pointer; font-family: 'Instrument Sans', sans-serif;
+      transition: all 0.2s; border: none;
+      display: flex; align-items: center; gap: 7px;
+    }
+    .btn-publish {
+      background: var(--ink); color: white;
+    }
+    .btn-publish:hover:not(:disabled) {
+      background: var(--forest);
+      box-shadow: 0 4px 14px rgba(27,94,53,0.3);
+    }
+    .btn-publish:disabled { opacity: 0.5; cursor: not-allowed; }
+    .btn-draft {
+      background: var(--paper);
+      border: 1.5px solid var(--border);
+      color: var(--ink2);
+    }
+    .btn-draft:hover { border-color: var(--border2); background: white; }
+    .btn-spinner {
+      width: 16px; height: 16px;
+      border: 2px solid rgba(255,255,255,0.3);
+      border-top-color: white; border-radius: 50%;
+      animation: spin 0.7s linear infinite; display: none;
+    }
+    .btn.loading .btn-spinner { display: block; }
+    .btn.loading .btn-label   { display: none; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .action-note {
+      margin-left: auto; font-size: 0.75rem;
+      color: var(--ink3); display: flex; align-items: center; gap: 6px;
+    }
+    .autosave-dot {
+      width: 7px; height: 7px; border-radius: 50%;
+      background: var(--forest); flex-shrink: 0;
+      animation: pulse-dot 2s infinite;
+    }
+    @keyframes pulse-dot {
+      0%,100% { opacity:1; } 50% { opacity:0.3; }
+    }
+
+    /* ── SUCCESS STATE ── */
+    .success-panel {
+      display: none; text-align: center;
+      padding: 4rem 2rem; animation: slideUp 0.4s ease;
+    }
+    .success-panel.show { display: block; }
+    .success-ring {
+      width: 80px; height: 80px; border-radius: 50%;
+      background: var(--forest-lt);
+      border: 2px solid rgba(27,94,53,0.3);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 2.2rem; margin: 0 auto 1.5rem;
+      animation: popIn 0.5s cubic-bezier(0.175,0.885,0.32,1.275);
+    }
+    @keyframes popIn {
+      from { transform: scale(0); opacity: 0; }
+      to   { transform: scale(1); opacity: 1; }
+    }
+    .success-title {
+      font-family: 'DM Serif Display', serif;
+      font-size: 2rem; color: var(--ink); margin-bottom: 0.5rem;
+    }
+    .success-sub { font-size: 1rem; color: var(--ink3); line-height: 1.6; max-width: 400px; margin: 0 auto 2rem; }
+    .success-status {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: var(--gold-lt); border: 1px solid rgba(200,150,12,0.25);
+      border-radius: 10px; padding: 10px 20px;
+      font-size: 0.85rem; font-weight: 600; color: #92650a;
+      margin-bottom: 2rem;
+    }
+
+    /* ── TOAST ── */
+    #toast {
+      position: fixed; bottom: 2rem; right: 2rem;
+      background: var(--ink); color: white;
+      border-radius: 12px; padding: 12px 18px;
+      font-size: 0.82rem; display: flex;
+      align-items: center; gap: 8px; z-index: 999;
+      transform: translateY(80px); opacity: 0;
+      transition: all 0.35s cubic-bezier(0.175,0.885,0.32,1.275);
+      max-width: 320px;
+    }
+    #toast.show { transform: translateY(0); opacity: 1; }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 768px) {
+      .layout { grid-template-columns: 1fr; }
+      .left-rail { display: none; }
+      .editor-area { padding: 1.25rem; }
+      .action-bar { margin: 0 -1.25rem; padding: 1rem 1.25rem; }
+      .fg { grid-template-columns: 1fr; }
+      .fg .span2 { grid-column: span 1; }
+    }
+
+    /* Character counter */
+    .char-count {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.68rem; color: var(--border2);
+      text-align: right; margin-top: 4px;
+    }
+    .char-count.warn  { color: var(--gold); }
+    .char-count.limit { color: var(--red); }
+  </style>
+</head>
+<body>
+
+  <!-- ══ TOP BAR ══ -->
+  <div class="topbar">
+    <a href="../index-page/index.html" class="topbar-logo">Explore<span>Liberia</span></a>
+    <div class="topbar-nav">
+      <a href="../index-page/index.html"    class="topbar-link">← Home</a>
+      <a href="../dashboard-page/dashboard.html" class="topbar-link">Dashboard</a>
+      <div class="topbar-user">
+        <div class="topbar-avatar" id="nav-avatar">?</div>
+        <span class="topbar-uname" id="nav-name">Loading…</span>
+      </div>
+      <button class="topbar-link" onclick="logout()">Sign out</button>
+    </div>
+  </div>
+
+  <!-- ══ LAYOUT ══ -->
+  <div class="layout">
+
+    <!-- ── LEFT RAIL ── -->
+    <aside class="left-rail">
+
+      <div class="rail-section">
+        <div class="rail-label">What to submit</div>
+
+        <div class="type-card active" id="type-story" onclick="switchType('story')">
+          <div class="type-icon" style="background:#F0F9F4">📰</div>
+          <div>
+            <div class="type-name">Story / Article</div>
+            <div class="type-desc">News, features, community voices</div>
+          </div>
+        </div>
+
+        <div class="type-card" id="type-event" onclick="switchType('event')">
+          <div class="type-icon" style="background:#FFF7ED">📅</div>
+          <div>
+            <div class="type-name">Event</div>
+            <div class="type-desc">Community events, summits, festivals</div>
+          </div>
+        </div>
+
+        <div class="type-card" id="type-opportunity" onclick="switchType('opportunity')">
+          <div class="type-icon" style="background:#FFFBEB">🌟</div>
+          <div>
+            <div class="type-name">Opportunity</div>
+            <div class="type-desc">Scholarships, jobs, training</div>
+          </div>
+        </div>
+
+        <div class="type-card" id="type-announcement" onclick="switchType('announcement')">
+          <div class="type-icon" style="background:#EFF6FF">📢</div>
+          <div>
+            <div class="type-name">Announcement</div>
+            <div class="type-desc">County news, official updates</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tips -->
+      <div class="tips-card" id="tips-box">
+        <div class="tips-title">💡 Writing Tips</div>
+        <div id="tips-content"></div>
+      </div>
+
+      <!-- My recent submissions -->
+      <div class="rail-section" style="margin-top:2rem">
+        <div class="rail-label">My Recent Submissions</div>
+        <div id="my-subs-rail">
+          <div style="font-size:0.78rem;color:var(--ink3)">Loading…</div>
+        </div>
+        <a href="../dashboard-page/dashboard.html" style="font-size:0.75rem;color:var(--forest);text-decoration:none;display:block;margin-top:0.75rem;font-weight:600">
+          View all in dashboard →
+        </a>
+      </div>
+
+    </aside>
+
+    <!-- ── EDITOR AREA ── -->
+    <main class="editor-area">
+
+      <!-- SUCCESS STATE -->
+      <div class="success-panel" id="success-panel">
+        <div class="success-ring">🎉</div>
+        <div class="success-title">Submitted!</div>
+        <p class="success-sub">Your submission is now in the review queue. A county admin will review it and publish it if approved.</p>
+        <div class="success-status">⏳ Pending Review — you'll be notified when it's published</div>
+        <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
+          <button class="btn btn-publish" onclick="resetForm()">Submit Another →</button>
+          <a href="../dashboard-page/dashboard.html" class="btn btn-draft">Go to Dashboard</a>
+        </div>
+      </div>
+
+      <!-- ════════════════════════
+           STORY FORM
+      ════════════════════════ -->
+      <div class="form-panel active" id="panel-story">
+        <div class="editor-header">
+          <div class="editor-type-badge">📰 Story / Article</div>
+          <textarea class="editor-title-input" id="story-title" rows="2"
+            placeholder="Your headline here…" oninput="autoResize(this)"></textarea>
+        </div>
+
+        <div class="editor-divider"></div>
+
+        <!-- Metadata row -->
+        <div class="meta-row">
+          <div class="meta-chip">
+            <span class="meta-chip-icon">🏷️</span>
+            <select id="story-category" style="background:none;border:none;outline:none;font-size:0.78rem;color:var(--ink2);cursor:pointer;font-family:'Instrument Sans',sans-serif">
+              <option value="youth">Youth</option>
+              <option value="education">Education</option>
+              <option value="agriculture">Agriculture</option>
+              <option value="culture">Culture</option>
+              <option value="community">Community</option>
+              <option value="health">Health</option>
+              <option value="development">Development</option>
+              <option value="sports">Sports</option>
+            </select>
+          </div>
+          <div class="meta-chip" id="county-chip">
+            <span class="meta-chip-icon">📍</span>
+            <span id="county-display">Loading…</span>
+          </div>
+          <div class="meta-chip" style="font-size:0.78rem;color:var(--ink3)">
+            <span>👤</span>
+            <span id="author-display">You</span>
+          </div>
+        </div>
+
+        <!-- Excerpt -->
+        <div style="margin-bottom:1.25rem">
+          <label class="field-label">Summary <span style="font-weight:400;text-transform:none;letter-spacing:0">(2–3 sentences shown on the card)</span></label>
+          <textarea class="excerpt-field" id="story-excerpt" rows="2"
+            placeholder="A short summary of your story that will appear on the listing card…"
+            oninput="updateCharCount(this,'story-excerpt-count',200)"></textarea>
+          <div class="char-count" id="story-excerpt-count">0 / 200</div>
+        </div>
+
+        <div class="editor-divider"></div>
+
+        <!-- Cover image -->
+        <div style="margin-bottom:1.5rem">
+          <label class="field-label">Cover Image <span style="font-weight:400;text-transform:none;letter-spacing:0">(optional)</span></label>
+          <div class="cover-drop" id="cover-drop"
+            onclick="document.getElementById('cover-file').click()"
+            ondragover="e => { e.preventDefault(); this.classList.add('dragover'); }"
+            ondragleave="this.classList.remove('dragover')">
+            <div id="cover-upload-ui">
+              <div class="cover-drop-icon">🖼️</div>
+              <div class="cover-drop-text">Click or drag to upload a cover image</div>
+              <div class="cover-drop-sub">JPG, PNG or WebP · Max 5MB</div>
+            </div>
+            <div id="cover-preview">
+              <img id="cover-img" src="" alt="Cover" />
+              <button onclick="removeCover(event)">✕ Remove</button>
+            </div>
+          </div>
+          <input type="file" id="cover-file" accept="image/*" style="display:none" onchange="handleCoverUpload(event)" />
+        </div>
+
+        <!-- Body -->
+        <label class="field-label">Story Body</label>
+        <div class="editor-toolbar">
+          <button class="toolbar-btn" onclick="insertFormat('**','**')"><b>B</b></button>
+          <button class="toolbar-btn" onclick="insertFormat('*','*')"><i>I</i></button>
+          <button class="toolbar-btn" onclick="insertFormat('\n## ','')">H2</button>
+          <button class="toolbar-btn" onclick="insertFormat('\n### ','')">H3</button>
+          <div class="toolbar-sep"></div>
+          <button class="toolbar-btn" onclick="insertFormat('\n- ','')">List</button>
+          <button class="toolbar-btn" onclick="insertFormat('\n> ','')">Quote</button>
+          <div class="toolbar-sep"></div>
+          <button class="toolbar-btn" onclick="insertFormat('[','](url)')">Link</button>
+        </div>
+        <textarea class="body-editor" id="story-body"
+          placeholder="Tell the story of Bong County. Write clearly and with purpose. Every voice matters on this platform…"
+          oninput="updateWordCount(this,'story-wc')"></textarea>
+        <div class="word-count" id="story-wc">0 words</div>
+
+        <div class="editor-divider" style="margin-top:1.5rem"></div>
+
+        <!-- Tags -->
+        <div style="margin:1.25rem 0">
+          <label class="field-label">Tags <span style="font-weight:400;text-transform:none;letter-spacing:0">(press Enter or comma to add)</span></label>
+          <div class="tags-wrap" id="tags-wrap" onclick="document.getElementById('tag-input').focus()">
+            <input id="tag-input" class="tag-input" placeholder="Add a tag…"
+              onkeydown="handleTagInput(event)" maxlength="30" />
+          </div>
+        </div>
+
+        <div class="action-bar">
+          <button class="btn btn-publish" id="story-submit-btn" onclick="submitForm('story','pending_review')">
+            <div class="btn-spinner"></div>
+            <span class="btn-label">Submit for Review →</span>
+          </button>
+          <button class="btn btn-draft" onclick="submitForm('story','draft')">Save Draft</button>
+          <div class="action-note">
+            <div class="autosave-dot"></div>
+            Draft auto-saved
+          </div>
+        </div>
+      </div>
+
+
+      <!-- ════════════════════════
+           EVENT FORM
+      ════════════════════════ -->
+      <div class="form-panel" id="panel-event">
+        <div class="editor-header">
+          <div class="editor-type-badge">📅 Event</div>
+          <input type="text" class="editor-title-input" id="event-title"
+            placeholder="Event name…"
+            style="display:block;width:100%;font-size:2.25rem;font-family:'DM Serif Display',serif" />
+        </div>
+
+        <div class="editor-divider"></div>
+
+        <div class="fg">
+          <div class="fgroup">
+            <label class="field-label">Event Date</label>
+            <input type="datetime-local" id="event-date" class="std-input" />
+          </div>
+          <div class="fgroup">
+            <label class="field-label">End Date <span style="font-weight:400;text-transform:none;letter-spacing:0">(optional)</span></label>
+            <input type="datetime-local" id="event-end" class="std-input" />
+          </div>
+          <div class="fgroup span2">
+            <label class="field-label">Location / Venue</label>
+            <input type="text" id="event-location" class="std-input" placeholder="e.g. Gbarnga City Hall, Bong County" />
+          </div>
+          <div class="fgroup span2">
+            <label class="field-label">Event Description</label>
+            <textarea id="event-desc" class="std-textarea" style="min-height:160px"
+              placeholder="Describe the event — who should attend, what will happen, why it matters…"></textarea>
+          </div>
+          <div class="fgroup span2">
+            <label class="field-label">Cover Image <span style="font-weight:400;text-transform:none;letter-spacing:0">(optional)</span></label>
+            <div class="cover-drop" style="padding:1.25rem"
+              onclick="document.getElementById('event-cover-file').click()">
+              <div class="cover-drop-text">📸 Click to upload event image</div>
+            </div>
+            <input type="file" id="event-cover-file" accept="image/*" style="display:none" />
+          </div>
+        </div>
+
+        <div class="action-bar">
+          <button class="btn btn-publish" id="event-submit-btn" onclick="submitForm('event','pending_review')">
+            <div class="btn-spinner"></div>
+            <span class="btn-label">Submit for Review →</span>
+          </button>
+          <button class="btn btn-draft" onclick="submitForm('event','draft')">Save Draft</button>
+          <div class="action-note">
+            <div class="autosave-dot"></div>
+            Drafts auto-saved
+          </div>
+        </div>
+      </div>
+
+
+      <!-- ════════════════════════
+           OPPORTUNITY FORM
+      ════════════════════════ -->
+      <div class="form-panel" id="panel-opportunity">
+        <div class="editor-header">
+          <div class="editor-type-badge">🌟 Opportunity</div>
+          <input type="text" class="editor-title-input" id="opp-title"
+            placeholder="Opportunity title…"
+            style="display:block;width:100%;font-size:2.25rem;font-family:'DM Serif Display',serif" />
+        </div>
+
+        <div class="editor-divider"></div>
+
+        <div class="fg">
+          <div class="fgroup">
+            <label class="field-label">Opportunity Type</label>
+            <select id="opp-type" class="std-select">
+              <option value="scholarship">📚 Scholarship</option>
+              <option value="internship">💼 Internship</option>
+              <option value="training">🔧 Training Program</option>
+              <option value="fellowship">🤝 Fellowship</option>
+              <option value="grant">💰 Grant / Funding</option>
+              <option value="job">👔 Job Opening</option>
+            </select>
+          </div>
+          <div class="fgroup">
+            <label class="field-label">Application Deadline</label>
+            <input type="date" id="opp-deadline" class="std-input" />
+          </div>
+          <div class="fgroup span2">
+            <label class="field-label">Description</label>
+            <textarea id="opp-desc" class="std-textarea" style="min-height:140px"
+              placeholder="Describe this opportunity in detail — eligibility, benefits, how to apply…"></textarea>
+          </div>
+          <div class="fgroup">
+            <label class="field-label">Apply URL <span style="font-weight:400;text-transform:none;letter-spacing:0">(optional)</span></label>
+            <input type="url" id="opp-apply-url" class="std-input" placeholder="https://…" />
+          </div>
+          <div class="fgroup">
+            <label class="field-label">Contact Email <span style="font-weight:400;text-transform:none;letter-spacing:0">(optional)</span></label>
+            <input type="email" id="opp-email" class="std-input" placeholder="contact@org.lr" />
+          </div>
+          <div class="fgroup span2">
+            <label class="field-label">Tags</label>
+            <div class="tags-wrap" id="opp-tags-wrap" onclick="document.getElementById('opp-tag-input').focus()">
+              <input id="opp-tag-input" class="tag-input" placeholder="Add a tag…"
+                onkeydown="handleTagInput(event,'opp-tags-wrap','opp-tag-input')" maxlength="30" />
+            </div>
+          </div>
+        </div>
+
+        <div class="action-bar">
+          <button class="btn btn-publish" id="opp-submit-btn" onclick="submitForm('opportunity','pending_review')">
+            <div class="btn-spinner"></div>
+            <span class="btn-label">Submit for Review →</span>
+          </button>
+          <button class="btn btn-draft" onclick="submitForm('opportunity','draft')">Save Draft</button>
+          <div class="action-note">
+            <div class="autosave-dot"></div>
+            Drafts auto-saved
+          </div>
+        </div>
+      </div>
+
+
+      <!-- ════════════════════════
+           ANNOUNCEMENT FORM
+      ════════════════════════ -->
+      <div class="form-panel" id="panel-announcement">
+        <div class="editor-header">
+          <div class="editor-type-badge">📢 Announcement</div>
+          <textarea class="editor-title-input" id="ann-title" rows="2"
+            placeholder="Announcement headline…" oninput="autoResize(this)"></textarea>
+        </div>
+
+        <div class="editor-divider"></div>
+
+        <div class="meta-row">
+          <div class="meta-chip">
+            <span class="meta-chip-icon">📍</span>
+            <span id="ann-county-display">Loading…</span>
+          </div>
+        </div>
+
+        <div style="margin-bottom:1.25rem">
+          <label class="field-label">Summary</label>
+          <textarea class="excerpt-field" id="ann-excerpt" rows="2"
+            placeholder="A short summary shown on the county page…"></textarea>
+        </div>
+
+        <div class="editor-divider"></div>
+
+        <label class="field-label" style="margin-bottom:0.75rem">Full Announcement</label>
+        <textarea class="body-editor" id="ann-body"
+          placeholder="Write the full announcement here…"
+          oninput="updateWordCount(this,'ann-wc')"></textarea>
+        <div class="word-count" id="ann-wc">0 words</div>
+
+        <div class="action-bar">
+          <button class="btn btn-publish" id="ann-submit-btn" onclick="submitForm('announcement','pending_review')">
+            <div class="btn-spinner"></div>
+            <span class="btn-label">Submit for Review →</span>
+          </button>
+          <button class="btn btn-draft" onclick="submitForm('announcement','draft')">Save Draft</button>
+          <div class="action-note">
+            <div class="autosave-dot"></div>
+            Drafts auto-saved
+          </div>
+        </div>
+      </div>
+
+    </main>
+  </div>
+
+
+  <!-- ══ TOAST ══ -->
+  <div id="toast">
+    <span id="toast-icon"></span>
+    <span id="toast-msg"></span>
+  </div>
+
+
+  <!-- ══ JAVASCRIPT ══ -->
+  <script>
+  // ─────────────────────────────────────────
+  //  SUPABASE
+  // ─────────────────────────────────────────
+  const SUPABASE_URL  = 'https://choagncxtmsewzvxoncx.supabase.co';
+  const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNob2FnbmN4dG1zZXd6dnhvbmN4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgzMzk3NjUsImV4cCI6MjA5MzkxNTc2NX0.hVPjF0_b-5DTXMzeFUPYZ82tL27CrsFBIUQrm-XYonE';
+  const { createClient } = supabase;
+  const sb = createClient(SUPABASE_URL, SUPABASE_ANON);
+
+  // ─────────────────────────────────────────
+  //  STATE
+  // ─────────────────────────────────────────
+  let currentUser    = null;
+  let currentProfile = null;
+  let activeType     = 'story';
+  let storyTags      = [];
+  let oppTags        = [];
+  let coverFile      = null;
+  let autoSaveTimer  = null;
+
+  // ─────────────────────────────────────────
+  //  TIPS per type
+  // ─────────────────────────────────────────
+  const TIPS = {
+    story: [
+      'Lead with the most important information',
+      'Use real names and specific places in Bong County',
+      'Keep sentences short and direct',
+      'Aim for 300–800 words for most stories',
+      'Add a summary to help readers decide to read',
+    ],
+    event: [
+      'Include the exact date, time, and location',
+      'Say who should attend and why they\'d care',
+      'Mention if registration or tickets are needed',
+      'Add a contact for more information',
+    ],
+    opportunity: [
+      'Clearly state who is eligible to apply',
+      'Include the exact deadline — no vague dates',
+      'List what applicants will receive',
+      'Provide a direct apply link or contact',
+    ],
+    announcement: [
+      'State the key fact in the first sentence',
+      'Explain what it means for the community',
+      'Include official source or reference if possible',
+      'Keep it factual and neutral in tone',
+    ],
+  };
+
+  // ─────────────────────────────────────────
+  //  INIT
+  // ─────────────────────────────────────────
+  async function init() {
+    const { data: { session } } = await sb.auth.getSession();
+    if (!session) { window.location.href = '../auth-page/auth.html'; return; }
+
+    currentUser = session.user;
+
+    const { data: profile } = await sb
+      .from('users')
+      .select('*, counties(id, name)')
+      .eq('id', currentUser.id)
+      .single();
+
+    currentProfile = profile;
+
+    // Update UI
+    const name     = profile?.full_name || currentUser.email;
+    const initials = name.split(' ').map(n=>n[0]).join('').toUpperCase().slice(0,2);
+    document.getElementById('nav-avatar').textContent = initials;
+    document.getElementById('nav-name').textContent   = name;
+
+    const countyName = profile?.counties?.name || 'Your County';
+    document.getElementById('county-display').textContent = countyName;
+    document.getElementById('ann-county-display').textContent = countyName;
+    document.getElementById('author-display').textContent = name;
+
+    // Load tips
+    renderTips('story');
+
+    // Load recent submissions
+    loadRecentSubs();
+
+    // Auto-save every 30 seconds
+    autoSaveTimer = setInterval(() => autoSave(), 30000);
+  }
+
+  // ─────────────────────────────────────────
+  //  SWITCH TYPE
+  // ─────────────────────────────────────────
+  function switchType(type) {
+    activeType = type;
+
+    // Update type cards
+    document.querySelectorAll('.type-card').forEach(c => c.classList.remove('active'));
+    document.getElementById('type-' + type).classList.add('active');
+
+    // Update panels
+    document.querySelectorAll('.form-panel').forEach(p => p.classList.remove('active'));
+    document.getElementById('panel-' + type).classList.add('active');
+
+    // Update tips
+    renderTips(type);
+  }
+
+  function renderTips(type) {
+    document.getElementById('tips-content').innerHTML =
+      (TIPS[type] || []).map(t => `<div class="tip-item">${t}</div>`).join('');
+  }
+
+  // ─────────────────────────────────────────
+  //  RECENT SUBMISSIONS (rail)
+  // ─────────────────────────────────────────
+  async function loadRecentSubs() {
+    const el = document.getElementById('my-subs-rail');
+    const { data } = await sb.from('content')
+      .select('id, title, type, status, created_at')
+      .eq('author_id', currentUser.id)
+      .order('created_at', { ascending:false })
+      .limit(5);
+
+    if (!data || data.length === 0) {
+      el.innerHTML = `<div style="font-size:0.78rem;color:var(--ink3)">No submissions yet</div>`;
+      return;
+    }
+
+    const statusColors = {
+      published:      '#1B5E35',
+      pending_review: '#C8960C',
+      draft:          '#9ca3af',
+      rejected:       '#C41E3A',
+    };
+
+    el.innerHTML = data.map(c => `
+      <div class="my-sub-item">
+        <div class="my-sub-title">${c.title || 'Untitled draft'}</div>
+        <div class="my-sub-meta">
+          <span class="status-dot" style="background:${statusColors[c.status]||'#9ca3af'}"></span>
+          ${c.status.replace('_',' ')} · ${c.type}
+        </div>
+      </div>
+    `).join('');
+  }
+
+  // ─────────────────────────────────────────
+  //  SUBMIT FORM
+  // ─────────────────────────────────────────
+  async function submitForm(type, status) {
+    const btnId = type === 'story' ? 'story-submit-btn'
+                : type === 'event' ? 'event-submit-btn'
+                : type === 'opportunity' ? 'opp-submit-btn'
+                : 'ann-submit-btn';
+
+    const btn = document.getElementById(btnId);
+
+    // Gather data
+    let payload = {};
+    let isValid = true;
+
+    if (type === 'story' || type === 'announcement') {
+      const titleId  = type === 'story' ? 'story-title' : 'ann-title';
+      const bodyId   = type === 'story' ? 'story-body'  : 'ann-body';
+      const excerptId = type === 'story' ? 'story-excerpt' : 'ann-excerpt';
+
+      const title   = document.getElementById(titleId).value.trim();
+      const body    = document.getElementById(bodyId).value.trim();
+      const excerpt = document.getElementById(excerptId).value.trim();
+
+      if (!title) { toast('⚠️','Add a headline first'); return; }
+      if (!body && status === 'pending_review') { toast('','Your story body is empty'); return; }
+
+      payload = {
+        county_id: currentProfile?.county_id,
+        author_id: currentUser.id,
+        type:      type === 'story' ? 'story' : 'announcement',
+        title,
+        body:      body || '',
+        excerpt:   excerpt || null,
+        tags:      type === 'story' ? storyTags : [],
+        status,
+      };
+
+      if (type === 'story') {
+        payload.tags = [...storyTags, document.getElementById('story-category').value];
+      }
+    }
+
+    else if (type === 'event') {
+      const title    = document.getElementById('event-title').value.trim();
+      const desc     = document.getElementById('event-desc').value.trim();
+      const dateVal  = document.getElementById('event-date').value;
+      const location = document.getElementById('event-location').value.trim();
+
+      if (!title)   { toast('⚠️','Add an event name'); return; }
+      if (!dateVal && status === 'pending_review') { toast('⚠️','Add an event date'); return; }
+
+      // Events go into the events table
+      const { error } = await insertEvent({
+        county_id:   currentProfile?.county_id,
+        author_id:   currentUser.id,
+        title,
+        description: desc,
+        event_date:  dateVal ? new Date(dateVal).toISOString() : null,
+        end_date:    document.getElementById('event-end').value
+          ? new Date(document.getElementById('event-end').value).toISOString() : null,
+        location:    location || null,
+        status:      'upcoming',
+        is_published: status === 'pending_review',
+      }, btn);
+      return;
+    }
+
+    else if (type === 'opportunity') {
+      const title   = document.getElementById('opp-title').value.trim();
+      const desc    = document.getElementById('opp-desc').value.trim();
+      const deadline = document.getElementById('opp-deadline').value;
+
+      if (!title) { toast('⚠️','Add an opportunity title'); return; }
+      if (!desc && status === 'pending_review')  { toast('⚠️','Add a description'); return; }
+
+      // Opportunities go into the opportunities table
+      const { error } = await insertOpportunity({
+        county_id:    currentProfile?.county_id,
+        author_id:    currentUser.id,
+        title,
+        description:  desc,
+        type:         document.getElementById('opp-type').value,
+        deadline:     deadline || null,
+        apply_url:    document.getElementById('opp-apply-url').value.trim() || null,
+        contact_email:document.getElementById('opp-email').value.trim() || null,
+        tags:         oppTags,
+        is_published: false,
+        status:       'open',
+      }, btn);
+      return;
+    }
+
+    // Submit to content table (story / announcement)
+    setLoading(btn, true);
+
+    const { error } = await sb.from('content').insert(payload);
+
+    setLoading(btn, false);
+
+    if (error) { toast('❌', 'Error: ' + error.message); return; }
+
+    showSuccess(status);
+    loadRecentSubs();
+  }
+
+  async function insertEvent(data, btn) {
+    setLoading(btn, true);
+    const { error } = await sb.from('events').insert(data);
+    setLoading(btn, false);
+    if (error) { toast('❌', error.message); return; }
+    showSuccess('pending_review');
+    loadRecentSubs();
+  }
+
+  async function insertOpportunity(data, btn) {
+    setLoading(btn, true);
+    const { error } = await sb.from('opportunities').insert(data);
+    setLoading(btn, false);
+    if (error) { toast('❌', error.message); return; }
+    showSuccess('pending_review');
+    loadRecentSubs();
+  }
+
+  // ─────────────────────────────────────────
+  //  SUCCESS STATE
+  // ─────────────────────────────────────────
+  function showSuccess(status) {
+    document.querySelectorAll('.form-panel').forEach(p => p.classList.remove('active'));
+    const sp = document.getElementById('success-panel');
+    sp.classList.add('show');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function resetForm() {
+    document.getElementById('success-panel').classList.remove('show');
+    // Reset all fields
+    ['story-title','story-excerpt','story-body',
+     'event-title','event-desc','event-location',
+     'opp-title','opp-desc','opp-apply-url','opp-email',
+     'ann-title','ann-excerpt','ann-body'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.value = '';
+    });
+    storyTags = [];
+    oppTags   = [];
+    renderTags('tags-wrap', storyTags);
+    renderTags('opp-tags-wrap', oppTags);
+    switchType('story');
+  }
+
+  // ─────────────────────────────────────────
+  //  AUTO SAVE (draft)
+  // ─────────────────────────────────────────
+  async function autoSave() {
+    const title = document.getElementById('story-title')?.value.trim();
+    const body  = document.getElementById('story-body')?.value.trim();
+    if (!title && !body) return;
+    if (!currentUser) return;
+
+    await sb.from('content').insert({
+      county_id: currentProfile?.county_id,
+      author_id: currentUser.id,
+      type:      'story',
+      title:     title || 'Untitled draft',
+      body:      body || '',
+      status:    'draft',
+    });
+  }
+
+  // ─────────────────────────────────────────
+  //  TAGS
+  // ─────────────────────────────────────────
+  function handleTagInput(e, wrapId = 'tags-wrap', inputId = 'tag-input') {
+    const tags    = wrapId === 'tags-wrap' ? storyTags : oppTags;
+    const input   = document.getElementById(inputId);
+    const val     = input.value.trim().toLowerCase().replace(/,/g,'');
+
+    if ((e.key === 'Enter' || e.key === ',') && val) {
+      e.preventDefault();
+      if (!tags.includes(val) && tags.length < 5) {
+        tags.push(val);
+        renderTags(wrapId, tags);
+      }
+      input.value = '';
+    } else if (e.key === 'Backspace' && !input.value && tags.length) {
+      tags.pop();
+      renderTags(wrapId, tags);
+    }
+  }
+
+  function removeTag(tag, wrapId) {
+    const tags = wrapId === 'tags-wrap' ? storyTags : oppTags;
+    const idx  = tags.indexOf(tag);
+    if (idx > -1) tags.splice(idx, 1);
+    renderTags(wrapId, tags);
+  }
+
+  function renderTags(wrapId, tags) {
+    const wrap    = document.getElementById(wrapId);
+    const inputId = wrapId === 'tags-wrap' ? 'tag-input' : 'opp-tag-input';
+    wrap.innerHTML = tags.map(t => `
+      <span class="tag-chip">${t}
+        <button type="button" onclick="removeTag('${t}','${wrapId}')">✕</button>
+      </span>`).join('') + `<input id="${inputId}" class="tag-input" placeholder="${tags.length ? '' : 'Add a tag…'}"
+        onkeydown="handleTagInput(event,'${wrapId}','${inputId}')" maxlength="30" />`;
+  }
+
+  // ─────────────────────────────────────────
+  //  COVER IMAGE
+  // ─────────────────────────────────────────
+  function handleCoverUpload(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+    if (file.size > 5 * 1024 * 1024) { toast('⚠️','Image must be under 5MB'); return; }
+    coverFile = file;
+    const url = URL.createObjectURL(file);
+    document.getElementById('cover-upload-ui').style.display = 'none';
+    document.getElementById('cover-preview').style.display   = 'block';
+    document.getElementById('cover-img').src = url;
+  }
+
+  function removeCover(e) {
+    e.stopPropagation();
+    coverFile = null;
+    document.getElementById('cover-upload-ui').style.display = 'block';
+    document.getElementById('cover-preview').style.display   = 'none';
+    document.getElementById('cover-file').value              = '';
+  }
+
+  // ─────────────────────────────────────────
+  //  TOOLBAR (markdown helpers)
+  // ─────────────────────────────────────────
+  function insertFormat(before, after) {
+    const ta    = document.getElementById('story-body');
+    const start = ta.selectionStart;
+    const end   = ta.selectionEnd;
+    const sel   = ta.value.substring(start, end);
+    ta.value    = ta.value.substring(0, start) + before + sel + after + ta.value.substring(end);
+    ta.focus();
+    ta.setSelectionRange(start + before.length, end + before.length);
+    updateWordCount(ta, 'story-wc');
+  }
+
+  // ─────────────────────────────────────────
+  //  WORD / CHAR COUNT
+  // ─────────────────────────────────────────
+  function updateWordCount(el, countId) {
+    const words = el.value.trim().split(/\s+/).filter(w => w).length;
+    document.getElementById(countId).textContent = `${words} word${words !== 1 ? 's' : ''}`;
+  }
+
+  function updateCharCount(el, countId, max) {
+    const len = el.value.length;
+    const el2 = document.getElementById(countId);
+    el2.textContent = `${len} / ${max}`;
+    el2.className   = `char-count${len > max * 0.9 ? ' warn' : ''}${len >= max ? ' limit' : ''}`;
+  }
+
+  // ─────────────────────────────────────────
+  //  AUTO RESIZE TEXTAREA
+  // ─────────────────────────────────────────
+  function autoResize(el) {
+    el.style.height = 'auto';
+    el.style.height = el.scrollHeight + 'px';
+  }
+
+  // ─────────────────────────────────────────
+  //  UTILITIES
+  // ─────────────────────────────────────────
+  function setLoading(btn, loading) {
+    btn.disabled = loading;
+    btn.classList.toggle('loading', loading);
+  }
+
+  let toastT;
+  function toast(icon, msg) {
+    document.getElementById('toast-icon').textContent = icon;
+    document.getElementById('toast-msg').textContent  = msg;
+    document.getElementById('toast').classList.add('show');
+    clearTimeout(toastT);
+    toastT = setTimeout(() => document.getElementById('toast').classList.remove('show'), 3500);
+  }
+
+  async function logout() {
+    await sb.auth.signOut();
+    window.location.href = '../auth-page/auth.html';
+  }
+
+  // ─────────────────────────────────────────
+  //  BOOT
+  // ─────────────────────────────────────────
+  init();
+  </script>
+</body>
+</html>

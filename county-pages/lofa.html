@@ -1,0 +1,1234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lofa County – Land of Abundance</title>
+<script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+<script src="https://unpkg.com/vue-router@4/dist/vue-router.global.js"></script>
+<script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+<!-- AUTHENTICATION & PROTECTION -->
+<script src="../../supabaseClient.js"></script>
+<script src="js/county-page-protection.js"></script>
+
+<script>
+tailwind.config = {
+  theme: {
+    extend: {
+      colors: {
+        /* Lofa identity — forest green / dodger blue palette */
+        lofa:  { DEFAULT:'#228B22', light:'#32CD32', pale:'#E8F5E9', dark:'#1B6B1B' },
+        river: { DEFAULT:'#1E90FF', light:'#4169E1', pale:'#E3F2FD' },
+        gold:  { DEFAULT:'#1E90FF', light:'#4169E1', pale:'#E3F2FD' },
+        ink:   { DEFAULT:'#1A2A2A', muted:'#4A6A6A', border:'#C8DEDE' }
+      },
+      fontFamily: {
+        display: ['"Playfair Display"','serif'],
+        body:    ['"DM Sans"','sans-serif'],
+      }
+    }
+  }
+}
+</script>
+<style>
+  * { box-sizing:border-box; }
+  html { scroll-behavior:smooth; }
+  body { font-family:'DM Sans',sans-serif; background:#F4FAFA; }
+  .page-enter-active,.page-leave-active { transition:opacity .22s ease,transform .22s ease; }
+  .page-enter-from { opacity:0; transform:translateY(10px); }
+  .page-leave-to   { opacity:0; transform:translateY(-6px); }
+  a { text-decoration:none; }
+  ::-webkit-scrollbar { width:4px; }
+  ::-webkit-scrollbar-thumb { background:#228B22; border-radius:4px; }
+  .nav-active { color:#1E90FF !important; background:rgba(255,255,255,0.1) !important; }
+  button { font-family:'DM Sans',sans-serif; }
+</style>
+</head>
+<body>
+<div id="app">
+
+  <!-- ═══ NAV ═══ -->
+  <nav class="fixed top-0 left-0 right-0 z-50 border-b-2 border-blue-400" style="height:68px;background:#1B6B1B">
+    <div class="max-w-6xl mx-auto h-full flex items-center justify-between px-6">
+      <router-link to="/" class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-full bg-gold flex items-center justify-center font-display font-black text-lofa-dark text-sm flex-shrink-0">LC</div>
+        <div>
+          <div class="font-display text-white font-bold text-base leading-tight">Lofa County</div>
+          <div class="text-gold-light text-xs tracking-widest uppercase font-body font-light" style="font-size:.6rem">Liberia · Digital Platform</div>
+        </div>
+      </router-link>
+      <div class="hidden md:flex items-center gap-0.5">
+        <router-link v-for="l in nav" :key="l.to" :to="l.to"
+          class="text-white/70 hover:text-white hover:bg-white/10 px-3 py-1.5 rounded-lg text-sm font-medium transition-all"
+          active-class="nav-active">{{ l.label }}</router-link>
+      </div>
+      <button class="md:hidden text-white text-2xl bg-transparent border-0 cursor-pointer" @click="mob=true">☰</button>
+    </div>
+  </nav>
+
+  <!-- MOBILE DRAWER -->
+  <transition name="page">
+    <div v-if="mob" class="fixed inset-0 z-50 flex flex-col px-8 pt-20 pb-8" style="background:#062D30">
+      <button class="absolute top-5 right-6 text-white text-2xl bg-transparent border-0 cursor-pointer" @click="mob=false"></button>
+      <router-link v-for="l in nav" :key="l.to" :to="l.to"
+        class="font-display text-2xl text-white/80 hover:text-gold-light py-4 border-b border-white/10 transition-colors"
+        @click="mob=false">{{ l.label }}</router-link>
+    </div>
+  </transition>
+
+  <!-- PAGE CONTENT -->
+  <div style="padding-top:68px;min-height:calc(100vh - 68px)">
+    <router-view v-slot="{ Component }">
+      <transition name="page" mode="out-in">
+        <component :is="Component" />
+      </transition>
+    </router-view>
+  </div>
+
+  <!-- FOOTER -->
+  <footer style="background:#062D30" class="pt-12 pb-6 px-6">
+    <div class="max-w-6xl mx-auto">
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-10 pb-10 border-b border-white/10 mb-6">
+        <div class="col-span-2 md:col-span-1">
+          <div class="flex items-center gap-3 mb-3">
+            <div class="w-9 h-9 rounded-full bg-gold flex items-center justify-center font-display font-black text-lofa-dark text-xs">LC</div>
+            <div class="font-display text-white font-bold leading-tight">Lofa County</div>
+          </div>
+          <p class="text-white/40 text-sm leading-relaxed max-w-xs">The Land of Abundance — connecting citizens, showcasing heritage, and powering development across Lofa County.</p>
+        </div>
+        <div v-for="col in footerCols" :key="col.title">
+          <h5 class="text-gold-light text-xs font-semibold tracking-widest uppercase mb-4">{{ col.title }}</h5>
+          <router-link v-for="l in col.links" :key="l.label" :to="l.to"
+            class="block text-white/45 hover:text-white text-sm mb-2 transition-colors">{{ l.label }}</router-link>
+        </div>
+      </div>
+      <div class="flex flex-col md:flex-row justify-between items-center gap-2">
+        <p class="text-white/25 text-xs">© 2025 Lofa County Digital Platform · ExploreLiberia</p>
+        <p class="text-white/20 text-xs tracking-widest">UNITY · HERITAGE · ABUNDANCE</p>
+      </div>
+    </div>
+  </footer>
+</div>
+
+<script>
+const { createApp, ref, computed } = Vue;
+const { createRouter, createWebHashHistory } = VueRouter;
+
+/* ══════════════════════════════
+   HOME PAGE
+══════════════════════════════ */
+const PageHome = {
+  template:`<div>
+    <!-- HERO -->
+    <section class="min-h-screen flex flex-col items-center justify-center text-center px-6 relative overflow-hidden" style="background:#062D30;padding-bottom:3rem">
+      <!-- <div class="absolute inset-0 pointer-events-none" style="background:radial,transparent 55%),radial-gradient(circle at 80% 20%,rgba(30,144,255,0.18) 0%,transparent 40%)"></div> -->
+      <div class="absolute inset-0 pointer-events-none" style="background-image:linear-gradient(rgba(255,255,255,0.02) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,0.02) 1px,transparent 1px);background-size:44px 44px"></div>
+      <div class="relative z-10 flex flex-col items-center w-full max-w-3xl">
+        <div class="inline-flex items-center gap-2 border border-blue-400/35 text-blue-400 px-5 py-1.5 rounded-full text-xs font-semibold tracking-widest uppercase mb-8" style="background:rgba(30,144,255,0.1)">
+          The Land of Abundance — Liberia
+        </div>
+        <h1 class="font-display font-black text-white leading-tight mb-5" style="font-size:clamp(2.6rem,6vw,5.5rem)">
+          Our Rivers,<br><em class="not-italic" style="color:#1E90FF;">Our Heritage.</em>
+        </h1>
+        <p class="text-white/60 text-lg max-w-lg mb-8 leading-relaxed">Discover the culture, natural beauty, leadership, and opportunities of Lofa County — northern Liberia's crown.</p>
+        <div class="flex items-center rounded-xl px-4 py-1 w-full max-w-md mb-12 border border-white/15" style="background:rgba(255,255,255,0.08)">
+          <input v-model="q" @keyup.enter="search" class="flex-1 bg-transparent border-0 outline-none text-white py-2 text-sm placeholder-white/35 font-body" placeholder="Search places, leaders, opportunities…"/>
+          <button @click="search" class="font-semibold text-sm px-4 py-2 rounded-lg transition-colors border-0 cursor-pointer" style="background:#1E90FF;color:#FFFFFF">Explore →</button>
+        </div>
+        <div class="flex items-center gap-8 flex-wrap justify-center">
+          <template v-for="(s,i) in stats" :key="s.label">
+            <div class="text-center">
+              <div class="font-display font-bold text-3xl" style="color:#1E90FF">{{ s.num }}</div>
+              <div class="text-white/45 text-xs tracking-widest uppercase mt-0.5">{{ s.label }}</div>
+            </div>
+            <div v-if="i<stats.length-1" class="w-px h-10 bg-white/10 hidden sm:block"></div>
+          </template>
+        </div>
+      </div>
+    </section>
+
+    <!-- QUICK ACCESS -->
+    <div style="background:#228B22">
+      <div class="max-w-6xl mx-auto grid grid-cols-2 md:grid-cols-4">
+        <router-link v-for="h in highlights" :key="h.to" :to="h.to" class="flex flex-col px-6 py-5 border-r border-white/10 last:border-r-0 hover:bg-white/6 transition-colors group">
+          <span class="text-xs font-semibold tracking-widest uppercase mb-1" style="color:#1E90FF">{{ h.label }}</span>
+          <span class="text-white/80 text-sm font-medium group-hover:text-white transition-colors">{{ h.title }}</span>
+        </router-link>
+      </div>
+    </div>
+
+    <!-- ABOUT TEASER -->
+    <section class="bg-white py-20 px-6">
+      <div class="max-w-6xl mx-auto grid md:grid-cols-2 gap-16 items-center">
+        <div>
+          <div class="text-xs font-semibold tracking-widest uppercase mb-2" style="color:#1E90FF">About Lofa County</div>
+          <h2 class="font-display font-bold leading-tight mb-4" style="font-size:clamp(1.8rem,3vw,2.6rem);color:#062D30">The Land of Abundance</h2>
+          <p class="leading-relaxed mb-4" style="color:#4A6A6A">Lofa County is one of Liberia's northernmost counties, bordering Guinea and Sierra Leone. Known as the "Land of Abundance," it is blessed with vast tropical forests, rich rivers, fertile agricultural land, and a deeply rooted cultural identity.</p>
+          <p class="leading-relaxed mb-6" style="color:#4A6A6A">With its capital in Voinjama, Lofa County is home to the Loma, Mandingo, Kissi, and Gbandi peoples — each contributing a rich layer to the county's vibrant cultural tapestry.</p>
+          <router-link to="/about" class="inline-flex items-center gap-2 text-white px-6 py-3 rounded-lg font-semibold text-sm transition-colors" style="background:#228B22">Discover More →</router-link>
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div v-for="d in districtSnap" :key="d.name" class="rounded-xl px-4 py-3 border-l-2" style="background:#E8F5E9;border-color:#228B22;border:1px solid #C8DEDE;border-left:2px solid #228B22">
+            <div class="font-semibold text-sm" style="color:#228B22">{{ d.name }}</div>
+            <div class="text-xs mt-0.5" style="color:#4A6A6A">{{ d.note }}</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TOURISM TEASER -->
+    <section class="py-20 px-6" style="background:#F4FAFA">
+      <div class="max-w-6xl mx-auto">
+        <div class="flex items-end justify-between mb-8 flex-wrap gap-4">
+          <div>
+            <div class="text-xs font-semibold tracking-widest uppercase mb-2" style="color:#1E90FF">Tourism & Exploration</div>
+            <h2 class="font-display font-bold" style="font-size:clamp(1.6rem,3vw,2.4rem);color:#062D30">Discover Lofa County</h2>
+          </div>
+          <router-link to="/tourism" class="font-semibold text-sm transition-colors" style="color:#228B22">View All Sites →</router-link>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+          <div v-for="s in featuredSites" :key="s.name" class="bg-white rounded-2xl overflow-hidden border shadow-sm hover:-translate-y-1 hover:shadow-lg transition-all duration-300" style="border-color:#C8DEDE">
+            <div class="h-44 flex items-center justify-center text-5xl relative" :style="{background:s.bg}">
+              
+              <span class="absolute top-3 right-3 text-gold-light text-xs font-semibold px-2.5 py-1 rounded-full" style="background:rgba(6,45,48,0.75)">{{ s.cat }}</span>
+            </div>
+            <div class="p-5">
+              <h3 class="font-semibold mb-1.5" style="color:#062D30">{{ s.name }}</h3>
+              <p class="text-sm leading-relaxed mb-3" style="color:#4A6A6A">{{ s.desc }}</p>
+              <div class="text-xs font-medium" style="color:#228B22">{{ s.loc }}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- EDUCATION TEASER -->
+    <section class="py-20 px-6" style="background:#FFFFFF">
+      <div class="max-w-6xl mx-auto">
+        <div class="flex items-end justify-between mb-8 flex-wrap gap-4">
+          <div>
+            <div class="text-xs font-semibold tracking-widest uppercase mb-2" style="color:#1E90FF">Education & Growth</div>
+            <h2 class="font-display font-bold" style="font-size:clamp(1.6rem,3vw,2.4rem);color:#062D30">Learning in Lofa County</h2>
+          </div>
+          <router-link to="/education" class="font-semibold text-sm transition-colors" style="color:#228B22">See All Institutions →</router-link>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div v-for="e in eduSnap" :key="e.name" class="border rounded-xl p-5 hover:shadow-md hover:border-blue-300 transition-all" style="border-color:#C8DEDE">
+            <div class="text-2xl mb-3">{{ e.icon }}</div>
+            <h3 class="font-semibold text-sm mb-1" style="color:#062D30">{{ e.name }}</h3>
+            <p class="text-xs leading-relaxed mb-2" style="color:#4A6A6A">{{ e.desc }}</p>
+            <span class="text-xs font-medium px-2 py-0.5 rounded-full" style="background:#E3F2FD;color:#228B22">{{ e.tag }}</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CTA -->
+    <section class="py-16 px-6 text-center" style="background:#228B22">
+      <div class="max-w-2xl mx-auto">
+        <h2 class="font-display font-bold text-white text-3xl mb-4">Share Your Lofa County Story</h2>
+        <p class="text-white/60 mb-8 leading-relaxed">Every voice matters. Your story is part of Lofa County's living history and future.</p>
+        <router-link to="/stories" class="inline-flex items-center gap-2 font-semibold px-8 py-3 rounded-xl transition-colors" style="background:#1E90FF;color:#FFFFFF">Read Stories →</router-link>
+      </div>
+    </section>
+  </div>`,
+  setup() {
+    const { useRouter } = VueRouter;
+    const router = useRouter();
+    const q = ref('');
+    const stats = [
+      { num:'10', label:'Districts' },
+      { num:'6',  label:'Electoral Districts' },
+      { num:'7+', label:'Major Rivers' },
+      { num:'1964',label:'Established' },
+    ];
+    const highlights = [
+      { to:'/tourism',    icon:'', label:'Tourism',    title:'Rivers, Forests & Culture' },
+      { to:'/education',  icon:'', label:'Education',  title:'Schools & Institutions' },
+      { to:'/leadership', icon:'', label:'Leadership', title:'Past & Present Leaders' },
+      { to:'/community',  icon:'', label:'Community',  title:'Events & Updates' },
+    ];
+    const districtSnap = [
+      { name:'Voinjama (Capital)', note:'Administrative hub' },
+      { name:'Kolahun',            note:'Border & trade district' },
+      { name:'Foya',               note:'Diamond & forest area' },
+      { name:'Zorzor',             note:'Educational center' },
+      { name:'Salayea',            note:'Agricultural district' },
+      { name:'Quardu Gboni',       note:'Northern border district' },
+    ];
+    const featuredSites = [
+      { name:'Wologizi Mountain Range', cat:'Nature',    emoji:'', bg:'#0A2E30', desc:'One of Liberia\'s highest mountain peaks, home to rare species and spectacular highland scenery.',    loc:'Foya District' },
+      { name:'Lofa River',             cat:'Nature',    emoji:'', bg:'#0A1E35', desc:'The mighty Lofa River winds through lush rainforest, supporting communities and biodiversity along its banks.',   loc:'Northern Lofa' },
+      { name:'Voinjama Cultural Sites', cat:'Cultural', emoji:'', bg:'#2C1A00', desc:'Historic sites, traditional ceremonies, and vibrant cultural expression at the heart of Lofa\'s capital city.', loc:'Voinjama City' },
+    ];
+    const eduSnap = [
+      { icon:'', name:'Zorzor Rural Teacher Training Institute', desc:'Premier teacher training institution producing educators for schools across Lofa and neighboring counties.', tag:'Teacher Training · Est. 1970s' },
+      { icon:'', name:'Curran Memorial Hospital',                desc:'One of Liberia\'s oldest mission hospitals serving Lofa County and neighboring regions since 1926.',     tag:'Hospital · Healthcare' },
+      { icon:'', name:'Lofa County Community College',           desc:'Two-year degree programs in business, education, and applied sciences for students across the county.',  tag:'Community College' },
+    ];
+    function search() {
+      const map = { '/tourism':['tourism','site','nature','river','mountain'], '/education':['school','edu','learn'], '/leadership':['leader','chief','official'], '/community':['event','community','update'], '/about':['district','about'] };
+      const qv = q.value.toLowerCase();
+      for (const [path,kws] of Object.entries(map)) { if (kws.some(k=>qv.includes(k))) { router.push(path); return; } }
+      router.push('/about');
+    }
+    return { q, stats, highlights, districtSnap, featuredSites, eduSnap, search };
+  }
+};
+
+/* ══════════════════════════════
+   ABOUT PAGE
+══════════════════════════════ */
+const PageAbout = {
+  template:`<div>
+    <div class="px-6 py-20 text-center relative overflow-hidden" style="background:#062D30">
+      <div class="absolute inset-0" style="background:radial-gradient(circle at 50% 80%,rgba(13,92,99,0.55) 0%,transparent 60%)"></div>
+      <div class="relative z-10">
+        <div class="text-xs font-semibold tracking-widest uppercase mb-3" style="color:#1E90FF">Our Story</div>
+        <h1 class="font-display font-black text-white mb-4" style="font-size:clamp(2.2rem,5vw,4rem)">About Lofa County</h1>
+        <p class="text-white/55 max-w-xl mx-auto leading-relaxed">History, geography, and the communities that make Lofa County the Land of Abundance.</p>
+      </div>
+    </div>
+
+    <section class="bg-white py-20 px-6">
+      <div class="max-w-6xl mx-auto grid md:grid-cols-2 gap-16 items-start">
+        <div>
+          <div class="text-xs font-semibold tracking-widest uppercase mb-2" style="color:#1E90FF">Overview</div>
+          <h2 class="font-display font-bold text-3xl mb-5" style="color:#062D30">The Land of Abundance</h2>
+          <p class="leading-relaxed mb-4" style="color:#4A6A6A">Lofa County is situated in the northwestern region of Liberia, bordering Guinea to the north and northeast, Sierra Leone to the northwest, and the counties of Bong, Gbarpolu, and Grand Cape Mount within Liberia. Its capital and largest city is Voinjama.</p>
+          <p class="leading-relaxed mb-4" style="color:#4A6A6A">The county is known for its vast tropical rainforests, which form part of the Upper Guinean Forest — one of the world's biodiversity hotspots. It is home to forest elephants, chimpanzees, pygmy hippos, and hundreds of rare bird species.</p>
+          <p class="leading-relaxed" style="color:#4A6A6A">The major ethnic groups include the Loma (Lorma), Mandingo, Kissi, and Gbandi people, each with distinct languages, traditions, and cultural practices that have been preserved for centuries.</p>
+        </div>
+        <div class="space-y-3">
+          <div v-for="f in facts" :key="f.label" class="flex items-start gap-4 p-4 rounded-xl border" style="background:#E8F5E9;border-color:#C8DEDE">
+            <span class="text-2xl flex-shrink-0">{{ f.icon }}</span>
+            <div>
+              <div class="text-xs font-semibold uppercase tracking-wider mb-0.5" style="color:#4A6A6A">{{ f.label }}</div>
+              <div class="font-semibold" style="color:#062D30">{{ f.value }}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- DISTRICTS -->
+    <section class="py-20 px-6" style="background:#F4FAFA">
+      <div class="max-w-6xl mx-auto">
+        <div class="text-xs font-semibold tracking-widest uppercase mb-2" style="color:#1E90FF">Administrative Divisions</div>
+        <h2 class="font-display font-bold text-3xl mb-3" style="color:#062D30">Districts of Lofa County</h2>
+        <p class="mb-10 max-w-lg" style="color:#4A6A6A">Lofa County is divided into 10 administrative districts, each with its own distinct character and communities.</p>
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+          <div v-for="d in districts" :key="d.name" class="bg-white rounded-xl p-5 border-l-4 hover:shadow-md transition-shadow" style="border-color:#228B22;border:1px solid #C8DEDE;border-left:4px solid #228B22">
+            <h3 class="font-semibold mb-1" style="color:#228B22">{{ d.name }}</h3>
+            <p class="text-sm mb-3" style="color:#4A6A6A">{{ d.desc }}</p>
+            <div class="flex flex-wrap gap-1.5">
+              <span v-for="tag in d.tags" :key="tag" class="text-xs font-medium px-2 py-0.5 rounded-full" style="background:#E8F5E9;color:#228B22">{{ tag }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- RIVERS & GEOGRAPHY -->
+    <section class="bg-white py-20 px-6">
+      <div class="max-w-6xl mx-auto">
+        <div class="text-xs font-semibold tracking-widest uppercase mb-2" style="color:#1E90FF">Natural Geography</div>
+        <h2 class="font-display font-bold text-3xl mb-3" style="color:#062D30">Rivers, Mountains & Forests</h2>
+        <p class="mb-10 max-w-lg" style="color:#4A6A6A">Lofa County is one of Liberia's most richly endowed counties in terms of natural resources — rivers, forests, and mountains define its landscape.</p>
+        <div class="grid md:grid-cols-2 gap-8">
+          <div>
+            <h3 class="font-semibold text-lg mb-4 flex items-center gap-2" style="color:#062D30"><span></span> Major Rivers</h3>
+            <div class="space-y-3">
+              <div v-for="r in rivers" :key="r.name" class="flex items-start gap-3 p-4 rounded-xl border" style="background:#E8F4FC;border-color:#C8DEDE">
+                <span class="text-xl flex-shrink-0">{{ r.icon }}</span>
+                <div>
+                  <div class="font-semibold text-sm" style="color:#062D30">{{ r.name }}</div>
+                  <div class="text-xs leading-relaxed mt-1" style="color:#4A6A6A">{{ r.desc }}</div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div>
+            <h3 class="font-semibold text-lg mb-4 flex items-center gap-2" style="color:#062D30"><span></span> Mountains & Forests</h3>
+            <div class="space-y-3">
+              <div v-for="m in mountains" :key="m.name" class="flex items-start gap-3 p-4 rounded-xl border" style="background:#E8F5E9;border-color:#C8DEDE">
+                <span class="text-xl flex-shrink-0">{{ m.icon }}</span>
+                <div>
+                  <div class="font-semibold text-sm" style="color:#062D30">{{ m.name }}</div>
+                  <div class="text-xs font-semibold mb-1" style="color:#228B22">{{ m.elev }}</div>
+                  <div class="text-xs leading-relaxed" style="color:#4A6A6A">{{ m.desc }}</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- HISTORY TIMELINE -->
+    <section class="py-20 px-6" style="background:#228B22">
+      <div class="max-w-4xl mx-auto">
+        <div class="text-xs font-semibold tracking-widest uppercase mb-2" style="color:rgba(30,144,255,0.7)">History</div>
+        <h2 class="font-display font-bold text-white text-3xl mb-12">A Timeline of Lofa County</h2>
+        <div class="relative">
+          <div class="absolute top-0 bottom-0 bg-white/15" style="left:16px;width:1px"></div>
+          <div v-for="e in timeline" :key="e.year" class="pl-12 pb-10 relative">
+            <div class="absolute top-1 w-8 h-8 rounded-full bg-lofa border-2 flex items-center justify-center" style="left:0;border-color:rgba(30,144,255,0.4);background:#228B22">
+              <div class="w-2 h-2 rounded-full" style="background:#1E90FF"></div>
+            </div>
+            <div class="text-xs font-bold tracking-widest mb-1" style="color:#1E90FF">{{ e.year }}</div>
+            <h3 class="font-semibold text-white mb-1">{{ e.title }}</h3>
+            <p class="text-sm leading-relaxed text-white/55">{{ e.desc }}</p>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>`,
+  setup() {
+    const facts = [
+      { icon:'', label:'Location',     value:'Northwestern Liberia' },
+      { icon:'', label:'County Seat',  value:'Voinjama City' },
+      { icon:'', label:'Districts',    value:'10 Administrative Districts' },
+      { icon:'', label:'Known As',     value:'The Land of Abundance' },
+      { icon:'', label:'Highest Peak', value:'Wologizi Mountain Range' },
+      { icon:'', label:'Established',  value:'1964' },
+    ];
+    const districts = [
+      { name:'Voinjama',      desc:'County capital and administrative center.',          tags:['Capital','Commerce','Education'] },
+      { name:'Kolahun',       desc:'Key border town with Guinea, major trade hub.',      tags:['Border','Trade'] },
+      { name:'Foya',          desc:'Diamond mining area and forest resources.',          tags:['Mining','Forestry'] },
+      { name:'Zorzor',        desc:'Educational center with several institutions.',      tags:['Education','Health'] },
+      { name:'Salayea',       desc:'Agricultural heartland, fertile farming valley.',    tags:['Agriculture','Farming'] },
+      { name:'Quardu Gboni',  desc:'Northernmost district bordering Guinea.',            tags:['Border','Rural'] },
+      { name:'Vahun',         desc:'Border district bordering Sierra Leone.',            tags:['Border','Forest'] },
+      { name:'Belefanai',     desc:'Central district with community development.',      tags:['Development'] },
+      { name:'Saclepea',      desc:'Growing district with mixed communities.',           tags:['Community'] },
+      { name:'Jorquelleh',    desc:'Southern district near Bong County border.',        tags:['Agriculture','Rural'] },
+    ];
+    const rivers = [
+      { icon:'', name:'Lofa River',     desc:'The major river of the county, flowing south through dense rainforest and supporting thousands of farming and fishing communities.' },
+      { icon:'', name:'Mano River',     desc:'Forms the international border between Liberia and Sierra Leone in the western part of the county.' },
+      { icon:'', name:'St. Paul River', desc:'Flows through southern Lofa, one of Liberia\'s principal rivers originating in the highland region.' },
+      { icon:'', name:'Kolahun River',  desc:'A tributary system near the border town of Kolahun, important for local agriculture and transport.' },
+    ];
+    const mountains = [
+      { icon:'', name:'Wologizi Mountain Range', elev:'~1,440 m / 4,724 ft', desc:'One of Liberia\'s highest peaks. Home to the endangered Liberian Mongoose and rare highland birds. A prime eco-tourism destination.' },
+      { icon:'', name:'Upper Guinean Forest',     elev:'UNESCO Biodiversity Hotspot', desc:'One of the world\'s most important tropical rainforest systems, spanning Lofa County with chimpanzees, forest elephants, and pygmy hippos.' },
+      { icon:'', name:'Foya Forest Reserve',      elev:'Protected Area', desc:'A critical conservation area in Foya District protecting old-growth forest and endangered species from across West Africa.' },
+    ];
+    const timeline = [
+      { year:'Pre-1900s',   title:'Indigenous Peoples',        desc:'The Loma, Mandingo, Kissi, and Gbandi peoples built rich civilizations with distinct languages, governance systems, and trade networks across what is now Lofa County.' },
+      { year:'1964',        title:'County Established',        desc:'Lofa County was officially created at the time of Liberia\'s administrative reorganization, with Voinjama named as its county seat.' },
+      { year:'1970s–80s',   title:'Growth & Development',      desc:'Agricultural expansion and educational development brought new schools and health facilities to Voinjama and surrounding towns.' },
+      { year:'1989–2003',   title:'Civil War Impact',          desc:'Lofa County was among the most heavily affected by Liberia\'s civil war, with major displacement, infrastructure destruction, and humanitarian crises.' },
+      { year:'2003–2010s',  title:'Post-War Recovery',         desc:'With UN support and national investment, Lofa County began rebuilding. Schools, roads, and health centers were rehabilitated across all districts.' },
+      { year:'2010s–Now',   title:'Resilience & Renewal',      desc:'A new generation of Lofa County citizens is leading educational, agricultural, and digital development — rebuilding the Land of Abundance stronger than before.' },
+    ];
+    return { facts, districts, rivers, mountains, timeline };
+  }
+};
+
+/* ══════════════════════════════
+   TOURISM PAGE
+══════════════════════════════ */
+const PageTourism = {
+  template:`<div>
+    <div class="px-6 py-20 text-center relative overflow-hidden" style="background:#062D30">
+      <div class="absolute inset-0" style="background:radial-gradient(circle at 30% 70%,rgba(34,139,34,0.5) 0%,transparent 60%)"></div>
+      <div class="relative z-10">
+        <div class="text-xs font-semibold tracking-widest uppercase mb-3" style="color:#1E90FF">Tourism & Exploration</div>
+        <h1 class="font-display font-black text-white mb-4" style="font-size:clamp(2.2rem,5vw,4rem)">Discover Lofa County</h1>
+        <p class="text-white/55 max-w-xl mx-auto leading-relaxed">From rainforest mountains to sacred rivers — Lofa County's natural and cultural wonders await.</p>
+      </div>
+    </div>
+
+    <section class="py-16 px-6" style="background:#F4FAFA">
+      <div class="max-w-6xl mx-auto">
+        <div class="flex gap-2 flex-wrap mb-8">
+          <button v-for="cat in cats" :key="cat" @click="active=cat"
+            :class="active===cat?'text-white':'text-ink-muted hover:text-white'"
+            :style="active===cat?'background:#228B22;border-color:#228B22':'background:white;border-color:#C8DEDE;color:#4A6A6A'"
+            class="px-4 py-2 rounded-full border text-sm font-medium transition-all cursor-pointer">{{ cat }}</button>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+          <div v-for="s in filtered" :key="s.name"
+            class="bg-white rounded-2xl overflow-hidden border shadow-sm hover:-translate-y-1.5 hover:shadow-xl transition-all duration-300 cursor-pointer"
+            style="border-color:#C8DEDE" @click="sel=s">
+            <div class="h-52 flex items-center justify-center text-6xl relative" :style="{background:s.bg}">
+              
+              <span class="absolute top-3 right-3 text-gold-light text-xs font-semibold px-2.5 py-1 rounded-full" style="background:rgba(6,45,48,0.75)">{{ s.cat }}</span>
+            </div>
+            <div class="p-5">
+              <h3 class="font-semibold mb-1.5" style="color:#062D30">{{ s.name }}</h3>
+              <p class="text-sm leading-relaxed mb-3" style="color:#4A6A6A">{{ s.desc }}</p>
+              <div class="flex items-center justify-between">
+                <div class="text-xs font-medium" style="color:#228B22">{{ s.loc }}</div>
+                <span class="text-xs font-semibold" style="color:#228B22">Details →</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- MODAL -->
+    <div v-if="sel" class="fixed inset-0 z-50 flex items-center justify-center px-4" style="background:rgba(34,139,34,0.75)" @click.self="sel=null">
+      <div class="bg-white rounded-2xl overflow-hidden max-w-lg w-full shadow-2xl">
+        <div class="h-56 flex items-center justify-center text-7xl relative" :style="{background:sel.bg}">
+          
+          <button @click="sel=null" class="absolute top-4 right-4 text-white rounded-full w-8 h-8 flex items-center justify-center border-0 cursor-pointer text-lg" style="background:rgba(0,0,0,0.45)">CLOSE</button>
+        </div>
+        <div class="p-6">
+          <span class="text-xs font-semibold px-3 py-1 rounded-full" style="background:#E3F2FD;color:#228B22">{{ sel.cat }}</span>
+          <h2 class="font-display font-bold text-2xl mt-3 mb-2" style="color:#062D30">{{ sel.name }}</h2>
+          <div class="text-sm font-medium mb-4" style="color:#228B22">{{ sel.loc }}</div>
+          <p class="leading-relaxed" style="color:#4A6A6A">{{ sel.extra }}</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ACCOMMODATIONS SECTION -->
+    <section class="bg-gray-50 py-16 px-6">
+      <div class="max-w-6xl mx-auto">
+        <div class="text-xs font-semibold tracking-widest uppercase mb-2" style="color:#1E90FF">Accommodation</div>
+        <h2 class="font-display font-bold text-3xl mb-8" style="color:#062D30">Hotels & Guesthouses in Lofa County</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+          <div v-for="h in accommodations" :key="h.name" class="bg-white rounded-2xl overflow-hidden border shadow-sm hover:-translate-y-1.5 hover:shadow-xl transition-all duration-300" style="border-color:#C8DEDE">
+            <div class="h-48 flex items-center justify-center relative bg-green-100" style="background:#E8F5E9"></div>
+            <div class="p-5">
+              <h3 class="font-semibold mb-1.5" style="color:#062D30">{{ h.name }}</h3>
+              <p class="text-sm leading-relaxed mb-3" style="color:#4A6A6A">{{ h.desc }}</p>
+              <div class="text-xs font-medium" style="color:#228B22">{{ h.location }}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- RECREATION SECTION -->
+    <section class="bg-white py-16 px-6">
+      <div class="max-w-6xl mx-auto">
+        <div class="text-xs font-semibold tracking-widest uppercase mb-2" style="color:#1E90FF">Recreation</div>
+        <h2 class="font-display font-bold text-3xl mb-8" style="color:#062D30">Sports & Outdoor Activities</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+          <div v-for="s in sports" :key="s.name" class="bg-gray-50 rounded-2xl overflow-hidden border shadow-sm hover:-translate-y-1.5 hover:shadow-xl transition-all duration-300" style="border-color:#C8DEDE">
+            <div class="h-52 flex items-center justify-center text-5xl relative bg-green-200" style="background:#E8F5E9"></div>
+            <div class="p-5">
+              <h3 class="font-semibold mb-1.5" style="color:#062D30">{{ s.name }}</h3>
+              <p class="text-sm leading-relaxed mb-3" style="color:#4A6A6A">{{ s.desc }}</p>
+              <div class="text-xs font-medium" style="color:#228B22">{{ s.location }}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TRAVEL TIPS -->
+    <section class="bg-white py-16 px-6">
+      <div class="max-w-6xl mx-auto">
+        <div class="text-xs font-semibold tracking-widest uppercase mb-2" style="color:#1E90FF">Before You Go</div>
+        <h2 class="font-display font-bold text-3xl mb-8" style="color:#062D30">Travel Tips for Lofa County</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div v-for="tip in tips" :key="tip.title" class="rounded-xl p-5 border" style="background:#E8F5E9;border-color:#C8DEDE">
+            <div class="text-2xl mb-3">{{ tip.icon }}</div>
+            <h4 class="font-semibold text-sm mb-1.5" style="color:#062D30">{{ tip.title }}</h4>
+            <p class="text-xs leading-relaxed" style="color:#4A6A6A">{{ tip.desc }}</p>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>`,
+  setup() {
+    const active = ref('All'); const sel = ref(null);
+    const cats = ['All','Nature','Cultural','Historical','Wildlife','Adventure'];
+    const sites = [
+      { name:'Wologizi Mountain Range',  cat:'Adventure', emoji:'', bg:'#0A2E30', desc:'One of Liberia\'s highest peaks, offering breathtaking views and rare highland biodiversity.', extra:'Standing among Liberia\'s tallest mountains, Wologizi is a challenging but rewarding trek through cloud forest, open heath, and dramatic rocky summits. The mountain is sacred to the Loma people and home to the endangered Liberian Mongoose.', loc:'Foya District' },
+      { name:'Lofa River Corridor',      cat:'Nature',    emoji:'', bg:'#0A1E35', desc:'The county\'s lifeblood — a spectacular river journey through pristine tropical rainforest.', extra:'Canoe trips along the Lofa River offer one of West Africa\'s most immersive forest experiences. The river supports fishing communities, rare freshwater species, and incredible birdlife including the White-necked Rockfowl.', loc:'Northern Lofa' },
+      { name:'Foya Forest Reserve',      cat:'Wildlife',  emoji:'', bg:'#0D2E10', desc:'A protected rainforest hosting forest elephants, chimpanzees, and pygmy hippos.', extra:'Part of the Upper Guinean Forest biodiversity hotspot, Foya Reserve is one of West Africa\'s most important conservation areas. Guided wildlife walks offer sightings of forest elephants, chimpanzees, leopards, and over 500 bird species.', loc:'Foya District' },
+      { name:'Voinjama Cultural Center', cat:'Cultural',  emoji:'', bg:'#2C1A00', desc:'A hub of Loma, Mandingo, Kissi, and Gbandi cultural expression and heritage preservation.', extra:'Voinjama\'s cultural center showcases the diverse traditions of Lofa County\'s four major ethnic groups through music, dance, storytelling, and craftsmanship. Annual festivals bring thousands of community members together to celebrate their shared heritage.', loc:'Voinjama City' },
+      { name:'Kolahun Border Market',    cat:'Cultural',  emoji:'', bg:'#1A1000', desc:'A vibrant cross-border market where Liberian, Guinean, and Sierra Leonean traders meet.', extra:'One of the most dynamic marketplaces in northwestern Liberia, Kolahun\'s border market offers a fascinating window into cross-cultural trade, with goods, languages, and peoples from three nations converging in a colorful weekly bazaar.', loc:'Kolahun District' },
+      { name:'Mano River Sacred Sites',  cat:'Historical', emoji:'', bg:'#061A10', desc:'Ancient sacred sites along the Mano River, deeply connected to indigenous spiritual traditions.', extra:'The Mano River basin is home to several sacred groves and historical sites important to the Kissi and Gbandi peoples. These areas are maintained by traditional leaders and represent living connections to centuries of cultural heritage.', loc:'Vahun District' },
+    ];
+    const filtered = computed(() => active.value === 'All' ? sites : sites.filter(s=>s.cat===active.value));
+    const tips = [
+      { icon:'', title:'Best Time to Visit', desc:'Dry season (Nov–Apr) for mountain trekking. River trips are spectacular year-round.' },
+      { icon:'', title:'Getting There',     desc:'Road from Monrovia via Gbarnga to Voinjama (~8–10 hours). Internal transport by motorbike taxi.' },
+      { icon:'', title:'Cultural Respect',  desc:'Ask permission before photographing people. Respect traditional governance and sacred sites.' },
+      { icon:'', title:'Accommodation',     desc:'Guesthouses in Voinjama. Kolahun and Foya have basic lodging. Arrange homestays in advance.' },
+    ];
+    const accommodations = [
+      { icon:'', name:'Voinjama Guest House',           location:'Voinjama', desc:'Comfortable accommodation in the heart of Voinjama with meals and local information.' },
+      { icon:'', name:'Kolahun Border Guesthouse',      location:'Kolahun',  desc:'Simple guesthouse serving border traders and visitors near the Guinea frontier.' },
+      { icon:'', name:'Zorzor Community Rest House',    location:'Zorzor',   desc:'Basic accommodation near Curran Hospital and Zorzor Rural Teacher Training Institute.' },
+      { icon:'', name:'Foya District Visitor Center',   location:'Foya',     desc:'Rustic accommodation with conservation program staff and eco-tourism guides.' },
+    ];
+    const sports = [
+      { icon:'', name:'Voinjama Sports Stadium',        location:'Voinjama', desc:'Community sports facility hosting football matches, athletics, and regional competitions.' },
+      { icon:'', name:'River Sports & Recreation',      location:'Lofa Rivers', desc:'Swimming, fishing, and water sports along the Lofa River and tributary systems.' },
+    ];
+    return { active, sel, cats, filtered, tips, accommodations, sports };
+  }
+};
+
+/* ══════════════════════════════
+   LEADERSHIP PAGE
+══════════════════════════════ */
+const PageLeadership = {
+  template:`<div>
+    <div class="px-6 py-20 text-center relative overflow-hidden" style="background:#062D30">
+      <div class="absolute inset-0" style="background:radial-gradient(circle at 70% 30%,rgba(21,101,168,0.12) 0%,transparent 50%)"></div>
+      <div class="relative z-10">
+        <div class="text-xs font-semibold tracking-widest uppercase mb-3" style="color:#1E90FF">Leadership & Legacy</div>
+        <h1 class="font-display font-black text-white mb-4" style="font-size:clamp(2.2rem,5vw,4rem)">Leaders of Lofa County</h1>
+        <p class="text-white/55 max-w-xl mx-auto leading-relaxed">From founding superintendents to current representatives — those who have shaped Lofa County.</p>
+      </div>
+    </div>
+
+    <section class="py-16 px-6" style="background:#F4FAFA">
+      <div class="max-w-6xl mx-auto">
+        <div class="flex gap-2 flex-wrap mb-10">
+          <button v-for="era in eras" :key="era" @click="activeEra=era"
+            :style="activeEra===era?'background:#228B22;color:white;border-color:#228B22':'background:white;border-color:#C8DEDE;color:#4A6A6A'"
+            class="px-4 py-2 rounded-full border text-sm font-medium transition-all cursor-pointer">{{ era }}</button>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+          <div v-for="l in filtered" :key="l.name"
+            class="bg-white rounded-2xl p-6 border hover:shadow-lg hover:-translate-y-1 transition-all duration-300" style="border-color:#C8DEDE">
+            <div class="flex items-start gap-4 mb-4">
+              <div class="w-14 h-14 rounded-full flex items-center justify-center font-display font-bold text-lg flex-shrink-0 border-2" style="background:#228B22;color:#FFFFFF;border-color:rgba(30,144,255,0.25)">{{ l.initials }}</div>
+              <div>
+                <h3 class="font-semibold leading-tight" style="color:#062D30">{{ l.name }}</h3>
+                <div class="text-xs font-semibold mt-0.5" style="color:#1E90FF">{{ l.role }}</div>
+                <div class="text-xs mt-0.5" style="color:#4A6A6A">{{ l.period }}</div>
+              </div>
+            </div>
+            <p class="text-sm leading-relaxed mb-4" style="color:#4A6A6A">{{ l.bio }}</p>
+            <div class="flex flex-wrap gap-1.5">
+              <span v-for="tag in l.tags" :key="tag" class="text-xs font-medium px-2 py-0.5 rounded-full" style="background:#E8F5E9;color:#228B22">{{ tag }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SENATORS & REPS -->
+    <section class="bg-white py-16 px-6">
+      <div class="max-w-6xl mx-auto">
+        <div class="text-xs font-semibold tracking-widest uppercase mb-2" style="color:#1E90FF">Current Representatives</div>
+        <h2 class="font-display font-bold text-3xl mb-3" style="color:#062D30">Legislative Representatives</h2>
+        <p class="mb-8 max-w-lg" style="color:#4A6A6A">Lofa County's 6 electoral districts are represented in the national legislature.</p>
+        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+          <div v-for="r in reps" :key="r.name" class="rounded-xl p-4 text-center border hover:shadow-md transition-all" style="border-color:#C8DEDE">
+            <div class="w-10 h-10 rounded-full flex items-center justify-center font-display font-bold text-xs mx-auto mb-2" style="background:#E3F2FD;border:1px solid #228B22;color:#228B22">{{ r.initials }}</div>
+            <div class="font-semibold text-sm leading-tight" style="color:#062D30">{{ r.name }}</div>
+            <div class="text-xs font-semibold mt-0.5" style="color:#1E90FF">District {{ r.district }}</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="py-16 px-6" style="background:#228B22">
+      <div class="max-w-3xl mx-auto text-center">
+        <div class="font-display text-white mb-6" style="font-size:3.5rem"></div>
+        <p class="font-display text-white text-2xl font-medium leading-relaxed mb-6">Lofa County — the Land of Abundance — thrives because of those who serve with integrity and those who hold them to account.</p>
+        <div class="text-xs tracking-widest uppercase" style="color:rgba(255,255,255,0.45)">Lofa County, Est. 1964</div>
+      </div>
+    </section>
+  </div>`,
+  setup() {
+    const activeEra = ref('All');
+    const eras = ['All','Current & Recent','Historical','Traditional'];
+    const leaders = [
+      { initials:'MK', name:'Mosawa Kanneh',         role:'County Superintendent',     period:'Recent Administration', eraTag:'Current & Recent', bio:'Led county development programs and infrastructure projects across Lofa\'s 10 districts.',          tags:['Superintendent','Administration'] },
+      { initials:'BB', name:'Botoe Barclay',          role:'Former Superintendent',     period:'Post-War Era',          eraTag:'Historical',       bio:'Played a key role in post-war reconstruction and restoration of governance structures.',             tags:['Reconstruction','Governance'] },
+      { initials:'FV', name:'Fayia Voker',            role:'Senator',                   period:'Current',               eraTag:'Current & Recent', bio:'Senior senator representing Lofa County\'s interests at the national level.',                       tags:['Senate','Legislature'] },
+      { initials:'DK', name:'Doryen Koboi',           role:'Senator',                   period:'Current',               eraTag:'Current & Recent', bio:'Serving Lofa County in the national Senate, focused on agricultural and rural development policy.',   tags:['Senate','Agriculture'] },
+      { initials:'ZK', name:'Zaza Kpayea',            role:'Traditional Paramount Chief',period:'Current Heritage',     eraTag:'Traditional',      bio:'A respected paramount chief preserving Loma cultural traditions and traditional governance in northern Lofa.', tags:['Traditional','Loma Heritage'] },
+      { initials:'AM', name:'Alhaji Mamadou Bah',    role:'Mandingo Community Leader', period:'Cultural Heritage',      eraTag:'Traditional',      bio:'A prominent Mandingo community leader and Islamic scholar who has served as a bridge between communities for decades.', tags:['Mandingo','Community','Islam'] },
+      { initials:'GK', name:'George Kollie',          role:'First Superintendent',      period:'1964 – 1968',           eraTag:'Historical',       bio:'First appointed Superintendent of Lofa County following its establishment in 1964.',                  tags:['Founding','First Superintendent'] },
+      { initials:'SK', name:'Sundaygar Karneh',       role:'Community Elder',           period:'Heritage',              eraTag:'Traditional',      bio:'Revered elder and keeper of Kissi oral traditions and history across the Vahun District.',             tags:['Kissi Heritage','Elder'] },
+    ];
+    const filtered = computed(() => activeEra.value === 'All' ? leaders : leaders.filter(l=>l.eraTag===activeEra.value));
+    const reps = [
+      { initials:'MV', name:'Morris Varmah',       district:'1' },
+      { initials:'FK', name:'Francis Kollie',      district:'2' },
+      { initials:'AK', name:'Alhaji Konneh',       district:'3' },
+      { initials:'YK', name:'Yeama Kamara',        district:'4' },
+      { initials:'BK', name:'Blamo Kolleh',        district:'5' },
+      { initials:'DV', name:'Daniel Vaye',         district:'6' },
+    ];
+    return { activeEra, eras, filtered, reps };
+  }
+};
+
+/* ══════════════════════════════
+   EDUCATION PAGE
+══════════════════════════════ */
+const PageEducation = {
+  template:`<div>
+    <div class="px-6 py-20 text-center relative overflow-hidden" style="background:#062D30">
+      <div class="absolute inset-0" style="background:radial-gradient(circle at 50% 100%,rgba(13,92,99,0.4) 0%,transparent 55%)"></div>
+      <div class="relative z-10">
+        <div class="text-xs font-semibold tracking-widest uppercase mb-3" style="color:#1E90FF">Education & Healthcare</div>
+        <h1 class="font-display font-black text-white mb-4" style="font-size:clamp(2.2rem,5vw,4rem)">Building Lofa's Future</h1>
+        <p class="text-white/55 max-w-xl mx-auto leading-relaxed">Schools, universities, vocational centers, and health facilities serving Lofa County's people.</p>
+      </div>
+    </div>
+
+    <div class="bg-white border-b sticky top-[68px] z-40" style="border-color:#C8DEDE">
+      <div class="max-w-6xl mx-auto px-6 flex gap-0 overflow-x-auto">
+        <button v-for="t in tabs" :key="t.id" @click="tab=t.id"
+          :style="tab===t.id?'border-bottom:2px solid #228B22;color:#228B22':'color:#4A6A6A'"
+          class="px-6 py-4 text-sm font-medium transition-colors border-b-2 border-transparent cursor-pointer bg-transparent whitespace-nowrap">
+          {{ t.icon }} {{ t.label }}</button>
+      </div>
+    </div>
+
+    <section class="py-16 px-6" style="background:#F4FAFA">
+      <div class="max-w-6xl mx-auto">
+
+        <template v-if="tab==='universities'">
+          <div class="text-xs font-semibold tracking-widest uppercase mb-2" style="color:#1E90FF">Higher & Vocational Education</div>
+          <h2 class="font-display font-bold text-3xl mb-3" style="color:#062D30">Institutions of Learning</h2>
+          <p class="mb-10 max-w-lg" style="color:#4A6A6A">Lofa County has made significant strides in education since post-war reconstruction, with several institutions now serving students across all districts.</p>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-12">
+            <div v-for="i in universities" :key="i.name" class="bg-white rounded-2xl p-6 border hover:shadow-md transition-shadow flex gap-4" style="border-color:#C8DEDE">
+              <div class="w-12 h-12 rounded-xl flex items-center justify-center text-2xl flex-shrink-0" style="background:#E8F5E9"></div>
+              <div>
+                <h3 class="font-semibold mb-0.5" style="color:#062D30">{{ i.name }}</h3>
+                <div class="text-xs font-medium mb-2" style="color:#228B22"> {{ i.location }}</div>
+                <p class="text-sm leading-relaxed mb-2" style="color:#4A6A6A">{{ i.desc }}</p>
+                <span class="text-xs font-semibold px-2.5 py-0.5 rounded-full" style="background:#E8F5E9;color:#228B22">{{ i.tag }}</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="text-xs font-semibold tracking-widest uppercase mb-2" style="color:#1E90FF">High Schools</div>
+          <h2 class="font-display font-bold text-3xl mb-8" style="color:#062D30">Secondary Schools</h2>
+          <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+            <div v-for="s in schools" :key="s.name" class="bg-white rounded-xl p-5 border hover:shadow-md transition-all" style="border-color:#C8DEDE">
+              <div class="text-xl mb-2"></div>
+              <h4 class="font-semibold text-sm mb-1" style="color:#062D30">{{ s.name }}</h4>
+              <div class="text-xs mb-2" style="color:#4A6A6A">{{ s.district }}</div>
+              <span class="text-xs font-semibold px-2 py-0.5 rounded-full" style="background:#E8F5E9;color:#228B22">{{ s.type }}</span>
+            </div>
+          </div>
+        </template>
+
+        <template v-if="tab==='health'">
+          <div class="text-xs font-semibold tracking-widest uppercase mb-2" style="color:#1E90FF">Healthcare</div>
+          <h2 class="font-display font-bold text-3xl mb-3" style="color:#062D30">Medical Facilities</h2>
+          <p class="mb-10 max-w-lg" style="color:#4A6A6A">Lofa County's health system has been rebuilt and strengthened following the civil war, with facilities across all 10 districts.</p>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-10">
+            <div v-for="h in hospitals" :key="h.name" class="bg-white rounded-2xl overflow-hidden border hover:shadow-md transition-shadow" style="border-color:#C8DEDE">
+              <div class="p-6">
+                <div class="flex items-start gap-4">
+                  <div class="w-12 h-12 rounded-xl flex items-center justify-center text-2xl flex-shrink-0" style="background:#E8F5E9"></div>
+                  <div>
+                    <h3 class="font-semibold mb-0.5" style="color:#062D30">{{ h.name }}</h3>
+                    <div class="text-xs font-medium mb-1.5" style="color:#228B22">{{ h.location }}</div>
+                    <span class="text-xs font-semibold px-2.5 py-0.5 rounded-full mb-2 inline-block" style="background:#E8F5E9;color:#228B22">{{ h.tag }}</span>
+                    <p class="text-sm leading-relaxed mt-2 mb-3" style="color:#4A6A6A">{{ h.desc }}</p>
+                    <div class="flex flex-wrap gap-1.5">
+                      <span v-for="s in h.services" :key="s" class="text-xs px-2 py-0.5 rounded-full" style="background:#E8F5E9;color:#228B22">{{ s }}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div v-for="s in hStats" :key="s.label" class="bg-white rounded-xl p-5 border text-center" style="border-color:#C8DEDE">
+              <div class="font-display font-bold text-2xl mb-1" style="color:#228B22">{{ s.value }}</div>
+              <div class="text-xs uppercase tracking-wider" style="color:#4A6A6A">{{ s.label }}</div>
+            </div>
+          </div>
+        </template>
+
+      </div>
+    </section>
+  </div>`,
+  setup() {
+    const tab = ref('universities');
+    const tabs = [
+      { id:'universities', icon:'', label:'Education' },
+      { id:'health',       icon:'', label:'Healthcare' },
+    ];
+    const universities = [
+      { icon:'', name:'Zorzor Rural Teacher Training Institute (ZRTTI)', location:'Zorzor District',  desc:'A premier teacher training institution producing qualified educators for schools across Lofa County and neighboring counties.',      tag:'Teacher Training · Est. 1970s' },
+      { icon:'', name:'Lofa County Community College',                   location:'Voinjama City',    desc:'Offers two-year degree programs in business, education, and applied sciences for students across the county.',                      tag:'Community College' },
+      { icon:'', name:'Foya Vocational Training Center',                  location:'Foya District',   desc:'Practical training in agriculture, carpentry, and small business management for youth and adults in rural Lofa.',                    tag:'Vocational Training' },
+      { icon:'', name:'Curran Memorial Hospital School of Nursing',       location:'Zorzor District', desc:'Produces qualified nurses and healthcare workers trained at one of Lofa\'s most historic medical institutions.',                    tag:'Nursing School' },
+    ];
+    const schools = [
+      { icon:'', name:'Voinjama Public High School',    district:'Voinjama',  type:'Public' },
+      { icon:'', name:'St. Mary\'s Catholic High School', district:'Voinjama', type:'Catholic Mission' },
+      { icon:'', name:'Zorzor Lutheran High School',    district:'Zorzor',    type:'Lutheran Mission' },
+      { icon:'', name:'Kolahun Central High School',   district:'Kolahun',   type:'Public' },
+      { icon:'', name:'Foya District High School',     district:'Foya',      type:'Public' },
+      { icon:'', name:'Salayea Community School',      district:'Salayea',   type:'Community' },
+    ];
+    const hospitals = [
+      { icon:'', name:'Curran Memorial Hospital',      location:'Zorzor District', tag:'Referral Hospital · Est. 1926', desc:'One of Liberia\'s oldest mission hospitals, serving Lofa County and neighboring regions since 1926. Founded by Lutheran missionaries.', services:['Surgery','Maternity','Emergency','Lab','Nursing School'] },
+      { icon:'', name:'Voinjama Government Hospital',  location:'Voinjama City',   tag:'County Hospital',               desc:'The main public hospital in the county capital, providing essential medical services and specialist referrals for Voinjama and surrounding communities.', services:['Primary Care','Maternity','Outpatient','Pharmacy'] },
+      { icon:'', name:'Kolahun District Clinic',       location:'Kolahun',         tag:'District Clinic',               desc:'Serving border communities across the Kolahun area with primary healthcare, maternal services, and immunization programs.', services:['Primary Care','Maternal Health','Vaccination'] },
+      { icon:'', name:'Foya Community Health Center', location:'Foya District',   tag:'Health Center',                 desc:'Community health facility providing essential care to remote forest communities in northern Lofa County.',               services:['Primary Care','Malaria Treatment','CHW Support'] },
+    ];
+    const hStats = [
+      { value:'4+',  label:'Major Hospitals' },
+      { value:'25+', label:'Health Clinics' },
+      { value:'150+',label:'Health Workers' },
+      { value:'10',  label:'Districts Covered' },
+    ];
+    return { tab, tabs, universities, schools, hospitals, hStats };
+  }
+};
+
+/* ══════════════════════════════
+   OPPORTUNITIES PAGE
+══════════════════════════════ */
+const PageOpportunities = {
+  template:`<div>
+    <div class="px-6 py-20 text-center relative overflow-hidden" style="background:#062D30">
+      <div class="absolute inset-0" style="background:radial-gradient(circle at 50% 50%,rgba(21,101,168,0.12) 0%,transparent 55%)"></div>
+      <div class="relative z-10">
+        <div class="text-xs font-semibold tracking-widest uppercase mb-3" style="color:#1E90FF">Opportunities</div>
+        <h1 class="font-display font-black text-white mb-4" style="font-size:clamp(2.2rem,5vw,4rem)">Open Doors for Lofa Youth</h1>
+        <p class="text-white/55 max-w-xl mx-auto leading-relaxed">Scholarships, training programs, internships, and grants for Lofa County residents.</p>
+      </div>
+    </div>
+
+    <div class="bg-white border-b py-4 px-6 sticky top-[68px] z-40" style="border-color:#C8DEDE">
+      <div class="max-w-6xl mx-auto flex gap-2 flex-wrap">
+        <button v-for="t in types" :key="t" @click="activeType=t"
+          :style="activeType===t?'background:#228B22;color:#FFFFFF;border-color:#228B22':'background:white;border-color:#C8DEDE;color:#4A6A6A'"
+          class="px-4 py-1.5 rounded-full border text-sm font-medium transition-all cursor-pointer">{{ t }}</button>
+      </div>
+    </div>
+
+    <section class="py-16 px-6" style="background:#F4FAFA">
+      <div class="max-w-6xl mx-auto">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+          <div v-for="o in filtered" :key="o.title"
+            class="bg-white rounded-2xl p-6 border hover:-translate-y-1 hover:shadow-xl transition-all duration-300" style="border-color:#D4EBF0">
+            <div class="flex items-center justify-between mb-3">
+              <span class="text-xs font-bold tracking-widest uppercase" style="color:#1E90FF">{{ o.type }}</span>
+              <span class="text-xs text-white font-semibold px-2.5 py-1 rounded-full" :style="{background:o.urg==='Open'?'#228B22':o.urg==='Closing Soon'?'#1E90FF':'#4A6A6A'}">{{ o.urg }}</span>
+            </div>
+            <h3 class="font-semibold mb-2 leading-tight" style="color:#062D30">{{ o.title }}</h3>
+            <p class="text-sm leading-relaxed mb-4" style="color:#4A6A6A">{{ o.desc }}</p>
+            <div class="flex flex-wrap gap-1.5 mb-4">
+              <span v-for="tag in o.tags" :key="tag" class="text-xs font-medium px-2 py-0.5 rounded-full" style="background:#E8F5E9;color:#228B22">{{ tag }}</span>
+            </div>
+            <div class="border-t pt-3 flex items-center justify-between" style="border-color:#C8DEDE">
+              <div class="text-xs flex items-center gap-1.5" style="color:#4A6A6A">
+                <span class="w-1.5 h-1.5 rounded-full flex-shrink-0" style="background:#1E90FF"></span>Deadline: {{ o.dl }}
+              </div>
+              <span class="text-xs font-semibold cursor-pointer" style="color:#228B22">Apply →</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>`,
+  setup() {
+    const activeType = ref('All');
+    const types = ['All','Scholarship','Training','Internship','Fellowship','Grant'];
+    const opps = [
+      { type:'Scholarship', title:'Lofa County Higher Education Scholarship',  desc:'Supporting Lofa students pursuing university degrees at accredited Liberian institutions. Priority given to students from rural districts.', dl:'March 2026',      urg:'Open',          tags:['University','All Districts'] },
+      { type:'Training',    title:'Agricultural Youth Training — ZRTTI',       desc:'Agricultural skills training at Zorzor Rural Training Institute. Covers farming, animal husbandry, and food processing.',                        dl:'Rolling',         urg:'Open',          tags:['Agriculture','Zorzor','Free'] },
+      { type:'Internship',  title:'Lofa County Government Internship',          desc:'Work alongside county officials for one semester. Open to final-year students from Lofa County institutions.',                                    dl:'June 2026',       urg:'Open',          tags:['Governance','Students'] },
+      { type:'Fellowship',  title:'Lofa Community Leaders Fellowship',          desc:'6-month leadership program for ages 18–30. Leadership skills, community mobilization, and civic engagement in Lofa County.',                      dl:'April 2026',      urg:'Closing Soon',  tags:['Leadership','Ages 18–30'] },
+      { type:'Grant',       title:'Lofa Small Business Development Fund',       desc:'Micro-grants for Lofa entrepreneurs in agriculture, trade, or services. Business plan required. $200–$1,000 available.',                        dl:'Open Year-Round', urg:'Open',          tags:['Business','Agriculture'] },
+      { type:'Scholarship', title:'Curran Hospital Nursing Scholarship',        desc:'Full scholarship for nursing students training at Curran Memorial Hospital School of Nursing in Zorzor.',                                         dl:'May 2026',        urg:'Open',          tags:['Nursing','Health','Zorzor'] },
+      { type:'Training',    title:'Forest Conservation Youth Program',          desc:'Environmental education and conservation training for youth in the Foya Forest Reserve buffer zone communities.',                               dl:'Rolling',         urg:'Open',          tags:['Environment','Foya','Youth'] },
+      { type:'Fellowship',  title:'Women in Agriculture Leadership',            desc:'Mentorship and skills program for women aged 18–35 in Lofa County\'s farming communities.',                                                       dl:'July 2026',       urg:'Open',          tags:['Women','Agriculture','Mentorship'] },
+    ];
+    const filtered = computed(() => activeType.value === 'All' ? opps : opps.filter(o=>o.type===activeType.value));
+    return { activeType, types, filtered };
+  }
+};
+
+/* ══════════════════════════════
+   STORIES PAGE
+══════════════════════════════ */
+const PageStories = {
+  template:`<div>
+    <div class="px-6 py-20 text-center relative overflow-hidden" style="background:#062D30">
+      <div class="absolute inset-0" style="background:radial-gradient(circle at 80% 50%,rgba(13,92,99,0.4) 0%,transparent 50%)"></div>
+      <div class="relative z-10">
+        <div class="text-xs font-semibold tracking-widest uppercase mb-3" style="color:#1E90FF">Stories & Voices</div>
+        <h1 class="font-display font-black text-white mb-4" style="font-size:clamp(2.2rem,5vw,4rem)">Voices from Lofa County</h1>
+        <p class="text-white/55 max-w-xl mx-auto leading-relaxed">Real stories from the Land of Abundance — resilience, culture, and hope.</p>
+      </div>
+    </div>
+
+    <section class="py-16 px-6" style="background:#F4FAFA">
+      <div class="max-w-6xl mx-auto">
+        <!-- Featured -->
+        <div class="bg-white rounded-2xl overflow-hidden border shadow-sm mb-10" style="border-color:#C8DEDE">
+          <div class="md:flex">
+            <div class="md:w-2/5 flex items-center justify-center text-8xl" style="background:#228B22;min-height:220px"></div>
+            <div class="md:w-3/5 p-8">
+              <span class="text-xs font-bold px-3 py-1 rounded-full tracking-wider uppercase" style="background:#FFF8E1;color:#1E90FF">Featured · Resilience Story</span>
+              <h2 class="font-display font-bold text-3xl mt-4 mb-3 leading-tight" style="color:#062D30">Rebuilding Voinjama: How Lofa County Rose from the Ashes of War</h2>
+              <p class="leading-relaxed mb-4" style="color:#4A6A6A">Among the most conflict-affected counties in Liberia, Lofa County's journey from devastation to renewal is one of the most powerful stories of human resilience on the continent. This is a story of the people who stayed and those who came back.</p>
+              <div class="flex items-center gap-3 pt-4 border-t" style="border-color:#C8DEDE">
+                <div class="w-9 h-9 rounded-full flex items-center justify-center font-bold text-xs" style="background:#E8F5E9;border:2px solid #228B22;color:#228B22">FK</div>
+                <div>
+                  <div class="font-semibold text-sm" style="color:#062D30">Fatumata Kamara</div>
+                  <div class="text-xs" style="color:#4A6A6A">Voinjama · Community Voice</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Filters -->
+        <div class="flex gap-2 flex-wrap mb-8">
+          <button v-for="cat in cats" :key="cat" @click="activeCat=cat"
+            :style="activeCat===cat?'background:#228B22;color:white;border-color:#228B22':'background:white;border-color:#C8DEDE;color:#4A6A6A'"
+            class="px-4 py-1.5 rounded-full border text-sm font-medium transition-all cursor-pointer">{{ cat }}</button>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+          <div v-for="s in filtered" :key="s.title"
+            class="bg-white rounded-2xl overflow-hidden border hover:shadow-lg hover:-translate-y-1 transition-all duration-300 cursor-pointer" style="border-color:#C8DEDE"
+            @click="selectedStory=s">
+            <div class="h-40 flex items-center justify-center text-5xl" :style="{background:s.bg}"></div>
+            <div class="p-5">
+              <span class="text-xs font-bold tracking-widest uppercase mb-2 inline-block" :style="{color:s.tagColor}">{{ s.tag }}</span>
+              <h3 class="font-semibold mb-2 leading-snug" style="color:#062D30">{{ s.title }}</h3>
+              <p class="text-sm leading-relaxed mb-4" style="color:#4A6A6A">{{ s.preview }}</p>
+              <div class="flex items-center justify-between pt-3 border-t" style="border-color:#C8DEDE">
+                <div class="flex items-center gap-2.5">
+                  <div class="w-7 h-7 rounded-full flex items-center justify-center font-bold text-xs" style="background:#E8F5E9;border:1px solid #228B22;color:#228B22">{{ s.author[0] }}</div>
+                  <div>
+                    <div class="text-xs font-semibold" style="color:#062D30">{{ s.author }}</div>
+                    <div class="text-xs" style="color:#4A6A6A">{{ s.role }}</div>
+                  </div>
+                </div>
+                <span class="text-xs font-semibold" style="color:#228B22">Read More →</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="py-16 px-6 text-center" style="background:#228B22">
+      <div class="max-w-2xl mx-auto">
+        <h2 class="font-display font-bold text-white text-3xl mb-4">Share Your Story</h2>
+        <p class="text-white/60 mb-8 leading-relaxed">Your experience living in Lofa County is part of our shared heritage and history.</p>
+        <button @click="showForm=true" class="inline-flex items-center gap-2 font-semibold px-8 py-3 rounded-xl transition-colors cursor-pointer border-0" style="background:#1E90FF;color:#FFFFFF">Share a Story →</button>
+      </div>
+    </section>
+
+    <!-- STORY DETAIL MODAL -->
+    <div v-if="selectedStory" class="fixed inset-0 z-50 flex items-center justify-center px-4" style="background:rgba(26,26,26,0.75)" @click.self="selectedStory=null">
+      <div class="bg-white rounded-2xl overflow-hidden max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl">
+        <div class="h-56 flex items-center justify-center text-7xl relative overflow-hidden" :style="{background:selectedStory.bg}">
+          <button @click="selectedStory=null" class="absolute top-4 right-4 text-white rounded-full w-8 h-8 flex items-center justify-center border-0 cursor-pointer text-lg z-10" style="background:rgba(255,255,255,0.2)">✕</button>
+        </div>
+        <div class="p-8">
+          <div class="flex items-center justify-between mb-3">
+            <span class="text-xs font-bold tracking-widest uppercase" :style="{color:selectedStory.tagColor}">{{ selectedStory.tag }}</span>
+            <span class="text-xs" style="color:#4A6A6A" v-if="selectedStory.submittedAt">{{ selectedStory.submittedAt }}</span>
+          </div>
+          <h2 class="font-display font-bold text-3xl mb-4 leading-tight" style="color:#062D30">{{ selectedStory.title }}</h2>
+          <div class="flex items-center gap-3 pb-4 border-b" style="border-color:#C8DEDE;margin-bottom:1.5rem">
+            <div class="w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm" style="background:#E8F5E9;border:2px solid #228B22;color:#228B22">{{ selectedStory.author[0] }}</div>
+            <div>
+              <div class="text-sm font-semibold" style="color:#062D30">{{ selectedStory.author }}</div>
+              <div class="text-xs" style="color:#4A6A6A">{{ selectedStory.role }}</div>
+            </div>
+          </div>
+          <p class="leading-relaxed whitespace-pre-wrap" style="color:#4A6A6A">{{ selectedStory.fullStory || selectedStory.preview }}</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- STORY SUBMISSION MODAL -->
+    <div v-if="showForm" class="fixed inset-0 z-50 flex items-center justify-center px-4 overflow-y-auto" style="background:rgba(34,139,34,0.75)" @click.self="showForm=false">
+      <div class="bg-white rounded-2xl overflow-hidden max-w-xl w-full shadow-2xl my-8">
+        <div class="bg-gradient-to-r p-6 flex items-center justify-between" style="background:linear-gradient(135deg, #228B22 0%, #1E90FF 100%)">
+          <h2 class="font-display font-bold text-white text-2xl">Share Your Story</h2>
+          <button @click="showForm=false" class="w-8 h-8 rounded-full flex items-center justify-center border-0 cursor-pointer text-white" style="background:rgba(0,0,0,0.2)">CLOSE</button>
+        </div>
+        <div class="p-6">
+          <form @submit.prevent="submitStory">
+            <div class="mb-4">
+              <label class="block text-sm font-semibold mb-1.5" style="color:#062D30">Your Name *</label>
+              <input v-model="form.name" type="text" placeholder="Full Name" required class="w-full px-4 py-2 rounded-lg border focus:outline-none focus:ring-2" style="border-color:#C8DEDE;background:#FAFAFA" @focus="$event.target.style.ring='#1E90FF'" />
+            </div>
+            <div class="mb-4">
+              <label class="block text-sm font-semibold mb-1.5" style="color:#062D30">District *</label>
+              <select v-model="form.district" required class="w-full px-4 py-2 rounded-lg border focus:outline-none focus:ring-2" style="border-color:#C8DEDE;background:#FAFAFA">
+                <option value="">Select Your District</option>
+                <option>Voinjama</option>
+                <option>Kolahun</option>
+                <option>Foya</option>
+                <option>Zorzor</option>
+                <option>Salayea</option>
+                <option>Quardu Gboni</option>
+                <option>Vahun</option>
+                <option>Belefanai</option>
+                <option>Saclepea</option>
+                <option>Jorquelleh</option>
+              </select>
+            </div>
+            <div class="mb-4">
+              <label class="block text-sm font-semibold mb-1.5" style="color:#062D30">Story Title *</label>
+              <input v-model="form.title" type="text" placeholder="Give your story a title" required class="w-full px-4 py-2 rounded-lg border focus:outline-none focus:ring-2" style="border-color:#C8DEDE;background:#FAFAFA" />
+            </div>
+            <div class="mb-4">
+              <label class="block text-sm font-semibold mb-1.5" style="color:#062D30">Your Story *</label>
+              <textarea v-model="form.story" placeholder="Share your story (minimum 100 characters)" required rows="6" class="w-full px-4 py-2 rounded-lg border focus:outline-none focus:ring-2" style="border-color:#C8DEDE;background:#FAFAFA"></textarea>
+            </div>
+            <div class="flex gap-3">
+              <button type="submit" class="flex-1 font-semibold px-4 py-2.5 rounded-lg transition-colors cursor-pointer border-0" style="background:#228B22;color:#FFFFFF">Submit Story</button>
+              <button type="button" @click="showForm=false" class="flex-1 font-semibold px-4 py-2.5 rounded-lg border cursor-pointer bg-white" style="border-color:#C8DEDE;color:#062D30">Cancel</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>`,
+  setup() {
+    const activeCat = Vue.ref('All');
+    const cats = ['All','Resilience','Agriculture','Culture','Youth','Education'];
+    const stories = Vue.ref([]);
+    const showForm = Vue.ref(false);
+    const form = Vue.reactive({ name: '', district: '', category: '', title: '', story: '' });
+    const selectedStory = Vue.ref(null);
+
+    // Fetch countyId for Lofa (slug: 'lofa-county')
+    async function fetchCountyId() {
+      if (!window.supabaseHelpers) return null;
+      return await window.supabaseHelpers.getCountyIdBySlug('lofa-county');
+    }
+
+    // Fetch stories from Supabase
+    async function fetchStories() {
+      if (!window.supabaseHelpers) return;
+      const countyId = await fetchCountyId();
+      if (!countyId) return;
+      const data = await window.supabaseHelpers.getCountyContent(countyId, 'story');
+      stories.value = (data || []).map(s => ({
+        tag: s.tags && s.tags.length ? s.tags[0] : 'Story',
+        tagColor: '#228B22', // Optionally map tag to color
+        emoji: '',
+        bg: '#E8F5E9',
+        title: s.title,
+        preview: s.excerpt || (s.body ? s.body.substring(0, 150) + (s.body.length > 150 ? '...' : '') : ''),
+        author: s.author?.full_name || 'Anonymous',
+        role: '',
+        fullStory: s.body,
+        submittedAt: s.published_at ? new Date(s.published_at).toLocaleDateString() : ''
+      }));
+    }
+
+    // Submit story to Supabase
+    async function submitStory() {
+      if (!form.name || !form.district || !form.category || !form.title || !form.story) {
+        alert('Please fill in all fields');
+        return;
+      }
+      if (form.story.length < 100) {
+        alert('Please write at least 100 characters');
+        return;
+      }
+      if (!window.supabaseHelpers) {
+        alert('Supabase not loaded');
+        return;
+      }
+      const countyId = await fetchCountyId();
+      if (!countyId) {
+        alert('Could not find county');
+        return;
+      }
+      // Compose excerpt
+      const excerpt = form.story.substring(0, 150) + (form.story.length > 150 ? '...' : '');
+      // Submit to Supabase (requires login)
+      const result = await window.supabaseHelpers.submitContent(countyId, form.title, form.story, 'story', excerpt);
+      if (result.success) {
+        alert('Story submitted for review!');
+        showForm.value = false;
+        form.name = '';
+        form.district = '';
+        form.category = '';
+        form.title = '';
+        form.story = '';
+        fetchStories();
+      } else {
+        alert('Submission failed: ' + (result.error || 'Unknown error'));
+      }
+    }
+
+    // Fetch stories on mount
+    Vue.onMounted(fetchStories);
+
+    const filtered = Vue.computed(() => activeCat.value === 'All' ? stories.value : stories.value.filter(s=>s.tag===activeCat.value));
+    return { activeCat, cats, filtered, selectedStory, showForm, form, submitStory };
+  }
+};
+
+/* ══════════════════════════════
+   COMMUNITY PAGE
+══════════════════════════════ */
+const PageCommunity = {
+  template:`<div>
+    <div class="px-6 py-20 text-center relative overflow-hidden" style="background:#1B6B1B">
+      <div class="absolute inset-0" style="background:radial-gradient(circle at 50% 100%,rgba(0,0,0,0.2) 0%,transparent 60%)"></div>
+      <div class="relative z-10">
+        <div class="text-xs font-semibold tracking-widest uppercase mb-3" style="color:rgba(30,144,255,0.8)">Community & Updates</div>
+        <h1 class="font-display font-black text-white mb-4" style="font-size:clamp(2.2rem,5vw,4rem)">What's Happening in Lofa County</h1>
+        <p class="text-white/60 max-w-xl mx-auto leading-relaxed">Stay connected with announcements, events, and community initiatives across all 10 districts.</p>
+      </div>
+    </div>
+
+    <div class="bg-white border-b sticky top-[68px] z-40" style="border-color:#C8DEDE">
+      <div class="max-w-6xl mx-auto px-6 flex gap-0 overflow-x-auto">
+        <button v-for="t in types" :key="t.id" @click="activeType=t.id"
+          :style="activeType===t.id?'border-bottom:2px solid #228B22;color:#228B22':'color:#4A6A6A'"
+          class="px-5 py-4 text-sm font-medium transition-colors border-b-2 border-transparent cursor-pointer bg-transparent whitespace-nowrap">
+          {{ t.icon }} {{ t.label }}</button>
+      </div>
+    </div>
+
+    <section class="py-16 px-6" style="background:#F4FAFA">
+      <div class="max-w-6xl mx-auto">
+        <!-- Banner -->
+        <div class="rounded-2xl p-6 mb-10 flex items-start gap-5" style="background:#062D30">
+          <span class="text-4xl flex-shrink-0"></span>
+          <div>
+            <div class="text-xs font-semibold tracking-widest uppercase mb-1" style="color:#1E90FF">Latest Update</div>
+            <h3 class="font-semibold text-white text-lg mb-1">Voinjama–Gbarnga Highway Rehabilitation Begins</h3>
+            <p class="text-sm leading-relaxed" style="color:rgba(255,255,255,0.55)">The long-awaited rehabilitation of the Voinjama–Gbarnga highway has officially commenced, promising to cut travel time from 10 hours to under 4 hours and open Lofa County to economic growth.</p>
+            <div class="text-xs mt-2" style="color:rgba(255,255,255,0.3)">Announced: 2025</div>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+          <div v-for="u in filtered" :key="u.title"
+            class="bg-white rounded-2xl p-5 border hover:shadow-md hover:-translate-y-0.5 transition-all duration-200" style="border-color:#C8DEDE">
+            <div class="flex items-center gap-2 mb-3">
+              <span class="text-lg"></span>
+              <span class="text-xs font-bold tracking-widest uppercase" :style="{color:u.tc}">{{ u.type }}</span>
+            </div>
+            <h3 class="font-semibold mb-2 leading-tight" style="color:#062D30">{{ u.title }}</h3>
+            <p class="text-sm leading-relaxed mb-4" style="color:#4A6A6A">{{ u.desc }}</p>
+            <div class="flex items-center justify-between border-t pt-3" style="border-color:#C8DEDE">
+              <div class="text-xs" style="color:#4A6A6A">{{ u.date }}</div>
+              <div v-if="u.loc" class="text-xs font-medium" style="color:#228B22">{{ u.loc }}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- YOUTH INITIATIVES -->
+    <section class="bg-white py-16 px-6">
+      <div class="max-w-6xl mx-auto">
+        <div class="text-xs font-semibold tracking-widest uppercase mb-2" style="color:#1E90FF">Youth Hub</div>
+        <h2 class="font-display font-bold text-3xl mb-3" style="color:#062D30">Youth Initiatives in Lofa County</h2>
+        <p class="mb-10 max-w-lg" style="color:#4A6A6A">Young people across Lofa County's 10 districts are leading change in environment, education, and community development.</p>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+          <div v-for="yi in youthInits" :key="yi.title" class="rounded-2xl p-6 flex gap-5 items-start border hover:shadow-md transition-all" style="border-color:#C8DEDE">
+            <div class="w-12 h-12 rounded-xl flex items-center justify-center text-2xl flex-shrink-0" style="background:#E3F2FD"></div>
+            <div>
+              <h4 class="font-semibold mb-1.5" style="color:#062D30">{{ yi.title }}</h4>
+              <p class="text-sm leading-relaxed mb-2" style="color:#4A6A6A">{{ yi.desc }}</p>
+              <div class="text-xs font-semibold" style="color:#228B22">{{ yi.stat }}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>`,
+  setup() {
+    const activeType = ref('all');
+    const types = [
+      { id:'all',          icon:'', label:'All Updates' },
+      { id:'announcement', icon:'', label:'Announcements' },
+      { id:'event',        icon:'', label:'Events' },
+      { id:'youth',        icon:'', label:'Youth' },
+    ];
+    const updates = [
+      { icon:'', type:'Announcement', tc:'#1E90FF', title:'Voinjama–Gbarnga Highway Rehabilitation',     desc:'Major road project begins, promising to transform economic connectivity for Lofa County.',         date:'2025',           loc:'Lofa–Bong Route' },
+      { icon:'', type:'Event',        tc:'#228B22', title:'Lofa County Youth Summit 2026',               desc:'Annual youth gathering for leaders from all 10 districts — innovation, governance, and culture.',  date:'July 2026',      loc:'Voinjama' },
+      { icon:'', type:'Youth',        tc:'#1E90FF', title:'Foya Forest Youth Conservation Initiative',   desc:'Youth-led campaign planting trees in Foya Reserve buffer zones and training eco-tourism guides.',  date:'Ongoing 2026' },
+      { icon:'', type:'Announcement', tc:'#1E90FF', title:'Curran Hospital Free Health Screening',       desc:'Curran Memorial Hospital offering county-wide free malaria, TB, and maternal health screenings.',    date:'May 2026',       loc:'All Districts' },
+      { icon:'', type:'Event',        tc:'#228B22', title:'Lofa County Agricultural Fair',               desc:'Annual celebration of Lofa\'s farming heritage — produce, livestock, and agri-tech exhibitions.',  date:'August 2026',    loc:'Voinjama Stadium' },
+      { icon:'', type:'Youth',        tc:'#1E90FF', title:'Digital Lofa: Tech Skills for Youth',         desc:'Community tech training program launching in Voinjama and Zorzor for school-leavers and graduates.', date:'June 2026',      loc:'Voinjama & Zorzor' },
+      { icon:'', type:'Announcement', tc:'#1E90FF', title:'New Primary School Opens in Quardu Gboni',    desc:'A new 6-classroom school opens in the most remote district, reaching 300+ previously unschooled children.', date:'March 2026', loc:'Quardu Gboni' },
+      { icon:'', type:'Youth',        tc:'#1E90FF', title:'Lofa Youth Cultural Preservation Network',    desc:'Youth group documenting Loma, Mandingo, Kissi, and Gbandi oral traditions through video and audio.', date:'Ongoing 2026' },
+      { icon:'', type:'Event',        tc:'#228B22', title:'ZRTTI Annual Graduation Ceremony',            desc:'Zorzor Rural Teacher Training Institute celebrates its largest graduating class of trained educators.', date:'September 2026', loc:'Zorzor' },
+    ];
+    const typeMap = { announcement:'Announcement', event:'Event', youth:'Youth' };
+    const filtered = computed(() => activeType.value === 'all' ? updates : updates.filter(u=>u.type===typeMap[activeType.value]));
+    const youthInits = [
+      { icon:'', title:'Foya Forest Youth Eco-Corps',           desc:'Training youth as forest rangers, eco-tourism guides, and environmental monitors in Foya Forest Reserve.',          stat:'50+ youth trained · 4 communities' },
+      { icon:'', title:'Lofa Reads — Voinjama Libraries',       desc:'Youth-run community libraries in Voinjama, Zorzor, and Kolahun supporting literacy for children and adults.',      stat:'3 libraries · 800+ active readers' },
+      { icon:'', title:'Young Farmers Network of Lofa',         desc:'Connecting young farmers across Salayea, Kolahun, and Foya with modern techniques from ZRTTI graduates.',        stat:'120 farmers · 6 districts' },
+      { icon:'', title:'Radio Lofa Youth Hour',                  desc:'Weekly youth-led radio program on community issues, culture, and development — broadcast from Voinjama FM.',      stat:'Weekly · Est. 15,000 listeners' },
+    ];
+    return { activeType, types, filtered, youthInits };
+  }
+};
+
+/* ══════════════════════════════
+   ROUTER + APP
+══════════════════════════════ */
+const router = createRouter({
+  history: createWebHashHistory(),
+  routes: [
+    { path:'/',              component:PageHome },
+    { path:'/about',         component:PageAbout },
+    { path:'/tourism',       component:PageTourism },
+    { path:'/leadership',    component:PageLeadership },
+    { path:'/education',     component:PageEducation },
+    { path:'/opportunities', component:PageOpportunities },
+    { path:'/stories',       component:PageStories },
+    { path:'/community',     component:PageCommunity },
+  ],
+  scrollBehavior() { return { top:0 }; }
+});
+
+// ══ INITIALIZE COUNTY PAGE PROTECTION ══
+(async () => {
+  console.log('🔐 Setting up County Page Access Protection...');
+  
+  const protection = new CountyPageProtection(window.supabaseClient);
+  await protection.initialize();
+  protection.setupRouterGuard(router);
+  
+  console.log('✓ Protection system ready');
+})();
+
+createApp({
+  setup() {
+    const mob = ref(false);
+    const nav = [
+      { to:'/about',         label:'About' },
+      { to:'/tourism',       label:'Tourism' },
+      { to:'/leadership',    label:'Leadership' },
+      { to:'/education',     label:'Education' },
+      { to:'/opportunities', label:'Opportunities' },
+      { to:'/stories',       label:'Stories' },
+      { to:'/community',     label:'Community' },
+    ];
+    const footerCols = [
+      { title:'Explore',   links:[{ to:'/tourism', label:'Tourist Sites' }, { to:'/about', label:'Districts' }, { to:'/leadership', label:'Leadership' }, { to:'/stories', label:'Stories' }] },
+      { title:'Resources', links:[{ to:'/education', label:'Education' }, { to:'/education', label:'Healthcare' }, { to:'/opportunities', label:'Scholarships' }, { to:'/opportunities', label:'Programs' }] },
+      { title:'Community', links:[{ to:'/community', label:'Announcements' }, { to:'/community', label:'Events' }, { to:'/community', label:'Youth Hub' }, { to:'/stories', label:'Voices' }] },
+    ];
+    return { mob, nav, footerCols };
+  }
+}).use(router).mount('#app');
+</script>
+</body>
+</html>

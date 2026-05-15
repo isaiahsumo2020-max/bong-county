@@ -1,0 +1,148 @@
+/* Responsive Design Styles */
+
+/* Mobile devices */
+@media (max-width: 768px) {
+  /* Hide sidebar on mobile */
+  aside {
+    display: none !important;
+  }
+
+  /* Adjust main content to full width */
+  main {
+    margin-left: 0 !important;
+  }
+
+  /* Adjust padding for mobile */
+  .pages-container {
+    height: calc(100vh - 100px) !important;
+  }
+
+  section {
+    padding: 1rem !important;
+  }
+
+  /* Stack filter bar vertically on mobile */
+  .filter-bar {
+    flex-direction: column !important;
+  }
+
+  .filter-bar > div {
+    width: 100%;
+  }
+
+  .filter-bar input,
+  .filter-bar select {
+    width: 100%;
+  }
+
+  /* Stack stat cards on small screens */
+  .grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Adjust modal on mobile */
+  .modal {
+    padding: 0.5rem;
+  }
+
+  .modal-content {
+    max-width: 100%;
+    max-height: 100%;
+    border-radius: 0.75rem;
+  }
+
+  /* Table responsive on mobile */
+  table {
+    font-size: 0.875rem;
+  }
+
+  thead {
+    display: none;
+  }
+
+  tbody, tr {
+    display: block;
+    border-bottom: 1px solid #e5e7eb;
+    margin-bottom: 1rem;
+  }
+
+  td {
+    display: block;
+    padding: 0.5rem 0;
+    text-align: right;
+    border: none;
+  }
+
+  td:before {
+    content: attr(data-label);
+    float: left;
+    font-weight: bold;
+  }
+
+  /* Header adjustments */
+  header {
+    flex-direction: column;
+    text-align: center;
+    gap: 1rem;
+  }
+
+  header h2 {
+    font-size: 1.5rem !important;
+  }
+
+  /* Button sizing on mobile */
+  button {
+    width: 100%;
+    margin-bottom: 0.5rem;
+  }
+}
+
+/* Tablet devices */
+@media (min-width: 769px) and (max-width: 1024px) {
+  main {
+    margin-left: 18rem;
+  }
+
+  aside {
+    width: 18rem;
+  }
+
+  section {
+    padding: 1.5rem;
+  }
+
+  .grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+}
+
+/* Large devices */
+@media (min-width: 1025px) {
+  /* Keep current layout */
+}
+
+/* Print styles */
+@media print {
+  aside,
+  header,
+  button,
+  input,
+  select {
+    display: none;
+  }
+
+  section {
+    padding: 0;
+    background: white;
+  }
+
+  table {
+    border: 1px solid #000;
+  }
+
+  thead,
+  tbody {
+    display: table;
+    width: 100%;
+  }
+}
