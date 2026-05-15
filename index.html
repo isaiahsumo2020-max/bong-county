@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -15,19 +16,36 @@
   <!-- Supabase JS SDK -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
+  <!-- Google Material Icons -->
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <!-- CDN Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+
   <!-- Google Font -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap"
+    rel="stylesheet">
 
   <style>
-    * { font-family: 'Poppins', sans-serif; }
-    body { background: #f8fafc; overflow-x: hidden; }
+    * {
+      font-family: 'Poppins', sans-serif;
+    }
+
+    body {
+      background: #f8fafc;
+      overflow-x: hidden;
+    }
 
     .hero-overlay {
-      background: linear-gradient(to right, rgba(0,0,0,0.85), rgba(0,0,0,0.45));
+      background: linear-gradient(to right, rgba(0, 0, 0, 0.85), rgba(0, 0, 0, 0.45));
     }
-    .county-card:hover { transform: translateY(-8px); }
+
+    .county-card:hover {
+      transform: translateY(-8px);
+    }
+
     .glass-nav {
       backdrop-filter: blur(12px);
       background: rgba(0, 0, 0, 0.45);
@@ -35,42 +53,105 @@
 
     /* Slideshow */
     .slideshow-container {
-      position: relative; width: 100%;
-      background-color: #000; border-radius: 0.75rem;
-      overflow: hidden; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1);
+      position: relative;
+      width: 100%;
+      background-color: #000;
+      border-radius: 0.75rem;
+      overflow: hidden;
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
     }
-    @media (min-width: 640px)  { .slideshow-container { border-radius: 1rem; } }
-    @media (min-width: 1024px) { .slideshow-container { border-radius: 1.5rem; } }
 
-    .slide { display: none; width: 100%; height: 100%; animation: slideIn 2s ease-in-out; }
-    .slide.active { display: block; }
-    .slide img { width: 100%; height: 100%; object-fit: cover; }
+    @media (min-width: 640px) {
+      .slideshow-container {
+        border-radius: 1rem;
+      }
+    }
+
+    @media (min-width: 1024px) {
+      .slideshow-container {
+        border-radius: 1.5rem;
+      }
+    }
+
+    .slide {
+      display: none;
+      width: 100%;
+      height: 100%;
+      animation: slideIn 2s ease-in-out;
+    }
+
+    .slide.active {
+      display: block;
+    }
+
+    .slide img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
     @keyframes slideIn {
-      from { opacity: 0; transform: scale(1.05); }
-      to   { opacity: 1; transform: scale(1); }
+      from {
+        opacity: 0;
+        transform: scale(1.05);
+      }
+
+      to {
+        opacity: 1;
+        transform: scale(1);
+      }
     }
+
     .slide-indicators {
-      position: absolute; bottom: 15px; left: 50%;
-      transform: translateX(-50%); display: flex; gap: 8px; z-index: 10;
+      position: absolute;
+      bottom: 15px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 8px;
+      z-index: 10;
     }
+
     .indicator {
-      width: 10px; height: 10px; border-radius: 50%;
-      background-color: rgba(255,255,255,0.5); cursor: pointer; transition: background-color 0.3s;
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background-color: rgba(255, 255, 255, 0.5);
+      cursor: pointer;
+      transition: background-color 0.3s;
     }
-    .indicator.active { background-color: #dc2626; }
+
+    .indicator.active {
+      background-color: #dc2626;
+    }
 
     /* Map */
     #map {
-      width: 100%; height: 500px; border-radius: 1rem;
-      box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1); z-index: 1;
+      width: 100%;
+      height: 500px;
+      border-radius: 1rem;
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+      z-index: 1;
     }
-    @media (min-width: 1024px) { #map { height: 600px; border-radius: 1.5rem; } }
+
+    @media (min-width: 1024px) {
+      #map {
+        height: 600px;
+        border-radius: 1.5rem;
+      }
+    }
 
     /* Skeleton loader */
     @keyframes shimmer {
-      0%   { background-position: -800px 0; }
-      100% { background-position: 800px 0; }
+      0% {
+        background-position: -800px 0;
+      }
+
+      100% {
+        background-position: 800px 0;
+      }
     }
+
     .skeleton {
       background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
       background-size: 800px 100%;
@@ -80,13 +161,22 @@
 
     /* Toast notification */
     #toast {
-      position: fixed; bottom: 2rem; right: 2rem; z-index: 9999;
-      transform: translateY(100px); opacity: 0;
+      position: fixed;
+      bottom: 2rem;
+      right: 2rem;
+      z-index: 9999;
+      transform: translateY(100px);
+      opacity: 0;
       transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     }
-    #toast.show { transform: translateY(0); opacity: 1; }
+
+    #toast.show {
+      transform: translateY(0);
+      opacity: 1;
+    }
   </style>
 </head>
+
 <body>
 
   <!-- ================= NAVBAR ================= -->
@@ -99,45 +189,49 @@
           </h1>
         </div>
         <nav class="hidden md:flex items-center gap-8 text-white font-medium">
-          <a href="#home"       class="hover:text-blue-400 transition">Home</a>
-          <a href="#counties"   class="hover:text-blue-400 transition">Counties</a>
-          <a href="#tourism"    class="hover:text-blue-400 transition">Tourism</a>
-          <a href="#investment" class="hover:text-blue-400 transition">Investment</a>
-          <a href="#about"      class="hover:text-blue-400 transition">About</a>
+          <a href="#home" class="hover:text-blue-400 transition">Home</a>
+          <a href="#counties" class="hover:text-blue-400 transition">Counties</a>
+          <a href="#tourism" class="hover:text-blue-400 transition">Tourism</a>
+          <!-- <a href="#investment" class="hover:text-blue-400 transition">Investment</a> -->
+          <a href="#about" class="hover:text-blue-400 transition">About</a>
         </nav>
         <div class="hidden md:flex items-center gap-4">
-          <div id="authContainer" class="flex items-center gap-4">
-            <a href="../auth-page/auth.html" id="loginLink"
+          <!-- <div id="authContainer" class="flex items-center gap-4"> -->
+            <!-- <a href="/auth-page/auth.html" id="loginLink"
               class="text-white px-6 py-3 font-semibold hover:text-blue-400 transition">
               Login
-            </a>
-            <a href="../dashboard-page/dashboard.html" id="dashboardLink" class="hidden text-white px-6 py-3 font-semibold hover:text-blue-400 transition">
+            </a> -->
+            <!-- <a href="/dashboard-page/dashboard.html" id="dashboardLink" class="hidden text-white px-6 py-3 font-semibold hover:text-blue-400 transition">
               Dashboard
-            </a>
-            <button id="signOutBtn" class="hidden bg-red-700 text-white px-6 py-3 rounded-full font-semibold hover:bg-red-800 transition">
+            </a> -->
+            <!-- <button id="signOutBtn" class="hidden bg-red-700 text-white px-6 py-3 rounded-full font-semibold hover:bg-red-800 transition">
               Sign Out
             </button>
+          </div> -->
+            <a href="#counties"
+              class="bg-red-700 text-white px-6 py-3 rounded-full font-semibold hover:bg-red-800 transition">
+              Explore Counties
+            </a>
           </div>
-          <a href="#counties"
-            class="bg-red-700 text-white px-6 py-3 rounded-full font-semibold hover:bg-red-800 transition">
-            Explore Counties
-          </a>
+          <button id="menuBtn" class="md:hidden text-white text-3xl">☰</button>
         </div>
-        <button id="menuBtn" class="md:hidden text-white text-3xl">☰</button>
       </div>
-    </div>
-    <div id="mobileMenu" class="hidden md:hidden bg-black/90 border-t border-white/10">
-      <div class="flex flex-col px-6 py-6 gap-5 text-white font-medium">
-        <a href="#home">Home</a>
-        <a href="#counties">Counties</a>
-        <a href="#tourism">Tourism</a>
-        <a href="#investment">Investment</a>
-        <a href="#about">About</a>
-        <a href="../auth-page/auth.html" id="mobileLoginLink" class="bg-red-700 text-white px-6 py-3 rounded-full font-semibold hover:bg-red-800 transition text-center">Login</a>
-        <a href="../dashboard-page/dashboard.html" id="mobileDashboardLink" class="hidden bg-blue-600 text-white px-6 py-3 rounded-full font-semibold hover:bg-blue-700 transition text-center">Dashboard</a>
-        <button id="mobileSignOutBtn" class="hidden bg-red-700 text-white px-6 py-3 rounded-full font-semibold hover:bg-red-800 transition text-left">Sign Out</button>
+      <div id="mobileMenu" class="hidden md:hidden bg-black/90 border-t border-white/10">
+        <div class="flex flex-col px-6 py-6 gap-5 text-white font-medium">
+          <a href="#home">Home</a>
+          <a href="#counties">Counties</a>
+          <a href="#tourism">Tourism</a>
+          <a href="#investment">Investment</a>
+          <a href="#about">About</a>
+          <a href="/auth-page/auth.html" id="mobileLoginLink"
+            class="bg-red-700 text-white px-6 py-3 rounded-full font-semibold hover:bg-red-800 transition text-center">Login</a>
+          <a href="/dashboard-page/dashboard.html" id="mobileDashboardLink"
+            class="hidden bg-blue-600 text-white px-6 py-3 rounded-full font-semibold hover:bg-blue-700 transition text-center">Dashboard</a>
+          <button id="mobileSignOutBtn"
+            class="hidden bg-red-700 text-white px-6 py-3 rounded-full font-semibold hover:bg-red-800 transition text-left">Sign
+            Out</button>
+        </div>
       </div>
-    </div>
   </header>
 
 
@@ -147,7 +241,8 @@
     <div class="absolute inset-0 hero-overlay"></div>
     <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-10 text-white z-10">
       <div class="max-w-3xl">
-        <span class="bg-red-700 text-white px-3 sm:px-4 py-1 sm:py-2 rounded-full text-xs sm:text-sm font-semibold inline-block mb-4 sm:mb-6">
+        <span
+          class="bg-red-700 text-white px-3 sm:px-4 py-1 sm:py-2 rounded-full text-xs sm:text-sm font-semibold inline-block mb-4 sm:mb-6">
           Discover Liberia County by County
         </span>
         <h1 class="text-3xl sm:text-4xl md:text-6xl lg:text-7xl font-extrabold leading-tight mb-6">
@@ -205,7 +300,8 @@
           Explore Liberia Interactively
         </h2>
         <p class="text-sm sm:text-base md:text-lg text-gray-600 leading-relaxed">
-          Click on a county to explore its culture, tourism, local government, businesses, and development opportunities.
+          Click on a county to explore its culture, tourism, local government, businesses, and development
+          opportunities.
         </p>
       </div>
       <div id="map" class="bg-gray-200"></div>
@@ -219,8 +315,10 @@
 
       <div class="flex flex-col md:flex-row md:items-end md:justify-between gap-4 md:gap-6 mb-8 md:mb-16">
         <div class="max-w-2xl">
-          <span class="text-red-700 font-semibold uppercase tracking-widest text-xs sm:text-sm">Counties Directory</span>
-          <h2 class="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-extrabold text-gray-900 mt-3 sm:mt-4 mb-3 sm:mb-5">
+          <span class="text-red-700 font-semibold uppercase tracking-widest text-xs sm:text-sm">Counties
+            Directory</span>
+          <h2
+            class="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-extrabold text-gray-900 mt-3 sm:mt-4 mb-3 sm:mb-5">
             Explore Liberia's Counties
           </h2>
           <p class="text-sm sm:text-base md:text-lg text-gray-600 leading-relaxed">
@@ -236,7 +334,8 @@
       </div>
 
       <!-- County Cards Grid — populated by JS from Supabase -->
-      <div id="countyGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 md:gap-8">
+      <div id="countyGrid"
+        class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 md:gap-8">
 
         <!-- Skeleton loaders shown while data loads -->
         <div class="county-card bg-white rounded-3xl overflow-hidden shadow-lg border border-gray-100" id="skeleton-1">
@@ -292,7 +391,8 @@
     <div class="max-w-7xl mx-auto px-6 lg:px-10">
       <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-10 md:gap-14 items-center">
         <div>
-          <span class="bg-red-700 text-white px-3 sm:px-4 py-1 sm:py-2 rounded-full text-xs sm:text-sm font-bold inline-block mb-3 sm:mb-6">
+          <span
+            class="bg-red-700 text-white px-3 sm:px-4 py-1 sm:py-2 rounded-full text-xs sm:text-sm font-bold inline-block mb-3 sm:mb-6">
             Featured County
           </span>
           <h2 class="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-extrabold leading-tight mb-4 sm:mb-6">
@@ -312,7 +412,7 @@
               <p class="text-gray-400 mt-1 sm:mt-2 text-xs sm:text-sm">Region</p>
             </div>
           </div>
-          <a href="../county-pages/bong.html"
+          <a href="/county-pages/bong.html"
             class="bg-red-700 text-white px-5 sm:px-8 py-2 sm:py-4 rounded-full font-bold hover:bg-red-800 transition duration-300 inline-block text-sm sm:text-base">
             Visit Bong County
           </a>
@@ -320,13 +420,13 @@
         <div class="order-first lg:order-last">
           <div class="slideshow-container rounded-2xl sm:rounded-3xl" style="aspect-ratio: 4/3;">
             <div class="slide active">
-              <img src="../Assests/Bong high way1.jpg" alt="Bong Highway 1" />
+              <img src="/Assests/Bong high way1.jpg" alt="Bong Highway 1" />
             </div>
             <div class="slide">
-              <img src="../Assests/Bong high way2.jpg" alt="Bong Highway 2" />
+              <img src="/Assests/Bong high way2.jpg" alt="Bong Highway 2" />
             </div>
             <div class="slide">
-              <img src="../Assests/Bong high way3.webp" alt="Bong Highway 3" />
+              <img src="/Assests/Bong high way3.webp" alt="Bong Highway 3" />
             </div>
             <div class="slide-indicators">
               <span class="indicator active" onclick="currentSlide(0)"></span>
@@ -349,36 +449,40 @@
           Experience Liberia
         </h2>
         <p class="text-sm sm:text-base md:text-lg text-gray-600 leading-relaxed">
-          Explore Liberia's natural beauty, rich traditions, historic landmarks, and vibrant communities across all counties.
+          Explore Liberia's natural beauty, rich traditions, historic landmarks, and vibrant communities across all
+          counties.
         </p>
       </div>
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 md:gap-8">
         <div class="rounded-2xl sm:rounded-3xl overflow-hidden relative group h-64 sm:h-80 md:h-96">
-         <img src="../Assests/Kpatawee8.webp"
+          <img src="/Assests/Kpatawee8.webp"
             class="w-full h-full object-cover group-hover:scale-110 transition duration-500" alt="Nature" />
           <div class="absolute inset-0 bg-black/40 flex items-end p-4 sm:p-6 md:p-8">
             <div>
               <h3 class="text-white text-lg sm:text-2xl md:text-3xl font-bold mb-2 sm:mb-3">Nature & Wildlife</h3>
-              <p class="text-gray-200 text-sm sm:text-base">Forests, mountains, beaches, and eco-tourism experiences.</p>
+              <p class="text-gray-200 text-sm sm:text-base">Forests, mountains, beaches, and eco-tourism experiences.
+              </p>
             </div>
           </div>
         </div>
         <div class="rounded-2xl sm:rounded-3xl overflow-hidden relative group h-64 sm:h-80 md:h-96">
-          <img src="../Assests/Kpatawee3.webp"
+          <img src="/Assests/Kpatawee3.webp"
             class="w-full h-full object-cover group-hover:scale-110 transition duration-500" alt="Culture" />
           <div class="absolute inset-0 bg-black/40 flex items-end p-4 sm:p-6 md:p-8">
             <div>
               <h3 class="text-white text-lg sm:text-2xl md:text-3xl font-bold mb-2 sm:mb-3">Culture & Heritage</h3>
-              <p class="text-gray-200 text-sm sm:text-base">Traditional values, festivals, music, and community life.</p>
+              <p class="text-gray-200 text-sm sm:text-base">Traditional values, festivals, music, and community life.
+              </p>
             </div>
           </div>
         </div>
         <div class="rounded-2xl sm:rounded-3xl overflow-hidden relative group h-64 sm:h-80 md:h-96">
-           <img src="../Assests/Blue Lake1.jpg"
+          <img src="/Assests/Blue Lake1.jpg"
             class="w-full h-full object-cover group-hover:scale-110 transition duration-500" alt="Investment" />
           <div class="absolute inset-0 bg-black/40 flex items-end p-4 sm:p-6 md:p-8">
             <div>
-              <h3 class="text-white text-lg sm:text-2xl md:text-3xl font-bold mb-2 sm:mb-3">Investment Opportunities</h3>
+              <h3 class="text-white text-lg sm:text-2xl md:text-3xl font-bold mb-2 sm:mb-3">Investment Opportunities
+              </h3>
               <p class="text-gray-200 text-sm sm:text-base">Agriculture, mining, tourism, trade, and innovation.</p>
             </div>
           </div>
@@ -393,12 +497,13 @@
     <div class="max-w-7xl mx-auto px-6 lg:px-10">
       <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-10 md:gap-16 items-center">
         <div class="order-last lg:order-first">
-          <img src="../Assests/Bong airport.png"
-            class="rounded-2xl sm:rounded-3xl shadow-xl w-full" alt="Liberia" />
+          <img src="/Assests/Bong airport.png" class="rounded-2xl sm:rounded-3xl shadow-xl w-full" alt="Liberia" />
         </div>
         <div>
-          <span class="text-red-700 font-semibold uppercase tracking-widest text-xs sm:text-sm">About The Platform</span>
-          <h2 class="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-extrabold text-gray-900 mt-3 sm:mt-4 mb-4 sm:mb-8 leading-tight">
+          <span class="text-red-700 font-semibold uppercase tracking-widest text-xs sm:text-sm">About The
+            Platform</span>
+          <h2
+            class="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-extrabold text-gray-900 mt-3 sm:mt-4 mb-4 sm:mb-8 leading-tight">
             Building Liberia's Digital County Ecosystem
           </h2>
           <p class="text-sm sm:text-base md:text-lg text-gray-600 leading-relaxed mb-4 sm:mb-6">
@@ -431,21 +536,22 @@
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8 md:gap-10">
         <div>
           <!-- <h2 class="text-xl sm:text-2x md:text-3xl font-extrabold mb-3 sm:mb-12"> -->
-            <h2 class="text-xl font-extrabold text-red-700 tracking-wide">
+          <h2 class="text-xl font-extrabold text-red-700 tracking-wide">
             County<span class="text-white">Sphere</span><span class="text-blue-600">
-                Liberia</span>
+              Liberia</span>
           </h2>
           <p class="text-xs sm:text-sm text-gray-400 leading-relaxed">
-            A unified digital platform connecting all counties in Liberia through innovation, tourism, culture, and development.
+            A unified digital platform connecting all counties in Liberia through innovation, tourism, culture, and
+            development.
           </p>
         </div>
         <div>
           <h4 class="text-base sm:text-lg font-bold mb-3 sm:mb-5">Quick Links</h4>
           <ul class="space-y-2 sm:space-y-3 text-xs sm:text-sm text-gray-400">
-            <li><a href="#home"     class="hover:text-white transition">Home</a></li>
+            <li><a href="#home" class="hover:text-white transition">Home</a></li>
             <li><a href="#counties" class="hover:text-white transition">Counties</a></li>
-            <li><a href="#tourism"  class="hover:text-white transition">Tourism</a></li>
-            <li><a href="#about"    class="hover:text-white transition">About</a></li>
+            <li><a href="#tourism" class="hover:text-white transition">Tourism</a></li>
+            <li><a href="#about" class="hover:text-white transition">About</a></li>
           </ul>
         </div>
         <div>
@@ -472,7 +578,8 @@
           </form>
         </div>
       </div>
-      <div class="border-t border-white/10 mt-8 sm:mt-10 md:mt-14 pt-6 sm:pt-8 text-center text-xs sm:text-sm text-gray-500">
+      <div
+        class="border-t border-white/10 mt-8 sm:mt-10 md:mt-14 pt-6 sm:pt-8 text-center text-xs sm:text-sm text-gray-500">
         © 2026 CountySphere Liberia. All rights reserved.
       </div>
     </div>
@@ -480,11 +587,12 @@
 
 
   <!-- ================= TOAST NOTIFICATION ================= -->
-  <div id="toast" class="bg-white rounded-2xl shadow-2xl px-6 py-4 flex items-center gap-4 max-w-sm border border-gray-100">
+  <div id="toast"
+    class="bg-white rounded-2xl shadow-2xl px-6 py-4 flex items-center gap-4 max-w-sm border border-gray-100">
     <div id="toastIcon" class="text-2xl"></div>
     <div>
       <div id="toastTitle" class="font-bold text-gray-900 text-sm"></div>
-      <div id="toastMsg"   class="text-gray-500 text-xs mt-0.5"></div>
+      <div id="toastMsg" class="text-gray-500 text-xs mt-0.5"></div>
     </div>
   </div>
 
@@ -496,7 +604,7 @@
     // ─────────────────────────────────────────
     //  SUPABASE SETUP
     // ─────────────────────────────────────────
-    const SUPABASE_URL  = 'https://choagncxtmsewzvxoncx.supabase.co';
+    const SUPABASE_URL = 'https://choagncxtmsewzvxoncx.supabase.co';
     const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNob2FnbmN4dG1zZXd6dnhvbmN4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgzMzk3NjUsImV4cCI6MjA5MzkxNTc2NX0.hVPjF0_b-5DTXMzeFUPYZ82tL27CrsFBIUQrm-XYonE';
     const { createClient } = supabase;
     const sb = createClient(SUPABASE_URL, SUPABASE_ANON);
@@ -528,11 +636,11 @@
           // Handle sign out
           document.getElementById('signOutBtn').addEventListener('click', async () => {
             await sb.auth.signOut();
-            window.location.href = '../auth-page/auth.html';
+            window.location.href = '/auth-page/auth.html';
           });
           document.getElementById('mobileSignOutBtn').addEventListener('click', async () => {
             await sb.auth.signOut();
-            window.location.href = '../auth-page/auth.html';
+            window.location.href = '/auth-page/auth.html';
           });
         }
       } catch (error) {
@@ -548,49 +656,49 @@
     //  Update these paths to match your /Assests/Flags/ folder
     // ─────────────────────────────────────────
     const FLAG_MAP = {
-      'bomi-county':              '../Assests/Flags/Bomi Flag.webp',
-      'bong-county':              '../Assests/Flags/Bong flag.png',
-      'gbarpolu-county':          '../Assests/Flags/Gbarpolu flag.png',
-      'grand-bassa-county':       '../Assests/Flags/Bassa Flag.png',
-      'grand-cape-mount-county':  '../Assests/Flags/Grand Cape Mount.avif',
-      'grand-gedeh-county':       '../Assests/Flags/Grand_Gedeh Flag.png',
-      'grand-kru-county':         '../Assests/Flags/Grand kru flag.png',
-      'lofa-county':              '../Assests/Flags/Lofa flag.png',
-      'margibi-county':           '../Assests/Flags/Margibi Flag.webp',
-      'maryland-county':          '../Assests/Flags/Maryland Flag.png',
-      'montserrado-county':       '../Assests/Flags/Montserrado flag.png',
-      'nimba-county':             '../Assests/Flags/Nimba Flag.webp',
-      'rivercess-county':         '../Assests/Flags/River cess flag.png',
-      'river-gee-county':         '../Assests/Flags/River_Gee_flag.png',
-      'sinoe-county':             '../Assests/Flags/Sinoe Flag.png',
+      'bomi-county': '/Assests/Flags/Bomi Flag.webp',
+      'bong-county': '/Assests/Flags/Bong flag.png',
+      'gbarpolu-county': '/Assests/Flags/Gbarpolu flag.png',
+      'grand-bassa-county': '/Assests/Flags/Bassa Flag.png',
+      'grand-cape-mount-county': '/Assests/Flags/Grand Cape Mount.avif',
+      'grand-gedeh-county': '/Assests/Flags/Grand_Gedeh Flag.png',
+      'grand-kru-county': '/Assests/Flags/Grand kru flag.png',
+      'lofa-county': '/Assests/Flags/Lofa flag.png',
+      'margibi-county': '/Assests/Flags/Margibi Flag.webp',
+      'maryland-county': '/Assests/Flags/Maryland Flag.png',
+      'montserrado-county': '/Assests/Flags/Montserrado flag.png',
+      'nimba-county': '/Assests/Flags/Nimba Flag.webp',
+      'rivercess-county': '/Assests/Flags/River cess flag.png',
+      'river-gee-county': '/Assests/Flags/River_Gee_flag.png',
+      'sinoe-county': '/Assests/Flags/Sinoe Flag.png',
     };
 
     // County page links — only active ones go to a real page
     const COUNTY_LINKS = {
-      'bong-county': '../county-pages/bong.html',
-      'lofa-county': '../county-pages/lofa.html',
-      'nimba-county': '../county-pages/nimba.html',
-      'grand-bassa-county': '../county-pages/bassa.html',
-      'montserrado-county': '../county-pages/montserrado.html',
-     // 'bomi-county': '../county-pages/bomi.html',
-     // 'margibi-county': '../county-pages/margibi.html',
-     // 'grand-gedeh-county': '../county-pages/grand-gedeh.html',
-     // 'grand-cape-mount-county': '../county-pages/cape-mount.html',
-     // 'maryland-county': '../county-pages/maryland.html',
-     // 'sinoe-county': '../county-pages/sinoe.html',
-     // 'rivercess-county': '../county-pages/rivercess.html',
-     // 'river-gee-county': '../county-pages/river-gee.html',
-     // 'grand-kru-county': '../county-pages/grand-kru.html',
+      'bong-county': '/county-pages/bong.html',
+      'lofa-county': '/county-pages/lofa.html',
+      'nimba-county': '/county-pages/nimba.html',
+      'grand-bassa-county': '/county-pages/bassa.html',
+      'montserrado-county': '/county-pages/montserrado.html',
+      // 'bomi-county': '/county-pages/bomi.html',
+      // 'margibi-county': '/county-pages/margibi.html',
+      // 'grand-gedeh-county': '/county-pages/grand-gedeh.html',
+      // 'grand-cape-mount-county': '/county-pages/cape-mount.html',
+      // 'maryland-county': '/county-pages/maryland.html',
+      // 'sinoe-county': '/county-pages/sinoe.html',
+      // 'rivercess-county': '/county-pages/rivercess.html',
+      // 'river-gee-county': '/county-pages/river-gee.html',
+      // 'grand-kru-county': '/county-pages/grand-kru.html',
     };
-    
+
     // ─────────────────────────────────
     //  TOAST HELPER
     // ─────────────────────────────────
     function showToast(icon, title, msg, type = 'success') {
       const toast = document.getElementById('toast');
-      document.getElementById('toastIcon').textContent  = icon;
+      document.getElementById('toastIcon').textContent = icon;
       document.getElementById('toastTitle').textContent = title;
-      document.getElementById('toastMsg').textContent   = msg;
+      document.getElementById('toastMsg').textContent = msg;
       toast.style.borderLeftColor = type === 'error' ? '#dc2626' : '#16a34a';
       toast.style.borderLeftWidth = '4px';
       toast.classList.add('show');
@@ -602,8 +710,8 @@
     // ─────────────────────────────────────────
     function buildCard(county) {
       const isLive = county.status === 'live';
-      const link   = COUNTY_LINKS[county.slug];
-      const flag   = FLAG_MAP[county.slug] || '';
+      const link = COUNTY_LINKS[county.slug];
+      const flag = FLAG_MAP[county.slug] || '';
 
       const badge = isLive
         ? `<span class="bg-blue-100 text-blue-600 px-2 sm:px-3 py-1 rounded-full text-xs sm:text-sm font-semibold whitespace-nowrap">Active</span>`
@@ -633,7 +741,7 @@
 
       if (isLive && link) {
         const el = document.createElement('a');
-        el.href      = link;
+        el.href = link;
         el.className = 'county-card bg-white rounded-3xl overflow-hidden shadow-lg transition duration-300 border border-gray-100 block';
         el.dataset.name = county.name.toLowerCase();
         el.innerHTML = inner;
@@ -696,9 +804,9 @@
     //  SEARCH / FILTER
     // ─────────────────────────────────────────
     document.getElementById('countySearch').addEventListener('input', function () {
-      const q     = this.value.toLowerCase().trim();
+      const q = this.value.toLowerCase().trim();
       const cards = document.querySelectorAll('#countyGrid [data-name]');
-      let   shown = 0;
+      let shown = 0;
 
       cards.forEach(card => {
         const match = card.dataset.name.includes(q);
@@ -715,21 +823,21 @@
     // ─────────────────────────────────────────
     function renderStaticFallback(grid) {
       const staticCounties = [
-        { name:'Bomi County',            capital:'Todee',         slug:'bomi-county',            status:'coming_soon', tagline:'Discover coastal charm and fishing heritage.' },
-        { name:'Bong County',            capital:'Gbarnga',       slug:'bong-county',            status:'live',        tagline:'The educational and cultural heartland of Liberia.' },
-        { name:'Gbarpolu County',        capital:'Bopolu',        slug:'gbarpolu-county',        status:'coming_soon', tagline:'Diverse landscapes, traditional communities, and natural forest resources.' },
-        { name:'Grand Bassa County',     capital:'Buchanan',      slug:'grand-bassa-county',     status:'live',        tagline:'Coastal beauty, historic ports, and growing economic activities.' },
-        { name:'Grand Cape Mount County',capital:'Robertsport',   slug:'grand-cape-mount-county',status:'coming_soon', tagline:'Pristine beaches, surfing, and rich cultural heritage.' },
-        { name:'Grand Gedeh County',     capital:'Zwedru',        slug:'grand-gedeh-county',     status:'coming_soon', tagline:'Southeastern traditions, agricultural heritage, and natural beauty.' },
-        { name:'Grand Kru County',       capital:'Barclayville',  slug:'grand-kru-county',       status:'coming_soon', tagline:'Pristine beaches, maritime culture, and tropical ecosystems.' },
-        { name:'Lofa County',            capital:'Voinjama',      slug:'lofa-county',            status:'live',        tagline:'Northern heritage, agricultural prosperity, and vibrant cultural traditions.' },
-        { name:'Margibi County',         capital:'Kakata',        slug:'margibi-county',         status:'coming_soon', tagline:'Urban development, commercial activity, and cultural diversity.' },
-        { name:'Maryland County',        capital:'Harper',        slug:'maryland-county',        status:'coming_soon', tagline:'Southeastern heritage, coastal communities, and rich history.' },
-        { name:'Montserrado County',     capital:'Bensonville',   slug:'montserrado-county',     status:'live',        tagline:'Liberia\'s capital region with beaches and vibrant urban culture.' },
-        { name:'Nimba County',           capital:'Sanniquellie',  slug:'nimba-county',           status:'live',        tagline:'Mountainous landscapes, rich mining history, and vibrant communities.' },
-        { name:'River Cess County',      capital:'Cestos City',   slug:'rivercess-county',       status:'coming_soon', tagline:'Riverine communities, forest ecosystems, and traditional settlements.' },
-        { name:'River Gee County',       capital:'Fish Town',     slug:'river-gee-county',       status:'coming_soon', tagline:'Eastern cultural heritage, diverse communities, and natural resources.' },
-        { name:'Sinoe County',           capital:'Greenville',    slug:'sinoe-county',           status:'coming_soon', tagline:'Southeastern charm, coastal traditions, and warm island communities.' },
+        { name: 'Bomi County', capital: 'Todee', slug: 'bomi-county', status: 'coming_soon', tagline: 'Discover coastal charm and fishing heritage.' },
+        { name: 'Bong County', capital: 'Gbarnga', slug: 'bong-county', status: 'live', tagline: 'The educational and cultural heartland of Liberia.' },
+        { name: 'Gbarpolu County', capital: 'Bopolu', slug: 'gbarpolu-county', status: 'coming_soon', tagline: 'Diverse landscapes, traditional communities, and natural forest resources.' },
+        { name: 'Grand Bassa County', capital: 'Buchanan', slug: 'grand-bassa-county', status: 'live', tagline: 'Coastal beauty, historic ports, and growing economic activities.' },
+        { name: 'Grand Cape Mount County', capital: 'Robertsport', slug: 'grand-cape-mount-county', status: 'coming_soon', tagline: 'Pristine beaches, surfing, and rich cultural heritage.' },
+        { name: 'Grand Gedeh County', capital: 'Zwedru', slug: 'grand-gedeh-county', status: 'coming_soon', tagline: 'Southeastern traditions, agricultural heritage, and natural beauty.' },
+        { name: 'Grand Kru County', capital: 'Barclayville', slug: 'grand-kru-county', status: 'coming_soon', tagline: 'Pristine beaches, maritime culture, and tropical ecosystems.' },
+        { name: 'Lofa County', capital: 'Voinjama', slug: 'lofa-county', status: 'live', tagline: 'Northern heritage, agricultural prosperity, and vibrant cultural traditions.' },
+        { name: 'Margibi County', capital: 'Kakata', slug: 'margibi-county', status: 'coming_soon', tagline: 'Urban development, commercial activity, and cultural diversity.' },
+        { name: 'Maryland County', capital: 'Harper', slug: 'maryland-county', status: 'coming_soon', tagline: 'Southeastern heritage, coastal communities, and rich history.' },
+        { name: 'Montserrado County', capital: 'Bensonville', slug: 'montserrado-county', status: 'live', tagline: 'Liberia\'s capital region with beaches and vibrant urban culture.' },
+        { name: 'Nimba County', capital: 'Sanniquellie', slug: 'nimba-county', status: 'live', tagline: 'Mountainous landscapes, rich mining history, and vibrant communities.' },
+        { name: 'River Cess County', capital: 'Cestos City', slug: 'rivercess-county', status: 'coming_soon', tagline: 'Riverine communities, forest ecosystems, and traditional settlements.' },
+        { name: 'River Gee County', capital: 'Fish Town', slug: 'river-gee-county', status: 'coming_soon', tagline: 'Eastern cultural heritage, diverse communities, and natural resources.' },
+        { name: 'Sinoe County', capital: 'Greenville', slug: 'sinoe-county', status: 'coming_soon', tagline: 'Southeastern charm, coastal traditions, and warm island communities.' },
       ];
       allCounties = staticCounties;
       const sorted = [...staticCounties].sort((a, b) => {
@@ -748,12 +856,12 @@
     document.getElementById('newsletterForm').addEventListener('submit', async function (e) {
       e.preventDefault();
       const email = document.getElementById('newsletterEmail').value.trim();
-      const btn   = document.getElementById('newsletterBtn');
+      const btn = document.getElementById('newsletterBtn');
 
       if (!email) return;
 
-      btn.textContent  = 'Subscribing...';
-      btn.disabled     = true;
+      btn.textContent = 'Subscribing...';
+      btn.disabled = true;
 
       // We'll store subscriber emails in a simple notifications-style insert.
       // For now we log to console and show success — add a subscribers table later.
@@ -768,14 +876,14 @@
         showToast('❌', 'Error', 'Something went wrong. Please try again.', 'error');
       } finally {
         btn.textContent = 'Subscribe';
-        btn.disabled    = false;
+        btn.disabled = false;
       }
     });
 
     // ─────────────────────────────────────────
     //  MOBILE MENU
     // ─────────────────────────────────────────
-    const menuBtn    = document.getElementById('menuBtn');
+    const menuBtn = document.getElementById('menuBtn');
     const mobileMenu = document.getElementById('mobileMenu');
     menuBtn.addEventListener('click', () => mobileMenu.classList.toggle('hidden'));
 
@@ -788,7 +896,7 @@
     //  SLIDESHOW
     // ─────────────────────────────────────────
     let currentSlideIndex = 0;
-    const slides     = document.querySelectorAll('.slide');
+    const slides = document.querySelectorAll('.slide');
     const indicators = document.querySelectorAll('.indicator');
     let slideshowInterval;
 
@@ -822,14 +930,14 @@
     }).addTo(map);
 
     const mapLocations = [
-      { lat:6.3155, lng:-10.8073, name:'Monrovia',     county:'Montserrado', link:'../county-pages/montserrado.html' },
-      { lat:6.9956, lng:-9.5241,  name:'Gbarnga',      county:'Bong',        link:'../county-pages/bong.html' },
-      { lat:7.4689, lng:-8.7626,  name:'Sanniquellie', county:'Nimba',       link:'../county-pages/nimba.html' },
-      { lat:6.2622, lng:-10.0789, name:'Buchanan',     county:'Grand Bassa', link:'../county-pages/bassa.html' },
-      { lat:8.4606, lng:-10.3679, name:'Voinjama',     county:'Lofa',        link:'../county-pages/lofa.html' },
-      { lat:5.9047, lng:-10.7369, name:'Harper',       county:'Maryland',    link:null },
-      { lat:5.5000, lng:-9.0000,  name:'Greenville',   county:'Sinoe',       link:null },
-      { lat:6.7000, lng:-11.3500, name:'Robertsport',  county:'Grand Cape Mount', link:null },
+      { lat: 6.3155, lng: -10.8073, name: 'Monrovia', county: 'Montserrado', link: '/county-pages/montserrado.html' },
+      { lat: 6.9956, lng: -9.5241, name: 'Gbarnga', county: 'Bong', link: '/county-pages/bong.html' },
+      { lat: 7.4689, lng: -8.7626, name: 'Sanniquellie', county: 'Nimba', link: '/county-pages/nimba.html' },
+      { lat: 6.2622, lng: -10.0789, name: 'Buchanan', county: 'Grand Bassa', link: '/county-pages/bassa.html' },
+      { lat: 8.4606, lng: -10.3679, name: 'Voinjama', county: 'Lofa', link: '/county-pages/lofa.html' },
+      { lat: 5.9047, lng: -10.7369, name: 'Harper', county: 'Maryland', link: null },
+      { lat: 5.5000, lng: -9.0000, name: 'Greenville', county: 'Sinoe', link: null },
+      { lat: 6.7000, lng: -11.3500, name: 'Robertsport', county: 'Grand Cape Mount', link: null },
     ];
 
     mapLocations.forEach(loc => {
@@ -857,4 +965,5 @@
   </script>
 
 </body>
+
 </html>
