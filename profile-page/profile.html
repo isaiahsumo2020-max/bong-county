@@ -738,17 +738,22 @@
         const { data: { session } } = await sb.auth.getSession();
         currentUser = session?.user || null;
 
-        // Get profile user ID from URL
+        // Get profile user ID from URL, default to current user if not provided
         const urlParams = new URLSearchParams(window.location.search);
-        const userId = urlParams.get('id');
+        let userId = urlParams.get('id');
 
-        if (!userId) {
-          console.error('No user ID provided in URL');
-          showError('No profile specified. Please select a profile to view.');
+        // If no ID provided and user is authenticated, show their own profile
+        if (!userId && currentUser) {
+          userId = currentUser.id;
+          isOwnProfile = true;
+        } else if (!userId) {
+          console.error('No user ID provided and not authenticated');
+          showError('Please sign in to view a profile, or provide a profile ID.');
+          updateAuthButton();
           return;
+        } else {
+          isOwnProfile = currentUser && currentUser.id === userId;
         }
-
-        isOwnProfile = currentUser && currentUser.id === userId;
 
         // Load profile data
         await loadProfile(userId);
@@ -770,80 +775,72 @@
 
         console.log('Loading profile for user:', userId);
 
-        // Set a timeout to prevent indefinite loading
-        const profilePromise = (async () => {
-          // Fetch user profile
-          const { data: user, error } = await sb
-            .from('users')
-            .select(`
-              id, full_name, email, bio, avatar_url, role,
-              contributor_kind, individual_category,
-              organization_name, organization_description, institution_type, website_url,
-              profile_image_url, created_at,
-              county:counties(name)
-            `)
-            .eq('id', userId)
-            .single();
+        // Fetch user profile
+        const { data: user, error } = await sb
+          .from('users')
+          .select(`
+            id, full_name, email, bio, avatar_url, role,
+            contributor_kind, individual_category,
+            organization_name, organization_description, institution_type, website_url,
+            profile_image_url, created_at,
+            county:counties(name)
+          `)
+          .eq('id', userId)
+          .single();
 
-          if (error) {
-            console.error('User query error:', error);
-            throw error;
-          }
-
-          if (!user) {
+        if (error) {
+          console.error('User query error:', error);
+          if (error.message?.includes('No rows found')) {
             throw new Error('User not found');
           }
+          throw error;
+        }
 
-          console.log('User profile loaded:', user.id);
+        if (!user) {
+          throw new Error('User not found');
+        }
 
-          profileUser = user;
+        console.log('User profile loaded:', user.id);
 
-          // Fetch contribution statistics in parallel
-          const [{ data: content, error: contentError }, { data: subscriptions, error: subError }] = await Promise.all([
-            sb
-              .from('content')
-              .select('id, view_count')
-              .eq('author_id', userId),
-            sb
-              .from('user_subscriptions')
-              .select('id')
-              .eq('user_id', userId)
-          ]);
+        profileUser = user;
 
-          if (contentError) {
-            console.warn('Content fetch warning:', contentError);
-          }
-          if (subError) {
-            console.warn('Subscriptions fetch warning:', subError);
-          }
-
-          // Render profile
-          renderProfile(user, content || [], subscriptions || []);
-
-          document.getElementById('loadingState').style.display = 'none';
-          document.getElementById('profileContent').style.display = 'block';
-
-          console.log('Profile rendered successfully');
-        })();
-
-        // Apply 15-second timeout
-        await Promise.race([
-          profilePromise,
-          new Promise((_, reject) => 
-            setTimeout(() => reject(new Error('Profile loading timeout')), 15000)
-          )
+        // Fetch contribution statistics in parallel
+        const [{ data: content, error: contentError }, { data: subscriptions, error: subError }] = await Promise.all([
+          sb
+            .from('content')
+            .select('id, view_count')
+            .eq('author_id', userId),
+          sb
+            .from('user_subscriptions')
+            .select('id')
+            .eq('user_id', userId)
         ]);
+
+        if (contentError) {
+          console.warn('Content fetch warning:', contentError);
+        }
+        if (subError) {
+          console.warn('Subscriptions fetch warning:', subError);
+        }
+
+        // Render profile
+        renderProfile(user, content || [], subscriptions || []);
+
+        document.getElementById('loadingState').style.display = 'none';
+        document.getElementById('profileContent').style.display = 'block';
+
+        console.log('Profile rendered successfully');
 
       } catch (err) {
         console.error('Error loading profile:', err);
         let errorMsg = 'Unable to load profile. Please try again.';
         
-        if (err.message === 'Profile loading timeout') {
-          errorMsg = 'Profile loading took too long. Please check your connection and try again.';
-        } else if (err.message === 'User not found') {
+        if (err.message === 'User not found') {
           errorMsg = 'The requested profile could not be found.';
         } else if (err.message?.includes('No rows found')) {
           errorMsg = 'The requested profile could not be found.';
+        } else if (err.message?.includes('Network')) {
+          errorMsg = 'Network error. Please check your connection and try again.';
         }
         
         document.getElementById('loadingState').style.display = 'none';
