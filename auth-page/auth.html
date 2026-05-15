@@ -11,6 +11,11 @@
   <link
     href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=Playfair+Display:wght@700;900&display=swap"
     rel="stylesheet">
+    <!-- Google Material Icons -->
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+<!-- CDN Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
 
   <style>
     :root {
@@ -243,18 +248,15 @@
       margin-bottom: 2rem;
     }
 
-    .auth-tab {
-      flex: 1;
+    .sign1 {
       text-align: center;
-      padding: 10px;
-      border-radius: 10px;
-      font-size: 0.875rem;
+      margin-top: 6%;
+      text-decoration: underline;
+      margin-bottom: 4%;
+      font-size: 2.875rem;
       font-weight: 600;
-      color: var(--muted);
-      cursor: pointer;
+      color: white;
       transition: all 0.25s;
-      border: none;
-      background: none;
       font-family: 'Poppins', sans-serif;
     }
 
@@ -775,19 +777,20 @@
       <!-- ════════════════════════════
            LOGIN / REGISTER TABS
       ════════════════════════════ -->
-      <div id="mainAuth">
+      <!-- <div id="mainAuth"> -->
 
         <!-- Tabs -->
-        <div class="auth-tabs">
-          <button class="auth-tab active" onclick="switchTab('login')">Sign In</button>
-          <button class="auth-tab" onclick="switchTab('register')">Create Account</button>
-        </div>
-
+        
+          
+          <!-- <button class="auth-tab active" onclick="switchTab('login')">Sign In</button> -->
+          <!-- <button class="auth-tab" onclick="switchTab('register')">Create Account</button> -->
 
         <!-- ── LOGIN FORM ── -->
+
         <div class="form-panel active" id="panel-login">
+          <h2 class="sign1">Sign In</h2>
           <div class="form-title">Welcome back</div>
-          <div class="form-subtitle">Sign in to your ExploreLiberia account</div>
+          <div class="form-subtitle">Sign in to your CountySphere Liberia account</div>
 
           <div class="alert alert-error" id="login-alert"></div>
 
@@ -796,7 +799,7 @@
             <div class="input-group">
               <label class="input-label">Email Address</label>
               <div class="input-wrap">
-                <span class="input-icon">✉</span>
+                <i class="fas fa-envelope input-icon"></i>
                 <input id="login-email" type="email" class="form-input" placeholder="you@example.com"
                   autocomplete="email" required />
               </div>
@@ -813,7 +816,7 @@
                 </button>
               </div>
               <div class="input-wrap">
-                <span class="input-icon">🔒</span>
+                <i class="fas fa-lock input-icon"></i>
                 <input id="login-password" type="password" class="form-input" placeholder="Enter your password"
                   autocomplete="current-password" required />
                 <button type="button" class="pw-toggle" onclick="togglePw('login-password', this)">👁</button>
@@ -827,7 +830,7 @@
 
             <button type="submit" class="btn-primary" id="loginBtn">
               <div class="spinner"></div>
-              <span class="btn-text">Sign In →</span>
+              <span class="btn-text">Sign In</span>
             </button>
           </form>
 
@@ -839,6 +842,9 @@
 
 
         <!-- ── REGISTER FORM ── -->
+          <!-- <button class="auth-tab active" onclick="switchTab('login')">Sign In</button> -->
+        <!-- <button class="auth-tab" onclick="switchTab('register')">Create Account</button> -->
+        
         <div class="form-panel" id="panel-register">
           <div class="steps" id="reg-steps">
             <div class="step-dot active" id="step-1"></div>
@@ -858,12 +864,12 @@
             <label class="input-label" style="margin-bottom:0.6rem;display:block">I want to join as a</label>
             <div class="role-cards">
               <div class="role-card selected" id="role-contributor" onclick="selectRole('contributor')">
-                <div class="role-card-icon">C</div>
+                <i class="fas fa-user"></i>
                 <div class="role-card-name">Contributor</div>
                 <div class="role-card-desc">Submit stories, events & opportunities</div>
               </div>
               <div class="role-card" id="role-county_admin" onclick="selectRole('county_admin')">
-                <div class="role-card-icon">CA</div>
+                <i class="fas fa-user-shield"></i>
                 <div class="role-card-name">County Admin</div>
                 <div class="role-card-desc">Manage a county's content & info</div>
               </div>
@@ -884,20 +890,24 @@
               <div class="spinner"></div>
               <span class="btn-text">Continue</span>
             </button>
+             <div class="terms-text" style="margin-top:1.5rem">
+            Already an have an account? 
+            <a onclick="switchTab('login')">Login</a>
+          </div>
           </div>
 
           <!-- Step 2: Contributor Type & Category -->
           <div id="reg-step-2" style="display:none">
-            <button class="back-link" onclick="regBack(1)">← Back</button>
+            <button class="back-link" onclick="regBack(1)">Back</button>
             <div class="form-title">What Type of Contributor Are You?</div>
             <div class="form-subtitle">This helps us personalize your experience</div>
 
             <div class="alert alert-error" id="reg-step2-alert"></div>
-
+            <i class="fas fa-users input-icon" style="font-size:2rem;position:absolute;top:80px;left:calc(50% - 20px);color:rgba(255, 255, 255, 0.929)"></i>
             <div class="input-group">
               <label class="input-label">Contributor Type</label>
               <div class="input-wrap">
-                <span class="input-icon">🏢</span>
+                <i class="fas fa-users input-icon"></i>
                 <select id="reg-contributor-kind" class="form-select" onchange="onContributorKindChange()">
                   <option value="">Type of contributor</option>
                   <option value="individual">Individual</option>
@@ -922,7 +932,7 @@
               <div class="input-group">
                 <label class="input-label">What's Your Background?</label>
                 <div class="input-wrap">
-                  <span class="input-icon">👤</span>
+                  <i class="fas fa-professor input-icon"></i>
                   <select id="reg-individual-category" class="form-select">
                     <option value="">Choose a category</option>
                     <option value="student">Student</option>
@@ -985,7 +995,7 @@
                 <label class="input-label">Website URL <span
                     style="color:var(--muted);font-weight:400;text-transform:none">(optional)</span></label>
                 <div class="input-wrap">
-                  <span class="input-icon">🔗</span>
+                  <i class="fas fa-globe input-icon"></i>
                   <input id="reg-website-url" type="url" class="form-input" placeholder="https://example.com" />
                 </div>
               </div>
@@ -1008,7 +1018,7 @@
             <div class="input-group">
               <label class="input-label">Full Name</label>
               <div class="input-wrap">
-                <span class="input-icon">👤</span>
+                <i class="fas fa-user input-icon"></i>
                 <input id="reg-name" type="text" class="form-input" placeholder="Your full name" autocomplete="name" />
               </div>
               <div class="field-error" id="reg-name-err"></div>
@@ -1017,7 +1027,7 @@
             <div class="input-group">
               <label class="input-label">Email Address</label>
               <div class="input-wrap">
-                <span class="input-icon">✉</span>
+               <i class="fas fa-envelope input-icon"></i>
                 <input id="reg-email" type="email" class="form-input" placeholder="you@example.com"
                   autocomplete="email" />
               </div>
@@ -1027,7 +1037,7 @@
             <div class="input-group">
               <label class="input-label">Phone Number (Liberia)</label>
               <div class="input-wrap">
-                <span class="input-icon">📱</span>
+              <i class="fas fa-phone input-icon"></i>
                 <input id="reg-phone" type="tel" class="form-input" placeholder="077-123-4567 or 088-123-4567"
                   autocomplete="tel" />
               </div>
@@ -1049,13 +1059,13 @@
 
             <button class="btn-primary" onclick="regNext(3)">
               <div class="spinner"></div>
-              <span class="btn-text">Continue →</span>
+              <span class="btn-text">Continue </span>
             </button>
           </div>
 
           <!-- Step 4: Password + Terms -->
           <div id="reg-step-4" style="display:none">
-            <button class="back-link" onclick="regBack(3)">← Back</button>
+            <button class="back-link" onclick="regBack(3)">Back</button>
             <div class="form-title">Set Your Password</div>
             <div class="form-subtitle">Create a strong password to secure your account</div>
 
@@ -1065,7 +1075,7 @@
             <div class="input-group">
               <label class="input-label">Password</label>
               <div class="input-wrap">
-                <span class="input-icon">🔒</span>
+                <i class="fas fa-lock input-icon"></i>
                 <input id="reg-password" type="password" class="form-input" placeholder="Min 8 characters"
                   oninput="checkStrength(this.value)" autocomplete="new-password" />
                 <button type="button" class="pw-toggle" onclick="togglePw('reg-password', this)">👁</button>
@@ -1080,7 +1090,7 @@
             <div class="input-group">
               <label class="input-label">Confirm Password</label>
               <div class="input-wrap">
-                <span class="input-icon">🔒</span>
+               <i class="fas fa-lock input-icon"></i>
                 <input id="reg-confirm" type="password" class="form-input" placeholder="Repeat your password"
                   autocomplete="new-password" />
                 <button type="button" class="pw-toggle" onclick="togglePw('reg-confirm', this)">👁</button>
@@ -1098,7 +1108,7 @@
 
             <button class="btn-primary" id="registerBtn" onclick="handleRegister()">
               <div class="spinner"></div>
-              <span class="btn-text">Create My Account →</span>
+              <span class="btn-text">Create My Account </span>
             </button>
           </div>
 
@@ -1140,7 +1150,7 @@
         </div>
         <!-- end register form -->
 
-      </div>
+      <!-- </div> -->
       <!-- end mainAuth -->
 
 
@@ -1162,7 +1172,7 @@
           <div class="input-group">
             <label class="input-label">Email Address</label>
             <div class="input-wrap">
-              <span class="input-icon">✉</span>
+                <i class="fas fa-envelope input-icon"></i>
               <input id="reset-email" type="email" class="form-input" placeholder="you@example.com"
                 autocomplete="email" />
             </div>
@@ -1170,7 +1180,7 @@
 
           <button class="btn-primary" id="resetBtn" onclick="handleReset()">
             <div class="spinner"></div>
-            <span class="btn-text">Send Reset Link →</span>
+            <span class="btn-text">Send Reset Link</span>
           </button>
         </div>
       </div>
@@ -1181,7 +1191,7 @@
       ════════════════════════════ -->
       <div id="verifyPanel" style="display:none">
         <div class="success-screen">
-          <div class="success-icon">✉️</div>
+            <i class="fas fa-envelope input-icon"></i>
           <div class="form-title" style="margin-bottom:0.5rem">Check Your Email</div>
           <p style="color:var(--muted);font-size:0.875rem;line-height:1.7;margin-bottom:1.5rem">
             We sent a verification link to<br>
