@@ -83,6 +83,7 @@ tailwind.config = {
           </button>
           <div v-if="showAuthMenu" class="absolute top-16 right-6 bg-forest rounded-lg shadow-lg border border-white/10 w-40 z-50">
             <a href="../dashboard-page/dashboard.html" class="block w-full text-left px-4 py-2 text-white hover:bg-white/10 transition-colors text-sm border-b border-white/10">
+              <i class="fa-dashboard"></i>
               Dashboard
             </a>
             <button @click="doSignOut(); showAuthMenu = false" class="w-full text-left px-4 py-2 text-white hover:bg-white/10 transition-colors text-sm">Sign Out</button>
@@ -108,6 +109,71 @@ tailwind.config = {
           class="font-display text-2xl text-white/80 hover:text-forest-light py-4 border-b border-white/10 transition-colors"
           @click="mob=false">{{ l.label }}</router-link>
       </template>
+      <!-- MOBILE AUTH SECTION -->
+<div class="mt-8 pt-6 border-t border-white/10">
+  <template v-if="authUser">
+
+    <!-- User Info -->
+    <div class="flex items-center gap-3 mb-5">
+      <div class="w-10 h-10 rounded-full bg-forest-light flex items-center justify-center text-white font-bold">
+        {{ authUser.email?.charAt(0).toUpperCase() }}
+      </div>
+
+      <div class="min-w-0">
+        <div class="text-white font-medium truncate">
+          {{ authUser.email }}
+        </div>
+
+        <div class="text-forest-light text-sm">
+          Logged In
+        </div>
+      </div>
+    </div>
+
+    <!-- Dashboard Button -->
+    <a
+      href="../dashboard-page/dashboard.html"
+      @click="mob=false"
+      class="flex items-center gap-3 w-full px-4 py-3 rounded-xl bg-forest text-white mb-3 hover:bg-forest-light transition-colors"
+    >
+      <i class="fa-solid fa-table-columns"></i>
+      <span>Dashboard</span>
+    </a>
+
+    <!-- Profile Button -->
+    <a
+      href="../profile-page/profile.html"
+      @click="mob=false"
+      class="flex items-center gap-3 w-full px-4 py-3 rounded-xl bg-white/10 text-white mb-3 hover:bg-white/20 transition-colors"
+    >
+      <i class="fa-solid fa-user"></i>
+      <span>My Profile</span>
+    </a>
+
+    <!-- Logout -->
+    <button
+      @click="doSignOut(); mob=false"
+      class="flex items-center gap-3 w-full px-4 py-3 rounded-xl bg-red-500/20 text-red-300 hover:bg-red-500/30 transition-colors"
+    >
+      <i class="fa-solid fa-right-from-bracket"></i>
+      <span>Sign Out</span>
+    </button>
+
+  </template>
+
+  <!-- Not Logged In -->
+  <template v-else>
+
+    <a
+      href="../auth-page/auth.html"
+      @click="mob=false"
+      class="block w-full text-center px-4 py-3 rounded-xl bg-forest-light text-white font-medium hover:bg-forest transition-colors"
+    >
+      Login / Create Account
+    </a>
+
+  </template>
+</div>
     </div>
   </transition>
 

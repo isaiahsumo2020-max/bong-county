@@ -579,16 +579,20 @@
 
     <!-- TOP BAR -->
     <div class="topbar">
-      <button class="topbar-toggle" onclick="toggleSidebar()" title="Toggle menu">☰</button>
+      <button class="topbar-toggle text-orange-600" onclick="toggleSidebar()" title="Toggle menu"><i class="fa-solid fa-bars">Menu</i> </button>
       <div>
         <div class="topbar-title" id="topbar-title">Dashboard</div>
         <div class="topbar-sub"  id="topbar-sub">Welcome back</div>
       </div>
       <div class="topbar-right">
-        <button class="topbar-btn" onclick="goToPortal()" title="View news feed and county pages">📰 Portal</button>
+
+        <a href="../profile-page/profile.html">Profile</a>
+        <a href="../contribute-page/index.html">Contribute</a>
+        <button class="topbar-btn" onclick="goToPortal()" title="View news feed and county pages"><i class="fa-solid fa-newspaper"></i> Portal</button>
         <button class="topbar-btn" onclick="refreshCurrentView()">↻ Refresh</button>
         <button class="topbar-btn primary" id="topbar-primary-btn" onclick="handlePrimaryAction()" style="display:none">
-          + New Content
+          <i class="fa-solid fa-plus"></i>
+          New Content
         </button>
       </div>
     </div>
@@ -622,7 +626,7 @@
               <button class="section-action" onclick="navigate('content')">View all →</button>
             </div>
             <div class="data-table" id="recent-submissions">
-              <div class="empty-state"><div class="empty-icon">📭</div><div class="empty-desc">Loading...</div></div>
+              <div class="empty-state"><div class="empty-icon"><i class="fa-solid fa-inbox"></i></div><div class="empty-desc">Loading...</div></div>
             </div>
           </div>
 
@@ -697,7 +701,7 @@
             <span>Submission</span><span>Type</span><span>County</span><span>Submitted</span><span>Actions</span>
           </div>
           <div id="approvals-list">
-            <div class="empty-state"><div class="empty-icon">✅</div><div class="empty-title">All caught up!</div><div class="empty-desc">No pending submissions</div></div>
+            <div class="empty-state"><div class="empty-icon"><i class="fa-solid fa-check"></i></div><div class="empty-title">All caught up!</div><div class="empty-desc">No pending submissions</div></div>
           </div>
         </div>
       </div>
@@ -709,7 +713,9 @@
       <div id="view-leaders" class="view">
         <div class="section-header" style="margin-bottom:1rem">
           <div class="section-title">County Leaders & Profiles</div>
-          <button class="topbar-btn primary" onclick="openLeaderModal()">+ Add Leader</button>
+          <button class="topbar-btn primary" onclick="openLeaderModal()">
+            <i class="fa-solid fa-plus"></i>
+            Add Leader</button>
         </div>
 
         <div class="pill-tabs">
@@ -724,7 +730,7 @@
             <span>Name & Role</span><span>Category</span><span>Status</span><span>Actions</span>
           </div>
           <div id="leaders-list">
-            <div class="empty-state"><div class="empty-icon">👥</div><div class="empty-desc">Loading leaders...</div></div>
+            <div class="empty-state"><i class="fa-solid fa-user"></i><div class="empty-desc">Loading leaders...</div></div>
           </div>
         </div>
       </div>
@@ -744,7 +750,7 @@
             <span>Opportunity</span><span>Type</span><span>Deadline</span><span>Actions</span>
           </div>
           <div id="opp-list">
-            <div class="empty-state"><div class="empty-icon">🌟</div><div class="empty-desc">Loading opportunities...</div></div>
+            <div class="empty-state"><div class="empty-icon"><i class="fa-solid fa-bell"></i></div><div class="empty-desc">Loading opportunities...</div></div>
           </div>
         </div>
       </div>
@@ -755,7 +761,9 @@
       ─────────────────────────── -->
       <div id="view-submit" class="view">
         <div class="form-card">
-          <h3>📝 Submit New Content</h3>
+          <h3>
+            <i class="fa-solid fa-plus"></i>
+            Submit New Content</h3>
           <div class="form-grid">
             <div class="form-group">
               <label class="form-label">Content Type</label>

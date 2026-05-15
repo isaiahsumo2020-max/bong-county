@@ -16,6 +16,11 @@
   <script src="js/page-protection.js"></script>
   
   <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Instrument+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <!-- Google Material Icons -->
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+<!-- CDN Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
 
   <style>
     :root {
@@ -66,6 +71,7 @@
       text-decoration: none; transition: color 0.2s;
       background: none; border: none; cursor: pointer;
       font-family: 'Instrument Sans', sans-serif;
+      white-space: nowrap;
     }
     .topbar-link:hover { color: white; }
     .topbar-user {
@@ -79,14 +85,53 @@
       background: var(--forest);
       display: flex; align-items: center; justify-content: center;
       font-size: 0.65rem; font-weight: 700; color: white;
+      flex-shrink: 0;
     }
     .topbar-uname { font-size: 0.78rem; color: rgba(255,255,255,0.75); }
+
+    @media (max-width: 768px) {
+      .topbar {
+        padding: 0 1rem;
+      }
+      .topbar-nav {
+        gap: 0.75rem;
+      }
+      .topbar-link {
+        font-size: 0.7rem;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .topbar {
+        padding: 0 0.75rem;
+        height: 48px;
+      }
+      .topbar-logo {
+        font-size: 0.85rem;
+      }
+      .topbar-nav {
+        gap: 0.5rem;
+        display: none;
+      }
+      .topbar-link {
+        font-size: 0.65rem;
+      }
+      .topbar-uname {
+        display: none;
+      }
+    }
 
     /* ── LAYOUT ── */
     .layout {
       max-width: 1100px; margin: 0 auto;
       display: grid; grid-template-columns: 260px 1fr;
       gap: 0; min-height: calc(100vh - 56px);
+    }
+
+    @media (max-width: 768px) {
+      .layout {
+        grid-template-columns: 1fr;
+      }
     }
 
     /* ── LEFT RAIL ── */
@@ -168,6 +213,10 @@
 
     /* Editor header */
     .editor-header { margin-bottom: 2rem; }
+    @media (max-width: 640px) {
+      .editor-header { margin-bottom: 1.5rem; }
+    }
+
     .editor-type-badge {
       display: inline-flex; align-items: center; gap: 6px;
       background: var(--ink); color: white;
@@ -186,6 +235,14 @@
     }
     .editor-title-input::placeholder { color: var(--border2); }
 
+    @media (max-width: 640px) {
+      .editor-title-input { font-size: 1.75rem; }
+    }
+
+    @media (max-width: 480px) {
+      .editor-title-input { font-size: 1.4rem; }
+    }
+
     .editor-divider {
       height: 1px; background: var(--border);
       margin: 1.25rem 0;
@@ -196,6 +253,10 @@
       display: flex; flex-wrap: wrap; gap: 0.75rem;
       margin-bottom: 1.5rem; align-items: center;
     }
+    @media (max-width: 640px) {
+      .meta-row { gap: 0.5rem; margin-bottom: 1rem; }
+    }
+
     .meta-chip {
       display: flex; align-items: center; gap: 6px;
       background: var(--paper);
@@ -214,6 +275,16 @@
     }
     .meta-chip-icon { font-size: 0.9rem; }
 
+    @media (max-width: 640px) {
+      .meta-chip { padding: 5px 10px; font-size: 0.7rem; }
+      .meta-chip select, .meta-chip input[type="date"] { font-size: 0.7rem; }
+    }
+
+    @media (max-width: 480px) {
+      .meta-chip { padding: 4px 8px; font-size: 0.65rem; }
+      .meta-chip-icon { font-size: 0.8rem; }
+    }
+
     /* Body editor */
     .body-editor {
       width: 100%; min-height: 280px;
@@ -225,6 +296,14 @@
     }
     .body-editor::placeholder { color: var(--border2); }
 
+    @media (max-width: 640px) {
+      .body-editor { font-size: 0.95rem; min-height: 200px; }
+    }
+
+    @media (max-width: 480px) {
+      .body-editor { font-size: 0.9rem; min-height: 150px; }
+    }
+
     /* Excerpt field */
     .excerpt-field {
       width: 100%; border: none; outline: none;
@@ -235,6 +314,14 @@
       min-height: 60px;
     }
     .excerpt-field::placeholder { color: var(--border2); }
+
+    @media (max-width: 640px) {
+      .excerpt-field { font-size: 0.9rem; min-height: 50px; }
+    }
+
+    @media (max-width: 480px) {
+      .excerpt-field { font-size: 0.85rem; min-height: 40px; }
+    }
 
     /* Field label */
     .field-label {
@@ -262,10 +349,32 @@
     .std-textarea { resize: vertical; min-height: 100px; }
     .std-select { cursor: pointer; appearance: none; }
 
+    @media (max-width: 640px) {
+      .std-input, .std-select, .std-textarea {
+        font-size: 0.85rem; padding: 8px 12px; border-radius: 8px;
+      }
+      .std-textarea { min-height: 80px; }
+    }
+
+    @media (max-width: 480px) {
+      .std-input, .std-select, .std-textarea {
+        font-size: 0.8rem; padding: 6px 10px; border-radius: 6px;
+      }
+      .std-textarea { min-height: 60px; }
+    }
+
     /* Form grid */
     .fg { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.25rem; }
     .fg .span2 { grid-column: span 2; }
     .fgroup { display: flex; flex-direction: column; gap: 5px; }
+
+    @media (max-width: 640px) {
+      .fg { gap: 0.75rem; margin-bottom: 1rem; }
+    }
+
+    @media (max-width: 480px) {
+      .fg { gap: 0.5rem; margin-bottom: 0.75rem; }
+    }
 
     /* Toolbar (story editor) */
     .editor-toolbar {
@@ -282,6 +391,12 @@
     }
     .toolbar-btn:hover { background: var(--paper); border-color: var(--border); color: var(--ink); }
     .toolbar-sep { width: 1px; background: var(--border); margin: 2px 4px; }
+
+    @media (max-width: 480px) {
+      .editor-toolbar { gap: 2px; padding: 6px 0; }
+      .toolbar-btn { padding: 2px 6px; font-size: 0.7rem; }
+      .toolbar-sep { margin: 1px 2px; }
+    }
 
     /* Word count */
     .word-count {
@@ -444,6 +559,28 @@
       .action-bar { margin: 0 -1.25rem; padding: 1rem 1.25rem; }
       .fg { grid-template-columns: 1fr; }
       .fg .span2 { grid-column: span 1; }
+      .editor-title-input { font-size: 1.75rem; }
+      .editor-type-badge { font-size: 0.65rem; }
+      .meta-row { gap: 0.5rem; }
+      .meta-chip { padding: 5px 10px; font-size: 0.7rem; }
+      .body-editor { font-size: 0.95rem; min-height: 200px; }
+      .excerpt-field { font-size: 0.9rem; }
+      .std-input, .std-select, .std-textarea { font-size: 0.85rem; padding: 8px 12px; }
+    }
+
+    @media (max-width: 480px) {
+      .editor-area { padding: 1rem; }
+      .action-bar { margin: 0 -1rem; padding: 0.75rem 1rem; gap: 6px; }
+      .editor-title-input { font-size: 1.4rem; }
+      .meta-row { gap: 0.4rem; }
+      .meta-chip { padding: 4px 8px; font-size: 0.65rem; }
+      .body-editor { font-size: 0.9rem; min-height: 150px; }
+      .excerpt-field { font-size: 0.85rem; }
+      .std-input, .std-select, .std-textarea { font-size: 0.8rem; padding: 6px 10px; }
+      .editor-toolbar { gap: 2px; }
+      .toolbar-btn { padding: 2px 6px; font-size: 0.7rem; }
+      .word-count { font-size: 0.65rem; }
+      .char-count { font-size: 0.6rem; }
     }
 
     /* Character counter */
@@ -462,7 +599,7 @@
   <div class="topbar">
     <a href="../index-page/index.html" class="topbar-logo">Explore<span>Liberia</span></a>
     <div class="topbar-nav">
-      <a href="../index-page/index.html"    class="topbar-link">← Home</a>
+      <a href="../index-page/index.html"    class="topbar-link">Home</a>
       <a href="../dashboard-page/dashboard.html" class="topbar-link">Dashboard</a>
       <div class="topbar-user">
         <div class="topbar-avatar" id="nav-avatar">?</div>
@@ -482,7 +619,8 @@
         <div class="rail-label">What to submit</div>
 
         <div class="type-card active" id="type-story" onclick="switchType('story')">
-          <div class="type-icon" style="background:#F0F9F4">📰</div>
+          <div class="type-icon" style="background:#F0F9F4">📝
+          </div>
           <div>
             <div class="type-name">Story / Article</div>
             <div class="type-desc">News, features, community voices</div>
@@ -490,7 +628,9 @@
         </div>
 
         <div class="type-card" id="type-event" onclick="switchType('event')">
-          <div class="type-icon" style="background:#FFF7ED">📅</div>
+          <div class="type-icon" style="background:#FFF7ED">
+            <i class="fa-solid fa-calendar-days" style="color:#D97706;font-size:1.1rem"></i>
+          </div>
           <div>
             <div class="type-name">Event</div>
             <div class="type-desc">Community events, summits, festivals</div>
@@ -498,7 +638,9 @@
         </div>
 
         <div class="type-card" id="type-opportunity" onclick="switchType('opportunity')">
-          <div class="type-icon" style="background:#FFFBEB">🌟</div>
+          <div class="type-icon" style="background:#FFFBEB">
+            <i class="fa-solid fa-bullhorn" style="color:#B45309;font-size:1.1rem"></i>
+          </div>
           <div>
             <div class="type-name">Opportunity</div>
             <div class="type-desc">Scholarships, jobs, training</div>
@@ -506,7 +648,9 @@
         </div>
 
         <div class="type-card" id="type-announcement" onclick="switchType('announcement')">
-          <div class="type-icon" style="background:#EFF6FF">📢</div>
+          <div class="type-icon" style="background:#EFF6FF">
+            <i class="fa-solid fa-bullhorn" style="color:#3B82F6;font-size:1.1rem"></i>
+          </div>
           <div>
             <div class="type-name">Announcement</div>
             <div class="type-desc">County news, official updates</div>
@@ -516,7 +660,7 @@
 
       <!-- Tips -->
       <div class="tips-card" id="tips-box">
-        <div class="tips-title">💡 Writing Tips</div>
+        <div class="tips-title"> Writing Tips</div>
         <div id="tips-content"></div>
       </div>
 
@@ -527,7 +671,7 @@
           <div style="font-size:0.78rem;color:var(--ink3)">Loading…</div>
         </div>
         <a href="../dashboard-page/dashboard.html" style="font-size:0.75rem;color:var(--forest);text-decoration:none;display:block;margin-top:0.75rem;font-weight:600">
-          View all in dashboard →
+          View all in dashboard
         </a>
       </div>
 
@@ -538,10 +682,11 @@
 
       <!-- SUCCESS STATE -->
       <div class="success-panel" id="success-panel">
-        <div class="success-ring">🎉</div>
+        <i class="fa-solid fa-circle-check success-ring"></i>
         <div class="success-title">Submitted!</div>
         <p class="success-sub">Your submission is now in the review queue. A county admin will review it and publish it if approved.</p>
-        <div class="success-status">⏳ Pending Review — you'll be notified when it's published</div>
+        <div class="success-status"> <i class="fa-solid fa-hourglass-half"></i>
+           Pending Review — you'll be notified when it's published</div>
         <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
           <button class="btn btn-publish" onclick="resetForm()">Submit Another →</button>
           <a href="../dashboard-page/dashboard.html" class="btn btn-draft">Go to Dashboard</a>
@@ -553,7 +698,7 @@
       ════════════════════════ -->
       <div class="form-panel active" id="panel-story">
         <div class="editor-header">
-          <div class="editor-type-badge">📰 Story / Article</div>
+          <div class="editor-type-badge"> Story / Article</div>
           <textarea class="editor-title-input" id="story-title" rows="2"
             placeholder="Your headline here…" oninput="autoResize(this)"></textarea>
         </div>
@@ -563,7 +708,7 @@
         <!-- Metadata row -->
         <div class="meta-row">
           <div class="meta-chip">
-            <span class="meta-chip-icon">🏷️</span>
+            <i class="fa-solid fa-layer-group meta-chip-icon"></i>
             <select id="story-category" style="background:none;border:none;outline:none;font-size:0.78rem;color:var(--ink2);cursor:pointer;font-family:'Instrument Sans',sans-serif">
               <option value="youth">Youth</option>
               <option value="education">Education</option>
@@ -576,11 +721,11 @@
             </select>
           </div>
           <div class="meta-chip" id="county-chip">
-            <span class="meta-chip-icon">📍</span>
+            <i class="fa-solid fa-map-marker-alt meta-chip-icon"></i>
             <span id="county-display">Loading…</span>
           </div>
           <div class="meta-chip" style="font-size:0.78rem;color:var(--ink3)">
-            <span>👤</span>
+            <i class="fa-solid fa-user meta-chip-icon"></i>
             <span id="author-display">You</span>
           </div>
         </div>
@@ -604,7 +749,7 @@
             ondragover="e => { e.preventDefault(); this.classList.add('dragover'); }"
             ondragleave="this.classList.remove('dragover')">
             <div id="cover-upload-ui">
-              <div class="cover-drop-icon">🖼️</div>
+              <i class="fat cover-drop-icon fa-solid fa-cloud-arrow-up"></i>
               <div class="cover-drop-text">Click or drag to upload a cover image</div>
               <div class="cover-drop-sub">JPG, PNG or WebP · Max 5MB</div>
             </div>

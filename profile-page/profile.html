@@ -56,12 +56,15 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
+      gap: 1rem;
+      flex-wrap: wrap;
     }
 
     .logo {
       font-size: 1.4rem;
       font-weight: 800;
       letter-spacing: -0.5px;
+      min-width: fit-content;
     }
     .logo span { color: #60A5FA; }
 
@@ -69,6 +72,7 @@
       display: flex;
       gap: 12px;
       align-items: center;
+      flex-wrap: wrap;
     }
 
     .btn-small {
@@ -80,6 +84,28 @@
       font-size: 0.875rem;
       font-weight: 600;
       transition: all 0.2s;
+      white-space: nowrap;
+    }
+
+    @media (max-width: 640px) {
+      .header {
+        padding: 0.75rem 1rem;
+      }
+      .header-content {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      .logo {
+        font-size: 1.1rem;
+      }
+      .nav-buttons {
+        width: 100%;
+        gap: 8px;
+      }
+      .btn-small {
+        padding: 6px 12px;
+        font-size: 0.75rem;
+      }
     }
 
     .btn-secondary {
@@ -109,6 +135,12 @@
       padding: 2rem;
     }
 
+    @media (max-width: 640px) {
+      .container {
+        padding: 1rem;
+      }
+    }
+
     /* ──────────────────────────────────────── */
     /*  PROFILE HEADER SECTION                  */
     /* ──────────────────────────────────────── */
@@ -131,6 +163,13 @@
       }
     }
 
+    @media (max-width: 640px) {
+      .profile-header {
+        padding: 1rem;
+        gap: 1rem;
+      }
+    }
+
     .profile-image-section {
       display: flex;
       flex-direction: column;
@@ -145,6 +184,13 @@
       object-fit: cover;
       border: 2px solid var(--border);
       background: rgba(255,255,255,0.05);
+    }
+
+    @media (max-width: 640px) {
+      .profile-image {
+        width: 120px;
+        height: 120px;
+      }
     }
 
     .profile-badge {
@@ -170,10 +216,23 @@
       line-height: 1.2;
     }
 
+    @media (max-width: 640px) {
+      .profile-name {
+        font-size: 1.75rem;
+      }
+    }
+
     .profile-meta {
       display: grid;
       grid-template-columns: repeat(2, 1fr);
       gap: 1rem;
+    }
+
+    @media (max-width: 640px) {
+      .profile-meta {
+        grid-template-columns: 1fr;
+        gap: 0.75rem;
+      }
     }
 
     .meta-item {
@@ -208,6 +267,13 @@
       margin-top: 1rem;
     }
 
+    @media (max-width: 640px) {
+      .profile-actions {
+        flex-direction: column;
+        gap: 0.75rem;
+      }
+    }
+
     .btn-action {
       flex: 1;
       padding: 12px;
@@ -218,6 +284,13 @@
       cursor: pointer;
       transition: all 0.2s;
       font-size: 0.9rem;
+    }
+
+    @media (max-width: 640px) {
+      .btn-action {
+        padding: 10px;
+        font-size: 0.8rem;
+      }
     }
 
     .btn-action.primary {
@@ -247,6 +320,14 @@
       border-radius: 12px;
       padding: 1.5rem;
       margin-bottom: 1.5rem;
+    }
+
+    @media (max-width: 640px) {
+      .section {
+        padding: 1rem;
+        margin-bottom: 1rem;
+        border-radius: 8px;
+      }
     }
 
     .section-title {
@@ -327,6 +408,12 @@
     @media (max-width: 768px) {
       .stats-grid {
         grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    @media (max-width: 480px) {
+      .stats-grid {
+        grid-template-columns: 1fr;
       }
     }
 
@@ -467,9 +554,11 @@
   <!-- Header -->
   <div class="header">
     <div class="header-content">
-      <div class="logo">Explore<span>Liberia</span></div>
+      <div class="logo">CountySphere <span>Liberia</span></div>
       <div class="nav-buttons">
-        <button class="btn-small btn-secondary" onclick="goHome()">← Back Home</button>
+        <a href="../contribute-page/index.html">Contribute</a>
+        <a href="../dashboard-page/dashboard.html">Dashboard</a>
+        <button class="btn-small btn-secondary" onclick="goHome()">Back Home</button>
         <button class="btn-small btn-primary-small" id="authBtn" onclick="handleAuthClick()">Sign In</button>
       </div>
     </div>
@@ -486,9 +575,12 @@
     <!-- Error State -->
     <div id="errorState" style="display:none">
       <div class="error-container">
-        <p>Unable to load profile. Please try again.</p>
+        <p id="errorMessage">Unable to load profile. Please try again.</p>
         <button class="btn-action primary" style="margin-top:1rem;max-width:200px;margin-left:auto;margin-right:auto" onclick="location.reload()">
           Reload
+        </button>
+        <button class="btn-action secondary" style="margin-top:0.5rem;max-width:200px;margin-left:auto;margin-right:auto" onclick="goHome()">
+          Back Home
         </button>
       </div>
     </div>
@@ -531,8 +623,14 @@
           </div>
 
           <div class="profile-actions">
-            <button class="btn-action secondary" id="settingsBtn" onclick="goToSettings()" style="display:none">⚙️ Settings</button>
-            <button class="btn-action primary" id="subscribeBtn" onclick="goToSettings()" style="display:none">📌 Manage Subscriptions</button>
+            <button class="btn-action secondary" id="settingsBtn" onclick="goToSettings()" style="display:none">
+              <i class="fa-solid fa-gear"></i>
+              Settings
+            </button>
+            <button class="btn-action primary" id="subscribeBtn" onclick="goToSettings()" style="display:none">
+              <i class="fa-solid fa-bell"></i>
+              Manage Subscriptions
+            </button>
           </div>
         </div>
       </div>
@@ -540,7 +638,7 @@
       <!-- Bio Section -->
       <div class="section" id="bioSection" style="display:none">
         <div class="section-title">
-          <span class="section-title-icon">📝</span>
+          <i class="fa-solid fa-user"></i>
           About
         </div>
         <div class="bio-text" id="bioContent">-</div>
@@ -549,7 +647,7 @@
       <!-- Organization Info Section -->
       <div class="section" id="orgSection" style="display:none">
         <div class="section-title">
-          <span class="section-title-icon">🏢</span>
+          <i class="fa-solid fa-building"></i>
           Organization Information
         </div>
         <div class="org-grid">
@@ -577,7 +675,7 @@
       <!-- Statistics Section -->
       <div class="section">
         <div class="section-title">
-          <span class="section-title-icon">📊</span>
+          <i class="fa-solid fa-chart-bar"></i>
           Contribution Activity
         </div>
         <div class="stats-grid">
@@ -622,24 +720,43 @@
     //  INIT
     // ─────────────────────────────────────────
     async function init() {
-      // Get current session
-      const { data: { session } } = await sb.auth.getSession();
-      currentUser = session?.user || null;
+      try {
+        // Wait for supabaseClient to be available
+        let attempts = 0;
+        while (!window.supabaseClient && attempts < 10) {
+          await new Promise(resolve => setTimeout(resolve, 100));
+          attempts++;
+        }
 
-      // Get profile user ID from URL
-      const urlParams = new URLSearchParams(window.location.search);
-      const userId = urlParams.get('id');
+        if (!window.supabaseClient) {
+          console.error('Supabase client not available');
+          showError('Failed to initialize. Please refresh the page.');
+          return;
+        }
 
-      if (!userId) {
-        showError();
-        return;
+        // Get current session
+        const { data: { session } } = await sb.auth.getSession();
+        currentUser = session?.user || null;
+
+        // Get profile user ID from URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const userId = urlParams.get('id');
+
+        if (!userId) {
+          console.error('No user ID provided in URL');
+          showError('No profile specified. Please select a profile to view.');
+          return;
+        }
+
+        isOwnProfile = currentUser && currentUser.id === userId;
+
+        // Load profile data
+        await loadProfile(userId);
+        updateAuthButton();
+      } catch (error) {
+        console.error('Init error:', error);
+        showError('An error occurred while loading the profile.');
       }
-
-      isOwnProfile = currentUser && currentUser.id === userId;
-
-      // Load profile data
-      await loadProfile(userId);
-      updateAuthButton();
     }
 
     // ─────────────────────────────────────────
@@ -651,44 +768,86 @@
         document.getElementById('errorState').style.display = 'none';
         document.getElementById('profileContent').style.display = 'none';
 
-        // Fetch user profile
-        const { data: user, error } = await sb
-          .from('users')
-          .select(`
-            id, full_name, email, bio, avatar_url, role,
-            contributor_kind, individual_category,
-            organization_name, organization_description, institution_type, website_url,
-            profile_image_url, created_at,
-            county:counties(name)
-          `)
-          .eq('id', userId)
-          .single();
+        console.log('Loading profile for user:', userId);
 
-        if (error) throw error;
+        // Set a timeout to prevent indefinite loading
+        const profilePromise = (async () => {
+          // Fetch user profile
+          const { data: user, error } = await sb
+            .from('users')
+            .select(`
+              id, full_name, email, bio, avatar_url, role,
+              contributor_kind, individual_category,
+              organization_name, organization_description, institution_type, website_url,
+              profile_image_url, created_at,
+              county:counties(name)
+            `)
+            .eq('id', userId)
+            .single();
 
-        profileUser = user;
+          if (error) {
+            console.error('User query error:', error);
+            throw error;
+          }
 
-        // Fetch contribution statistics
-        const { data: content } = await sb
-          .from('content')
-          .select('id, view_count')
-          .eq('author_id', userId);
+          if (!user) {
+            throw new Error('User not found');
+          }
 
-        const { data: subscriptions } = await sb
-          .from('user_subscriptions')
-          .select('id')
-          .eq('user_id', userId);
+          console.log('User profile loaded:', user.id);
 
-        // Render profile
-        renderProfile(user, content, subscriptions);
+          profileUser = user;
 
-        document.getElementById('loadingState').style.display = 'none';
-        document.getElementById('profileContent').style.display = 'block';
+          // Fetch contribution statistics in parallel
+          const [{ data: content, error: contentError }, { data: subscriptions, error: subError }] = await Promise.all([
+            sb
+              .from('content')
+              .select('id, view_count')
+              .eq('author_id', userId),
+            sb
+              .from('user_subscriptions')
+              .select('id')
+              .eq('user_id', userId)
+          ]);
+
+          if (contentError) {
+            console.warn('Content fetch warning:', contentError);
+          }
+          if (subError) {
+            console.warn('Subscriptions fetch warning:', subError);
+          }
+
+          // Render profile
+          renderProfile(user, content || [], subscriptions || []);
+
+          document.getElementById('loadingState').style.display = 'none';
+          document.getElementById('profileContent').style.display = 'block';
+
+          console.log('Profile rendered successfully');
+        })();
+
+        // Apply 15-second timeout
+        await Promise.race([
+          profilePromise,
+          new Promise((_, reject) => 
+            setTimeout(() => reject(new Error('Profile loading timeout')), 15000)
+          )
+        ]);
 
       } catch (err) {
         console.error('Error loading profile:', err);
+        let errorMsg = 'Unable to load profile. Please try again.';
+        
+        if (err.message === 'Profile loading timeout') {
+          errorMsg = 'Profile loading took too long. Please check your connection and try again.';
+        } else if (err.message === 'User not found') {
+          errorMsg = 'The requested profile could not be found.';
+        } else if (err.message?.includes('No rows found')) {
+          errorMsg = 'The requested profile could not be found.';
+        }
+        
         document.getElementById('loadingState').style.display = 'none';
-        showError();
+        showError(errorMsg);
       }
     }
 
@@ -823,9 +982,12 @@
     // ─────────────────────────────────────────
     //  UTILITIES
     // ─────────────────────────────────────────
-    function showError() {
+    function showError(message = null) {
       document.getElementById('loadingState').style.display = 'none';
       document.getElementById('errorState').style.display = 'block';
+      if (message) {
+        document.getElementById('errorMessage').textContent = message;
+      }
     }
 
     function updateAuthButton() {
