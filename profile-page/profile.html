@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -7,28 +8,34 @@
 
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  
+
   <!-- AUTHENTICATION DEPENDENCIES - MUST LOAD FIRST -->
   <script src="../supabaseClient.js"></script>
   <script src="../auth-guard.js"></script>
-  
+
   <!-- PAGE PROTECTION - RUNS BEFORE CONTENT RENDERS -->
   <script src="js/page-protection.js"></script>
-  
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=Playfair+Display:wght@700;900&display=swap" rel="stylesheet">
+
+  <link
+    href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=Playfair+Display:wght@700;900&display=swap"
+    rel="stylesheet">
 
   <style>
     :root {
-      --red:    #C41E3A;
+      --red: #C41E3A;
       --red-dk: #9B1630;
-      --dark:   #0A0A0A;
-      --panel:  #111111;
-      --border: rgba(255,255,255,0.08);
-      --text:   rgba(255,255,255,0.85);
-      --muted:  rgba(255,255,255,0.4);
+      --dark: #0A0A0A;
+      --panel: #111111;
+      --border: rgba(255, 255, 255, 0.08);
+      --text: rgba(255, 255, 255, 0.85);
+      --muted: rgba(255, 255, 255, 0.4);
     }
 
-    * { box-sizing: border-box; margin: 0; padding: 0; }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
 
     body {
       font-family: 'Poppins', sans-serif;
@@ -41,7 +48,7 @@
     /*  HEADER & NAVIGATION                     */
     /* ──────────────────────────────────────── */
     .header {
-      background: rgba(0,0,0,0.5);
+      background: rgba(0, 0, 0, 0.5);
       backdrop-filter: blur(10px);
       border-bottom: 1px solid var(--border);
       padding: 1rem 2rem;
@@ -66,7 +73,10 @@
       letter-spacing: -0.5px;
       min-width: fit-content;
     }
-    .logo span { color: #60A5FA; }
+
+    .logo span {
+      color: #60A5FA;
+    }
 
     .nav-buttons {
       display: flex;
@@ -91,17 +101,21 @@
       .header {
         padding: 0.75rem 1rem;
       }
+
       .header-content {
         flex-direction: column;
         align-items: flex-start;
       }
+
       .logo {
         font-size: 1.1rem;
       }
+
       .nav-buttons {
         width: 100%;
         gap: 8px;
       }
+
       .btn-small {
         padding: 6px 12px;
         font-size: 0.75rem;
@@ -109,19 +123,21 @@
     }
 
     .btn-secondary {
-      background: rgba(255,255,255,0.08);
+      background: rgba(255, 255, 255, 0.08);
       color: var(--text);
       border: 1px solid var(--border);
     }
+
     .btn-secondary:hover {
-      background: rgba(255,255,255,0.12);
-      border-color: rgba(255,255,255,0.15);
+      background: rgba(255, 255, 255, 0.12);
+      border-color: rgba(255, 255, 255, 0.15);
     }
 
     .btn-primary-small {
       background: var(--red);
       color: white;
     }
+
     .btn-primary-small:hover {
       background: var(--red-dk);
     }
@@ -145,7 +161,7 @@
     /*  PROFILE HEADER SECTION                  */
     /* ──────────────────────────────────────── */
     .profile-header {
-      background: linear-gradient(135deg, rgba(27,94,53,0.2) 0%, rgba(196,30,58,0.1) 100%);
+      background: linear-gradient(135deg, rgba(27, 94, 53, 0.2) 0%, rgba(196, 30, 58, 0.1) 100%);
       border: 1px solid var(--border);
       border-radius: 16px;
       padding: 2rem;
@@ -183,7 +199,7 @@
       border-radius: 12px;
       object-fit: cover;
       border: 2px solid var(--border);
-      background: rgba(255,255,255,0.05);
+      background: rgba(255, 255, 255, 0.05);
     }
 
     @media (max-width: 640px) {
@@ -194,8 +210,8 @@
     }
 
     .profile-badge {
-      background: rgba(196,30,58,0.2);
-      border: 1px solid rgba(196,30,58,0.4);
+      background: rgba(196, 30, 58, 0.2);
+      border: 1px solid rgba(196, 30, 58, 0.4);
       color: #ff8a9a;
       padding: 6px 14px;
       border-radius: 100px;
@@ -236,7 +252,7 @@
     }
 
     .meta-item {
-      background: rgba(255,255,255,0.05);
+      background: rgba(255, 255, 255, 0.05);
       border: 1px solid var(--border);
       border-radius: 8px;
       padding: 1rem;
@@ -297,18 +313,20 @@
       background: var(--red);
       color: white;
     }
+
     .btn-action.primary:hover {
       background: var(--red-dk);
       transform: translateY(-1px);
     }
 
     .btn-action.secondary {
-      background: rgba(255,255,255,0.08);
+      background: rgba(255, 255, 255, 0.08);
       color: var(--text);
       border: 1px solid var(--border);
     }
+
     .btn-action.secondary:hover {
-      background: rgba(255,255,255,0.12);
+      background: rgba(255, 255, 255, 0.12);
     }
 
     /* ──────────────────────────────────────── */
@@ -394,6 +412,7 @@
       text-decoration: underline;
       transition: color 0.2s;
     }
+
     .org-value a:hover {
       color: #93C5FD;
     }
@@ -418,7 +437,7 @@
     }
 
     .stat-card {
-      background: rgba(255,255,255,0.05);
+      background: rgba(255, 255, 255, 0.05);
       border: 1px solid var(--border);
       border-radius: 8px;
       padding: 1rem;
@@ -450,7 +469,7 @@
       display: inline-block;
       width: 40px;
       height: 40px;
-      border: 3px solid rgba(255,255,255,0.1);
+      border: 3px solid rgba(255, 255, 255, 0.1);
       border-top-color: var(--red);
       border-radius: 50%;
       animation: spin 0.8s linear infinite;
@@ -458,13 +477,15 @@
     }
 
     @keyframes spin {
-      to { transform: rotate(360deg); }
+      to {
+        transform: rotate(360deg);
+      }
     }
 
     /* Error State */
     .error-container {
-      background: rgba(239,68,68,0.1);
-      border: 1px solid rgba(239,68,68,0.3);
+      background: rgba(239, 68, 68, 0.1);
+      border: 1px solid rgba(239, 68, 68, 0.3);
       color: #fca5a5;
       padding: 1.5rem;
       border-radius: 12px;
@@ -487,8 +508,8 @@
     /* Contributor Type Badge */
     .contributor-type-badge {
       display: inline-block;
-      background: rgba(27,94,53,0.2);
-      border: 1px solid rgba(27,94,53,0.4);
+      background: rgba(27, 94, 53, 0.2);
+      border: 1px solid rgba(27, 94, 53, 0.4);
       color: #86efac;
       padding: 8px 16px;
       border-radius: 8px;
@@ -506,7 +527,7 @@
       left: 0;
       right: 0;
       bottom: 0;
-      background: rgba(0,0,0,0.7);
+      background: rgba(0, 0, 0, 0.7);
       z-index: 1000;
       align-items: center;
       justify-content: center;
@@ -548,19 +569,186 @@
     .modal-close:hover {
       color: white;
     }
+
+    /* MOBILE NAVBAR */
+    .mobile-topbar {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .menu-btn {
+      display: none;
+      background: none;
+      border: none;
+      color: white;
+      font-size: 1.6rem;
+      cursor: pointer;
+    }
+
+    .nav-link {
+      color: white;
+      text-decoration: none;
+      padding: 8px 14px;
+      border-radius: 8px;
+      transition: 0.2s;
+    }
+
+    .nav-link:hover {
+      background: rgba(255, 255, 255, 0.08);
+    }
+
+    .mobile-menu {
+      display: none;
+      width: 100%;
+      flex-direction: column;
+      gap: 10px;
+      margin-top: 1rem;
+      padding-top: 1rem;
+      border-top: 1px solid var(--border);
+    }
+
+    .mobile-menu.show {
+      display: flex;
+    }
+
+    .mobile-link {
+      color: white;
+      text-decoration: none;
+      padding: 12px;
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.05);
+    }
+
+    .mobile-link-btn {
+      padding: 12px;
+      border: none;
+      border-radius: 8px;
+      background: var(--red);
+      color: white;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    /* MOBILE */
+    @media (max-width: 768px) {
+
+      .desktop-nav {
+        display: none;
+      }
+
+      .menu-btn {
+        display: block;
+      }
+
+      .header-content {
+        width: 100%;
+      }
+
+      .profile-header {
+        grid-template-columns: 1fr;
+      }
+
+      .profile-name {
+        font-size: 1.6rem;
+        text-align: center;
+      }
+
+      .profile-info {
+        width: 100%;
+      }
+
+      .profile-meta {
+        grid-template-columns: 1fr;
+      }
+
+      .profile-actions {
+        flex-direction: column;
+      }
+
+      .container {
+        padding: 1rem;
+      }
+
+      .section {
+        overflow: hidden;
+      }
+
+      .stats-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+
+    @media (max-width: 480px) {
+
+      .stats-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .profile-image {
+        width: 110px;
+        height: 110px;
+      }
+
+      .section-title {
+        font-size: 1rem;
+      }
+
+      .meta-value {
+        font-size: 0.85rem;
+      }
+    }
   </style>
 </head>
+
 <body>
+  <!-- Header -->
   <!-- Header -->
   <div class="header">
     <div class="header-content">
-      <div class="logo">CountySphere <span>Liberia</span></div>
-      <div class="nav-buttons">
-        <a href="../contribute-page/index.html">Contribute</a>
-        <a href="../dashboard-page/dashboard.html">Dashboard</a>
-        <button class="btn-small btn-secondary" onclick="goHome()">Back Home</button>
-        <!-- <button class="btn-small btn-primary-small" id="authBtn" onclick="handleAuthClick()">Sign In</button> -->
+
+      <!-- Left -->
+      <div class="mobile-topbar">
+
+        <!-- Menu Button -->
+        <button class="menu-btn" onclick="toggleMenu()">
+          ☰
+        </button>
+
+        <!-- Logo -->
+        <div class="logo">
+          CountySphere <span>Liberia</span>
+        </div>
+
+        <!-- Empty Spacer -->
+        <div style="width:40px"></div>
       </div>
+
+      <!-- Desktop Nav -->
+      <div class="nav-buttons desktop-nav">
+        <a class="nav-link" href="../contribute-page/index.html">Contribute</a>
+        <a class="nav-link" href="../dashboard-page/dashboard.html">Dashboard</a>
+        <button class="btn-small btn-secondary" onclick="goHome()">
+          Back Home
+        </button>
+      </div>
+
+      <!-- Mobile Dropdown -->
+      <div class="mobile-menu" id="mobileMenu">
+        <a class="mobile-link" href="../dashboard-page/dashboard.html">
+          Dashboard
+        </a>
+
+        <a class="mobile-link" href="../contribute-page/index.html">
+          Contribute
+        </a>
+
+        <button class="mobile-link-btn" onclick="goHome()">
+          Back Home
+        </button>
+      </div>
+
     </div>
   </div>
 
@@ -576,10 +764,12 @@
     <div id="errorState" style="display:none">
       <div class="error-container">
         <p id="errorMessage">Unable to load profile. Please try again.</p>
-        <button class="btn-action primary" style="margin-top:1rem;max-width:200px;margin-left:auto;margin-right:auto" onclick="location.reload()">
+        <button class="btn-action primary" style="margin-top:1rem;max-width:200px;margin-left:auto;margin-right:auto"
+          onclick="location.reload()">
           Reload
         </button>
-        <button class="btn-action secondary" style="margin-top:0.5rem;max-width:200px;margin-left:auto;margin-right:auto" onclick="goHome()">
+        <button class="btn-action secondary"
+          style="margin-top:0.5rem;max-width:200px;margin-left:auto;margin-right:auto" onclick="goHome()">
           Back Home
         </button>
       </div>
@@ -704,7 +894,7 @@
     // ─────────────────────────────────────────
     //  SUPABASE SETUP
     // ─────────────────────────────────────────
-    const SUPABASE_URL  = 'https://choagncxtmsewzvxoncx.supabase.co';
+    const SUPABASE_URL = 'https://choagncxtmsewzvxoncx.supabase.co';
     const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNob2FnbmN4dG1zZXd6dnhvbmN4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgzMzk3NjUsImV4cCI6MjA5MzkxNTc2NX0.hVPjF0_b-5DTXMzeFUPYZ82tL27CrsFBIUQrm-XYonE';
     const { createClient } = supabase;
     const sb = createClient(SUPABASE_URL, SUPABASE_ANON);
@@ -834,7 +1024,7 @@
       } catch (err) {
         console.error('Error loading profile:', err);
         let errorMsg = 'Unable to load profile. Please try again.';
-        
+
         if (err.message === 'User not found') {
           errorMsg = 'The requested profile could not be found.';
         } else if (err.message?.includes('No rows found')) {
@@ -842,7 +1032,7 @@
         } else if (err.message?.includes('Network')) {
           errorMsg = 'Network error. Please check your connection and try again.';
         }
-        
+
         document.getElementById('loadingState').style.display = 'none';
         showError(errorMsg);
       }
@@ -912,7 +1102,7 @@
         document.getElementById('category').textContent = categoryDisplay;
         document.getElementById('categoryItemContainer').style.display = 'block';
 
-        document.getElementById('contributorTypeBadges').innerHTML = 
+        document.getElementById('contributorTypeBadges').innerHTML =
           `<span class="contributor-type-badge">${categoryDisplay}</span>`;
       } else {
         document.getElementById('categoryItemContainer').style.display = 'none';
@@ -1024,5 +1214,17 @@
     // ─────────────────────────────────────────
     init();
   </script>
+  <script>
+  function toggleMenu() {
+    const menu = document.getElementById("mobileMenu");
+
+    if (menu.classList.contains("show")) {
+      menu.classList.remove("show");
+    } else {
+      menu.classList.add("show");
+    }
+  }
+</script>
 </body>
+
 </html>
