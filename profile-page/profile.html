@@ -894,10 +894,8 @@
     // ─────────────────────────────────────────
     //  SUPABASE SETUP
     // ─────────────────────────────────────────
-    const SUPABASE_URL = 'https://choagncxtmsewzvxoncx.supabase.co';
-    const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNob2FnbmN4dG1zZXd6dnhvbmN4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgzMzk3NjUsImV4cCI6MjA5MzkxNTc2NX0.hVPjF0_b-5DTXMzeFUPYZ82tL27CrsFBIUQrm-XYonE';
-    const { createClient } = supabase;
-    const sb = createClient(SUPABASE_URL, SUPABASE_ANON);
+
+    const sb = window.supabaseClient || supabaseClient;
 
     // ─────────────────────────────────────────
     //  STATE
@@ -1060,18 +1058,18 @@
 
       // Contributor Type
       const kindMap = {
-        'individual': '👤 Individual',
-        'organization': '🏢 Organization',
-        'ngo': '🤝 NGO',
-        'university': '🎓 University',
-        'vocational_training_center': '🛠️ Vocational Training',
-        'high_school': '🏫 High School',
-        'media_institution': '📰 Media',
-        'government_institution': '🏛️ Government',
-        'healthcare_institution': '🏥 Healthcare',
-        'community_group': '👥 Community Group',
-        'business': '💼 Business',
-        'other': '📌 Other'
+        'individual': ' Individual',
+        'organization': ' Organization',
+        'ngo': ' NGO',
+        'university': ' University',
+        'vocational_training_center': ' Vocational Training',
+        'high_school': ' High School',
+        'media_institution': ' Media',
+        'government_institution': ' Government',
+        'healthcare_institution': ' Healthcare',
+        'community_group': ' Community Group',
+        'business': ' Business',
+        'other': ' Other'
       };
 
       const kindDisplay = kindMap[user.contributor_kind] || 'Contributor';
@@ -1179,6 +1177,9 @@
 
     function updateAuthButton() {
       const btn = document.getElementById('authBtn');
+      // Stop if button does not exist
+      if (!btn) return;
+
       if (currentUser) {
         btn.textContent = '👤 ' + (currentUser.email?.split('@')[0] || 'Account');
         btn.onclick = () => handleLogout();
@@ -1215,16 +1216,16 @@
     init();
   </script>
   <script>
-  function toggleMenu() {
-    const menu = document.getElementById("mobileMenu");
+    function toggleMenu() {
+      const menu = document.getElementById("mobileMenu");
 
-    if (menu.classList.contains("show")) {
-      menu.classList.remove("show");
-    } else {
-      menu.classList.add("show");
+      if (menu.classList.contains("show")) {
+        menu.classList.remove("show");
+      } else {
+        menu.classList.add("show");
+      }
     }
-  }
-</script>
+  </script>
 </body>
 
 </html>
