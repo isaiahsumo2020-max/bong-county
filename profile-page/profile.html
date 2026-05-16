@@ -20,6 +20,12 @@
     href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=Playfair+Display:wght@700;900&display=swap"
     rel="stylesheet">
 
+    <!-- Google Material Icons -->
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <!-- CDN Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+
   <style>
     :root {
       --red: #C41E3A;
@@ -76,6 +82,84 @@
 
     .logo span {
       color: #60A5FA;
+    }
+
+    .notification-wrapper {
+      position: relative;
+    }
+
+    .notification-btn {
+      position: relative;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid var(--border);
+      color: white;
+      padding: 10px 14px;
+      border-radius: 10px;
+      cursor: pointer;
+      font-size: 1rem;
+    }
+
+    .notification-btn:hover {
+      background: rgba(255, 255, 255, 0.12);
+    }
+
+    .notification-count {
+      position: absolute;
+      top: -6px;
+      right: -6px;
+      background: var(--red);
+      color: white;
+      font-size: 0.7rem;
+      min-width: 18px;
+      height: 18px;
+      border-radius: 999px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+    }
+
+    .notification-dropdown {
+      position: absolute;
+      top: 120%;
+      right: 0;
+      width: 300px;
+      background: #111;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+      display: none;
+      z-index: 999;
+    }
+
+    .notification-dropdown.show {
+      display: block;
+    }
+
+    .notification-header {
+      padding: 1rem;
+      font-weight: 700;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .notification-item {
+      padding: 1rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      cursor: pointer;
+      transition: background 0.2s;
+      font-size: 0.9rem;
+    }
+
+    .notification-item:hover {
+      background: rgba(255, 255, 255, 0.05);
+    }
+
+    @media (max-width: 768px) {
+      .notification-dropdown {
+        width: 100%;
+        right: auto;
+        left: 0;
+      }
     }
 
     .nav-buttons {
@@ -726,8 +810,38 @@
       </div>
 
       <!-- Desktop Nav -->
-      <div class="nav-buttons desktop-nav">
-        <a class="nav-link" href="../contribute-page/index.html">Contribute</a>
+      <div class="nav-buttons" id="mobileMenu">
+
+        <!-- Notification -->
+        <div class="notification-wrapper">
+
+          <button class="notification-btn" onclick="toggleNotifications()">
+            <i class="fa-solid fa-bell"></i>
+            <span class="notification-count" id="notificationCount">3</span>
+          </button>
+
+          <!-- Dropdown -->
+          <div class="notification-dropdown" id="notificationDropdown">
+
+            <div class="notification-header">
+              Notifications
+            </div>
+
+            <div class="notification-item">
+              New content was approved
+            </div>
+
+            <div class="notification-item">
+              Someone subscribed to you
+            </div>
+
+            <div class="notification-item">
+              Your profile was viewed
+            </div>
+
+          </div>
+        </div>
+        <a class="nav-link" href="../contribute-page/index.html"> Contribute</a>
         <a class="nav-link" href="../dashboard-page/dashboard.html">Dashboard</a>
         <button class="btn-small btn-secondary" onclick="goHome()">
           Back Home
@@ -782,7 +896,7 @@
         <!-- Left: Image & Badge -->
         <div class="profile-image-section">
           <img id="profileImage" class="profile-image" alt="Profile" />
-          <span class="profile-badge" id="roleStatus">Contributor</span>
+          <span class="profile-badge text-white bg-blue-700" id="roleStatus"></span>
           <div id="contributorTypeBadges" style="text-align:center;margin-top:0.5rem"></div>
         </div>
 
@@ -992,6 +1106,24 @@
 
         profileUser = user;
 
+        //notifications (placeholder)
+        function toggleNotifications() {
+          const dropdown = document.getElementById('notificationDropdown');
+          dropdown.classList.toggle('show');
+        }
+
+        // Close when clicking outside
+        document.addEventListener('click', function (e) {
+
+          const wrapper = document.querySelector('.notification-wrapper');
+
+          if (!wrapper.contains(e.target)) {
+            document
+              .getElementById('notificationDropdown')
+              .classList.remove('show');
+          }
+        });
+
         // Fetch contribution statistics in parallel
         const [{ data: content, error: contentError }, { data: subscriptions, error: subError }] = await Promise.all([
           sb
@@ -1012,7 +1144,10 @@
         }
 
         // Render profile
-        renderProfile(user, content || [], subscriptions || []);
+        renderProfile(user, content || [], subscriptions || []),
+          // User Role
+          document.getElementById('roleStatus').textContent =
+          user.role ? user.role.charAt(0).toUpperCase() + user.role.slice(1) : 'Contributor';
 
         document.getElementById('loadingState').style.display = 'none';
         document.getElementById('profileContent').style.display = 'block';
