@@ -111,7 +111,9 @@
       }
       .topbar-nav {
         gap: 0.5rem;
-        display: none;
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: flex-end;
       }
       .topbar-link {
         font-size: 0.65rem;
@@ -138,8 +140,8 @@
     .left-rail {
       border-right: 1px solid var(--border);
       padding: 2rem 1.5rem;
-      position: sticky; top: 56px;
-      height: calc(100vh - 56px);
+      position: relative; top: 56px;
+      height: auto;
       overflow-y: auto;
     }
 
