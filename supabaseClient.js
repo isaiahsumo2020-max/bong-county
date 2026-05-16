@@ -70,7 +70,7 @@ function mapDbLeader(dbLeader) {
     eraTag: categoryMap[dbLeader.category] || 'Past Leaders',
     bio: dbLeader.bio || '',
     image: dbLeader.photo_url || '',
-    tags: [] // Can be enhanced to include category
+    tags: [] 
   };
 }
 

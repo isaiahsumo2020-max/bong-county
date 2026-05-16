@@ -12,7 +12,7 @@ const Auth = {
       const { data: { user } } = await supabaseClient.auth.getUser();
 
       if (!user) {
-        window.location.href = '../auth-page/auth.html';
+        window.location.href = '../../../auth-page/auth.html';
         return false;
       }
 
@@ -24,13 +24,13 @@ const Auth = {
 
       if (error || !profile) {
         alert('Error loading user profile');
-        window.location.href = '../auth-page/auth.html';
+        window.location.href = '../../../auth-page/auth.html';
         return false;
       }
 
       if (profile.role !== 'super_admin') {
         alert('Unauthorized Access - Super Admin role required');
-        window.location.href = '../index-page/index.html?error=unauthorized';
+        window.location.href = '../../../index.html?error=unauthorized';
         return false;
       }
 
@@ -56,7 +56,7 @@ const Auth = {
   async logout() {
     try {
       await supabaseClient.auth.signOut();
-      window.location.href = '../auth-page/auth.html';
+      window.location.href = '../../../auth-page/auth.html';
     } catch (err) {
       console.error('Logout error:', err);
       alert('Error logging out: ' + err.message);

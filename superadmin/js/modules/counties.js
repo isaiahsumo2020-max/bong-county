@@ -103,29 +103,36 @@ const Counties = {
    */
   renderTableRows() {
     if (this.data.length === 0) {
-      return '<tr><td colspan="5" class="py-8 text-center text-gray-500">No counties found</td></tr>';
+      return '<tr><td colspan="6" class="py-8 text-center text-gray-500">No counties found</td></tr>';
     }
 
-    return this.data.map(county => `
+    return this.data.map(county => {
+      const safeName = Helpers.escapeHtml(county.name).replace(/"/g, '&quot;');
+      const safeRegion = (county.region || '').replace(/"/g, '&quot;');
+      const safeCapital = (county.capital || '').replace(/"/g, '&quot;');
+      
+      return `
       <tr class="border-b border-gray-100 hover:bg-gray-50">
         <td class="py-5 font-semibold text-gray-900">${county.name}</td>
         <td class="py-5 text-gray-600">${county.region || '-'}</td>
         <td class="py-5 text-gray-600">${county.capital || '-'}</td>
         <td class="py-5">${Helpers.getStatusBadge(county.status)}</td>
-        <td class="py-5">
+        <td class="py-5" onclick="event.stopPropagation();">
           <div class="flex gap-2">
-            <button onclick="Counties.openEditModal(${county.id}, '${Helpers.escapeHtml(county.name)}', '${county.region || ''}', '${county.capital || ''}', '${county.status}')" 
-              class="btn btn-primary" style="padding: 0.5rem 0.75rem; font-size: 0.875rem;">
-              Edit
+            <button onclick="event.stopPropagation(); CountyDetails.open(${county.id})" class="btn btn-primary" style="padding: 0.5rem 0.75rem; font-size: 0.875rem;">
+              View Details
             </button>
-            <button onclick="Counties.deleteCounty(${county.id})" 
-              class="btn btn-danger" style="padding: 0.5rem 0.75rem; font-size: 0.875rem;">
+            <button onclick="event.stopPropagation(); Counties.openEditModal(${county.id}, &quot;${safeName}&quot;, &quot;${safeRegion}&quot;, &quot;${safeCapital}&quot;, &quot;${county.status}&quot;)" class="btn btn-secondary" style="padding: 0.5rem 0.75rem; font-size: 0.875rem;">
+              Quick Edit
+            </button>
+            <button onclick="event.stopPropagation(); Counties.deleteCounty(${county.id})" class="btn btn-danger" style="padding: 0.5rem 0.75rem; font-size: 0.875rem;">
               Delete
             </button>
           </div>
         </td>
       </tr>
-    `).join('');
+    `;
+    }).join('');
   },
 
   /**
@@ -152,20 +159,24 @@ const Counties = {
     const tableBody = document.getElementById('countiesTableBody');
     if (tableBody) {
       tableBody.innerHTML = filtered.length === 0
-        ? '<tr><td colspan="5" class="py-8 text-center text-gray-500">No counties found</td></tr>'
+        ? '<tr><td colspan="6" class="py-8 text-center text-gray-500">No counties found</td></tr>'
         : filtered.map(county => `
-          <tr class="border-b border-gray-100 hover:bg-gray-50">
+          <tr class="border-b border-gray-100 hover:bg-gray-50 cursor-pointer" onclick="CountyDetails.open(${county.id})">
             <td class="py-5 font-semibold text-gray-900">${county.name}</td>
             <td class="py-5 text-gray-600">${county.region || '-'}</td>
             <td class="py-5 text-gray-600">${county.capital || '-'}</td>
             <td class="py-5">${Helpers.getStatusBadge(county.status)}</td>
             <td class="py-5">
               <div class="flex gap-2">
-                <button onclick="Counties.openEditModal(${county.id}, '${Helpers.escapeHtml(county.name)}', '${county.region || ''}', '${county.capital || ''}', '${county.status}')" 
+                <button onclick="event.stopPropagation(); CountyDetails.open(${county.id})" 
                   class="btn btn-primary" style="padding: 0.5rem 0.75rem; font-size: 0.875rem;">
-                  Edit
+                  View Details
                 </button>
-                <button onclick="Counties.deleteCounty(${county.id})" 
+                <button onclick="event.stopPropagation(); Counties.openEditModal(${county.id}, '${Helpers.escapeHtml(county.name)}', '${county.region || ''}', '${county.capital || ''}', '${county.status}')" 
+                  class="btn btn-secondary" style="padding: 0.5rem 0.75rem; font-size: 0.875rem;">
+                  Quick Edit
+                </button>
+                <button onclick="event.stopPropagation(); Counties.deleteCounty(${county.id})" 
                   class="btn btn-danger" style="padding: 0.5rem 0.75rem; font-size: 0.875rem;">
                   Delete
                 </button>

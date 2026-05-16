@@ -15,11 +15,11 @@ async function verifyCountyPagesAccess() {
   console.log('🔍 Starting County Pages Access Verification...\n');
   
   const countyPages = [
-    { name: 'Montserrado County', file: '../county-pages/montserrado.html', slug: 'montserrado' },
-    { name: 'Bong County', file: '../county-pages/bong.html', slug: 'bong' },
-    { name: 'Nimba County', file: '../county-pages/nimba.html', slug: 'nimba' },
-    { name: 'Lofa County', file: '../county-pages/lofa.html', slug: 'lofa' },
-    { name: 'Grand Bassa County', file: '../county-pages/bassa.html', slug: 'bassa' },
+    { name: 'Montserrado County', file: '../montserrado.html', slug: 'montserrado' },
+    { name: 'Bong County', file: '../bong.html', slug: 'bong' },
+    { name: 'Nimba County', file: '../nimba.html', slug: 'nimba' },
+    { name: 'Lofa County', file: '../lofa.html', slug: 'lofa' },
+    { name: 'Grand Bassa County', file: '../bassa.html', slug: 'bassa' },
   ];
 
   let successCount = 0;

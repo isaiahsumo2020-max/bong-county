@@ -145,7 +145,7 @@ class CountyPageProtection {
           // Redirect to login
           const returnUrl = encodeURIComponent(to.path);
           const countyName = this.getCountyNameFromURL();
-          const loginPath = `../auth-page/auth.html?next=../county-pages/${countyName}.html%23${to.path}`;
+          const loginPath = `../../auth-page/auth.html?next=../county-pages/${countyName}.html%23${to.path}`;
           
           window.location.href = loginPath;
           return;

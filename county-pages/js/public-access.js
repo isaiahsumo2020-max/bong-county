@@ -70,7 +70,7 @@ window.location.href = '/county-pages/montserrado.html';
 // ============================================================================
 
 // County pages can load PUBLIC content from Supabase:
-/*
+
 async function loadCountyData(countyName) {
   try {
     const { data, error } = await supabaseClient
@@ -87,6 +87,5 @@ async function loadCountyData(countyName) {
     return [];
   }
 }
-*/
 
 console.log('County pages are PUBLIC - anyone can access without authentication');

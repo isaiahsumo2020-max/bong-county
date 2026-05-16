@@ -1408,7 +1408,7 @@
             title="Edit profile">?</div>
           <div class="user-info">
             <div class="user-name" id="user-name">Loading...</div>
-            <div class="user-role" id="user-role-badge">—</div>
+            <div class="user-role" id="user-role-badge"></div>
           </div>
           <button class="logout-btn" onclick="logout()" title="Sign out">
             <i class="fa-solid fa-sign-out-alt"></i>
@@ -1529,7 +1529,7 @@
           <!-- Pending approvals (admin only) -->
           <div id="pending-section" style="display:none">
             <div class="section-header">
-              <div class="section-title">⏳ Pending Approvals</div>
+              <div class="section-title">Pending Approvals</div>
               <button class="section-action" onclick="navigate('approvals')">Review all →</button>
             </div>
             <div class="data-table" id="pending-list"></div>
@@ -1555,7 +1555,7 @@
             </div>
             <div id="content-list">
               <div class="empty-state">
-                <div class="empty-icon">📝</div>
+                <div class="empty-icon"></div>
                 <div class="empty-desc">Loading content...</div>
               </div>
             </div>
@@ -1620,7 +1620,7 @@
         <div id="view-opportunities" class="view">
           <div class="section-header" style="margin-bottom:1rem">
             <div class="section-title">Scholarships, Training & Opportunities</div>
-            <button class="topbar-btn primary" onclick="openOppModal()">+ Add Opportunity</button>
+            <button class="topbar-btn primary" onclick="openOppModal()"> <i class="fa-solid fa-plus"></i> Add Opportunity</button>
           </div>
 
           <div class="data-table">

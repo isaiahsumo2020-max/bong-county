@@ -12,35 +12,35 @@ class CountyNavigationManager {
       'bong-county': {
         name: 'Bong County',
         slug: 'bong',
-        url: '../county-pages/bong.html',
+        url: '../../county-pages/bong.html',
         capital: 'Gbarnga',
         status: 'live'
       },
       'lofa-county': {
         name: 'Lofa County',
         slug: 'lofa',
-        url: '../county-pages/lofa.html',
+        url: '../../county-pages/lofa.html',
         capital: 'Voinjama',
         status: 'live'
       },
       'nimba-county': {
         name: 'Nimba County',
         slug: 'nimba',
-        url: '../county-pages/nimba.html',
+        url: '../../county-pages/nimba.html',
         capital: 'Sanniquellie',
         status: 'live'
       },
       'grand-bassa-county': {
         name: 'Grand Bassa County',
         slug: 'bassa',
-        url: '../county-pages/bassa.html',
+        url: '../../county-pages/bassa.html',
         capital: 'Buchanan',
         status: 'live'
       },
       'montserrado-county': {
         name: 'Montserrado County',
         slug: 'montserrado',
-        url: '../county-pages/montserrado.html',
+        url: '../../county-pages/montserrado.html',
         capital: 'Bensonville',
         status: 'live'
       }

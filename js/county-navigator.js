@@ -10,29 +10,34 @@ class CountyNavigator {
     this.counties = {
       'montserrado': {
         name: 'Montserrado County',
-        url: '/county-pages/montserrado.html',
+        url: '../county-pages/montserrado.html',
         description: 'Capital County'
       },
       'bong': {
         name: 'Bong County',
-        url: '/county-pages/bong.html',
+        url: '../county-pages/bong.html',
         description: 'Mining County'
       },
       'nimba': {
         name: 'Nimba County',
-        url: '/county-pages/nimba.html',
+        url: '../county-pages/nimba.html',
         description: 'Eastern County'
       },
       'lofa': {
         name: 'Lofa County',
-        url: '/county-pages/lofa.html',
+        url: '../county-pages/lofa.html',
         description: 'Northern County'
       },
       'bassa': {
         name: 'Bassa County',
-        url: '/county-pages/bassa.html',
+        url: '../county-pages/bassa.html',
         description: 'Coastal County'
-      }
+      },
+      'margibi': {
+        name: 'Margibi County',
+        url: '../county-pages/margibi.html',
+        description: 'Eastern County'
+      },
     };
   }
 

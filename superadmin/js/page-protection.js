@@ -15,7 +15,7 @@
 
     if (!window.supabaseClient) {
       console.error('Supabase client not available');
-      window.location.href = '../index-page/index.html?error=client-error';
+      window.location.href = '../../index-page/index.html?error=client-error';
       return;
     }
 
@@ -24,7 +24,7 @@
 
     if (authError || !user) {
       console.warn('User not authenticated');
-      window.location.href = '../auth-page/auth.html?error=not-authenticated';
+      window.location.href = '../../auth-page/auth.html?error=not-authenticated';
       return;
     }
 
@@ -37,14 +37,14 @@
 
     if (profileError || !profile) {
       console.error('Error fetching user profile:', profileError);
-      window.location.href = '../auth-page/auth.html?error=profile-error';
+      window.location.href = '../../auth-page/auth.html?error=profile-error';
       return;
     }
 
     // Check if user has super_admin role
     if (profile.role !== 'super_admin' && profile.role !== 'county_admin') {
       console.warn('User does not have required admin role:', profile.role);
-      window.location.href = '../index-page/index.html?error=insufficient-role';
+      window.location.href = '../../index-page/index.html?error=insufficient-role';
       return;
     }
 
@@ -52,6 +52,6 @@
 
   } catch (error) {
     console.error('Super admin page protection error:', error);
-    window.location.href = '../index-page/index.html?error=protection-failed';
+    window.location.href = '../../index-page/index.html?error=protection-failed';
   }
 })();
