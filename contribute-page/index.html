@@ -780,23 +780,34 @@
   }
 }
 
+.type-card {
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
+@media (max-width: 768px) {
+  .type-card {
+    min-width: 180px;
+    flex-shrink: 0;
+  }
+}
   </style>
 </head>
 <body>
 
   <!-- ══ TOP BAR ══ -->
   <div class="topbar">
-    <a href="..//index.html" class="topbar-logo text-2xl font-extrabold text-red-700 tracking-wide">
+    <a href="..//index.html" class="topbar-logo text-2xl font-extrabold text-red-600 tracking-wide">
             C.<span class="text-white">S. </span><span class="text-blue-white">Liberia</span>
     </a>
     <div class="topbar-nav">
-      <a href="../index.html"    class="topbar-link">Home</a>
-      <a href="../dashboard-page/dashboard.html" class="topbar-link">Dashboard</a>
-      <div class="topbar-user">
-        <div class="topbar-avatar" id="nav-avatar">?</div>
+      <a href="../index.html"    class="topbar-link text-white">Home</a>
+      <a href="../dashboard-page/dashboard.html" class="topbar-link text-white">Dashboard</a>
+      <a href="../profile-page/profile.html">
+       <i class="fa-solid fa-user" style="color:white"></i>
         <span class="topbar-uname" id="nav-name">Loading…</span>
-      </div>
-      <button class="topbar-link" onclick="logout()">Sign out</button>
+      </a>
+      <button class="topbar-link text-red-600" onclick="logout()">Sign out</button>
     </div>
   </div>
 
@@ -809,7 +820,7 @@
       <div class="rail-section">
         <div class="rail-label">What to submit</div>
 
-        <div class="type-card active" id="type-story" onclick="switchType('story')">
+        <div class="type-card" data-type="story">
           <div class="type-icon" style="background:#F0F9F4">
           </div>
           <div>
@@ -833,7 +844,7 @@
             <i class="fa-solid fa-bullhorn" style="color:#B45309;font-size:1.1rem"></i>
           </div>
           <div>
-            <div class="type-name"> <i Opportunity</div>
+            <div class="type-name"> <i class="fa-solid fa-bullhorn"></i> Opportunity</div>
             <div class="type-desc">Scholarships, jobs, training</div>
           </div>
         </div>
@@ -849,6 +860,28 @@
         </div>
       </div>
 
+
+
+<!-- <div class="nav-item" onclick="openView('story')">
+  📝 <span class="nav-item-label">Story / Article</span>
+</div>
+
+<div class="nav-item" onclick="openView('event')">
+  📅 <span class="nav-item-label">Event</span>
+</div>
+
+<div class="nav-item" onclick="openView('opportunity')">
+  💼 <span class="nav-item-label">Opportunity</span>
+</div>
+
+<div class="nav-item" onclick="openView('announcement')">
+  📢 <span class="nav-item-label">Announcement</span>
+</div>
+
+<div class="nav-item" onclick="openView('tips')">
+  💡 <span class="nav-item-label">Writing Tips</span>
+</div> -->
+      
       <!-- Tips -->
       <div class="tips-card" id="tips-box">
         <div class="tips-title"> Writing Tips</div>
@@ -949,7 +982,8 @@
             </div>
             <div id="cover-preview">
               <img id="cover-img" src="" alt="Cover" />
-              <button onclick="removeCover(event)">✕ Remove</button>
+              <button onclick="removeCover(event)">
+                <i class="fas fa-times"></i> Remove</button>
             </div>
           </div>
           <input type="file" id="cover-file" accept="image/*" style="display:none" onchange="handleCoverUpload(event)" />
@@ -1622,6 +1656,11 @@
     window.location.href = '../auth-page/auth.html';
   }
 
+  document.querySelectorAll('.type-card').forEach(card => {
+  card.addEventListener('click', () => {
+    switchType(card.dataset.type);
+  });
+});
   // ─────────────────────────────────────────
   //  BOOT
   // ─────────────────────────────────────────
