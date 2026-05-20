@@ -71,14 +71,14 @@ const CountyDetails = {
 
   /**
    * Get number of contributors for a county
+   * Counts ALL users assigned to the county, regardless of role
    */
   async getCountryContributors(countyId) {
     try {
       const { data, error } = await supabaseClient
         .from('users')
         .select('id', { count: 'exact', head: true })
-        .eq('county_id', countyId)
-        .eq('role', 'county_admin');
+        .eq('county_id', countyId);
 
       if (error) throw error;
       return data?.length || 0;

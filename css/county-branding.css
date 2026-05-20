@@ -1,0 +1,418 @@
+/**
+ * COUNTY BRANDING - COMPONENT COLOR CUSTOMIZATION
+ * 
+ * This file applies county-specific colors to components defined in design-system.css.
+ * Colors are dynamically set by county-branding.js
+ * 
+ * Load order:
+ * 1. design-system.css (base styles, layouts, components)
+ * 2. county-branding.css (color customization)
+ * 3. dashboard CSS files (page-specific overrides)
+ */
+
+/* ═══════════════════════════════════════════════════════════════════ */
+/* CSS VARIABLES - Set by county-branding.js */
+/* ═══════════════════════════════════════════════════════════════════ */
+
+:root {
+  /* County Primary Colors */
+  --county-primary: #10B981;      /* Main brand color */
+  --county-secondary: #059669;    /* Secondary/complement */
+  --county-accent: #6EE7B7;       /* Accent/highlight */
+  
+  /* County Surface Colors */
+  --county-bg: #FFFFFF;           /* Main background */
+  --county-surface: #F0FDF4;      /* Surface/card bg */
+  --county-surface-light: #DCFCE7; /* Lighter surface */
+  
+  /* County Text & Borders */
+  --county-text: #1A1A1A;         /* Primary text */
+  --county-border: #D1FAE5;       /* Light borders */
+  --county-border-dark: #A7F3D0;  /* Darker borders */
+  
+  /* County State Colors */
+  --county-hover: rgba(16, 185, 129, 0.1);    /* Hover state */
+  --county-active: rgba(16, 185, 129, 0.15);  /* Active state */
+  --county-glow: rgba(16, 185, 129, 0.25);    /* Glow/shadow */
+}
+
+/* ═══════════════════════════════════════════════════════════════════ */
+/* BUTTON COUNTY BRANDING */
+/* ═══════════════════════════════════════════════════════════════════ */
+
+.btn-primary {
+  background: linear-gradient(135deg, var(--county-primary) 0%, var(--county-secondary) 100%);
+  color: white;
+  border-color: var(--county-primary);
+  box-shadow: 0 2px 4px var(--county-glow);
+}
+
+.btn-primary:hover:not(:disabled) {
+  background: linear-gradient(135deg, var(--county-secondary) 0%, var(--county-primary) 100%);
+  border-color: var(--county-secondary);
+  box-shadow: 0 8px 16px var(--county-glow);
+  transform: translateY(-2px);
+}
+
+.btn-primary:active:not(:disabled) {
+  transform: translateY(0);
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.btn-secondary {
+  background-color: var(--county-surface);
+  color: var(--county-primary);
+  border-color: var(--county-primary);
+}
+
+.btn-secondary:hover:not(:disabled) {
+  background-color: var(--county-accent);
+  color: white;
+  border-color: var(--county-secondary);
+  box-shadow: 0 4px 12px var(--county-glow);
+}
+
+/* ═══════════════════════════════════════════════════════════════════ */
+/* SIDEBAR COUNTY BRANDING */
+/* ═══════════════════════════════════════════════════════════════════ */
+
+.dashboard-sidebar {
+  background: linear-gradient(180deg, var(--county-secondary) 0%, #0F2F1F 100%);
+  border-right-color: var(--county-primary);
+}
+
+.sidebar-item {
+  color: rgba(255, 255, 255, 0.7);
+  transition: all var(--transition-base);
+}
+
+.sidebar-item:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+  color: white;
+  transform: translateX(2px);
+}
+
+.sidebar-item.active {
+  background: linear-gradient(90deg, var(--county-primary) 0%, var(--county-accent) 100%);
+  color: white;
+  border-left-color: var(--county-accent);
+  box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* ═══════════════════════════════════════════════════════════════════ */
+/* CARD COUNTY BRANDING */
+/* ═══════════════════════════════════════════════════════════════════ */
+
+.card {
+  background-color: var(--county-bg);
+  border-color: var(--county-border);
+}
+
+.card:hover {
+  border-color: var(--county-primary);
+  box-shadow: 0 4px 12px var(--county-glow);
+}
+
+.card-header {
+  background: linear-gradient(90deg, var(--county-primary) 0%, var(--county-accent) 100%);
+  border-bottom-color: var(--county-secondary);
+  color: white;
+}
+
+.card-header h3 {
+  color: white;
+}
+
+.card-body {
+  background-color: var(--county-bg);
+}
+
+/* ═══════════════════════════════════════════════════════════════════ */
+/* FORM COUNTY BRANDING */
+/* ═══════════════════════════════════════════════════════════════════ */
+
+.form-input,
+.form-select,
+.form-textarea {
+  border-color: var(--county-border);
+  background-color: var(--county-bg);
+  color: var(--county-text);
+}
+
+.form-input:focus,
+.form-select:focus,
+.form-textarea:focus {
+  border-color: var(--county-primary);
+  box-shadow: 0 0 0 3px var(--county-hover);
+  outline: 2px solid var(--county-primary);
+  outline-offset: 1px;
+}
+
+.form-label {
+  color: var(--county-primary);
+  font-weight: 600;
+}
+
+/* ═══════════════════════════════════════════════════════════════════ */
+/* BADGE COUNTY BRANDING */
+/* ═══════════════════════════════════════════════════════════════════ */
+
+.badge-primary {
+  background-color: var(--county-hover);
+  color: var(--county-primary);
+  border-color: var(--county-primary);
+}
+
+/* ═══════════════════════════════════════════════════════════════════ */
+/* TABLE COUNTY BRANDING */
+/* ═══════════════════════════════════════════════════════════════════ */
+
+.table thead {
+  background-color: var(--county-surface);
+  border-bottom-color: var(--county-primary);
+}
+
+.table th {
+  color: var(--county-primary);
+  font-weight: 700;
+}
+
+.table tbody tr:hover {
+  background-color: var(--county-hover);
+  transition: background-color var(--transition-base);
+}
+
+/* ═══════════════════════════════════════════════════════════════════ */
+/* MODAL COUNTY BRANDING */
+/* ═══════════════════════════════════════════════════════════════════ */
+
+.modal {
+  background-color: var(--county-bg);
+  border: 1px solid var(--county-border);
+}
+
+.modal-header {
+  background: linear-gradient(135deg, var(--county-primary) 0%, var(--county-secondary) 100%);
+  border-bottom-color: var(--county-accent);
+  color: white;
+}
+
+.modal-header h2 {
+  color: white;
+}
+
+.modal-close {
+  color: white;
+  transition: all var(--transition-base);
+}
+
+.modal-close:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+.modal-body {
+  color: var(--county-text);
+}
+
+/* ═══════════════════════════════════════════════════════════════════ */
+/* LINK COUNTY BRANDING */
+/* ═══════════════════════════════════════════════════════════════════ */
+
+a,
+.link-primary {
+  color: var(--county-primary);
+  text-decoration: none;
+  transition: all var(--transition-base);
+}
+
+a:hover,
+.link-primary:hover {
+  color: var(--county-secondary);
+  text-decoration: underline;
+}
+
+a:focus-visible,
+.link-primary:focus-visible {
+  outline: 2px solid var(--county-primary);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+/* ═══════════════════════════════════════════════════════════════════ */
+/* TAB NAVIGATION COUNTY BRANDING */
+/* ═══════════════════════════════════════════════════════════════════ */
+
+.tab-item {
+  color: var(--county-secondary);
+  border-bottom: 3px solid transparent;
+  position: relative;
+  margin-bottom: -2px;
+  transition: all var(--transition-base);
+}
+
+.tab-item:hover {
+  color: var(--county-primary);
+}
+
+.tab-item.active {
+  color: var(--county-primary);
+  border-bottom-color: var(--county-primary);
+  font-weight: 600;
+}
+
+/* ═══════════════════════════════════════════════════════════════════ */
+/* PROGRESS BAR COUNTY BRANDING */
+/* ═══════════════════════════════════════════════════════════════════ */
+
+.progress-bar {
+  background: linear-gradient(90deg, var(--county-primary) 0%, var(--county-accent) 100%);
+  box-shadow: 0 0 8px var(--county-glow);
+}
+
+.progress-container {
+  background-color: var(--county-border);
+}
+
+/* ═══════════════════════════════════════════════════════════════════ */
+/* ALERT COUNTY BRANDING */
+/* ═══════════════════════════════════════════════════════════════════ */
+
+.alert-info {
+  background-color: var(--county-hover);
+  border-left-color: var(--county-primary);
+  color: var(--county-primary);
+}
+
+/* ═══════════════════════════════════════════════════════════════════ */
+/* DECORATION & ACCENT ELEMENTS */
+/* ═══════════════════════════════════════════════════════════════════ */
+
+.accent-line {
+  background-color: var(--county-primary);
+  height: 2px;
+}
+
+.accent-dot {
+  background-color: var(--county-primary);
+  border-radius: 50%;
+}
+
+.accent-border {
+  border-color: var(--county-primary);
+}
+
+.accent-text {
+  color: var(--county-primary);
+  font-weight: 600;
+}
+
+/* ═══════════════════════════════════════════════════════════════════ */
+/* HEADING COUNTY BRANDING */
+/* ═══════════════════════════════════════════════════════════════════ */
+
+h1, h2, h3, h4, h5, h6 {
+  color: var(--county-text);
+}
+
+.section-title {
+  color: var(--county-primary);
+  position: relative;
+  padding-bottom: var(--space-2);
+}
+
+.section-title::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 40px;
+  height: 2px;
+  background: linear-gradient(90deg, var(--county-primary), var(--county-accent));
+}
+
+/* ═══════════════════════════════════════════════════════════════════ */
+/* HOVER & INTERACTIVE STATES */
+/* ═══════════════════════════════════════════════════════════════════ */
+
+.hover-accent:hover {
+  color: var(--county-primary);
+  transform: translateX(2px);
+}
+
+.interactive-item {
+  cursor: pointer;
+  transition: all var(--transition-base);
+}
+
+.interactive-item:hover {
+  background-color: var(--county-hover);
+  border-color: var(--county-primary);
+}
+
+.interactive-item.active {
+  background-color: var(--county-active);
+  border-color: var(--county-primary);
+  box-shadow: inset 0 0 8px var(--county-glow);
+}
+
+/* ═══════════════════════════════════════════════════════════════════ */
+/* RESPONSIVE ADJUSTMENTS */
+/* ═══════════════════════════════════════════════════════════════════ */
+
+@media (max-width: 768px) {
+  .dashboard-header {
+    border-bottom-width: 1px;
+  }
+
+  .card {
+    border-width: 1px;
+  }
+
+  .modal {
+    border-width: 1px;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════════ */
+/* PRINT STYLES */
+/* ═══════════════════════════════════════════════════════════════════ */
+
+@media print {
+  .btn,
+  .sidebar-item,
+  .modal-close {
+    display: none;
+  }
+
+  .card {
+    page-break-inside: avoid;
+    border-color: #000;
+  }
+
+  .card-header {
+    background-color: transparent;
+    border-bottom: 2px solid #000;
+    color: #000;
+  }
+}
+
+/* ══════════════════════════════════════════════════ */
+/* PRINT STYLES */
+/* ══════════════════════════════════════════════════ */
+
+@media print {
+  .btn,
+  .sidebar,
+  .navbar {
+    display: none;
+  }
+
+  body {
+    background-color: white;
+    color: black;
+  }
+
+  a {
+    color: black;
+  }
+}

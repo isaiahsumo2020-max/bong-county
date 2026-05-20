@@ -69,6 +69,9 @@ const ROLE_NAV = {
 // ─────────────────────────────────────────
 //  COUNTY COLOR THEMES
 // ─────────────────────────────────────────
+// Using new CountyBranding system - see js/county-branding.js
+// Colors are now applied via CSS variables by CountyBranding.applyTheme()
+
 const COUNTY_COLORS = {
   bong:          { primary: '#EA580C', light: '#FF7A2E', glow: 'rgba(234,88,12,0.25)', theme: 'light', bg: '#FFFFFF', surface: '#F5F5F5', text: '#1A1A1A', border: '#E0E0E0' },
   montserrado:   { primary: '#1B5E35', light: '#2E8B57', glow: 'rgba(27,94,53,0.25)' },
@@ -90,6 +93,13 @@ const COUNTY_COLORS = {
 function applyCountyTheme(countySlug) {
   if (!countySlug) return;
   
+  // Use new CountyBranding module if available
+  if (window.CountyBranding) {
+    const success = CountyBranding.applyTheme(countySlug);
+    if (success) return; // Theme applied successfully via module
+  }
+
+  // Fallback to local implementation for backward compatibility
   const colors = COUNTY_COLORS[countySlug.toLowerCase()];
   if (!colors) return;
 
@@ -188,23 +198,55 @@ async function initDashboard() {
 
     // If county_id is missing but we have county data, fetch it
     if (!currentProfile.county_id && currentProfile.counties?.name) {
-      console.log('ℹ county_id missing, looking up from county name:', currentProfile.counties.name);
-      const { data: county, error: countyError } = await sb
-        .from('counties')
-        .select('id')
-        .eq('name', currentProfile.counties.name)
-        .single();
-      
-      if (countyError) {
-        console.warn('⚠ Error looking up county:', countyError.message);
-      } else if (county) {
-        currentProfile.county_id = county.id;
-        console.log('✓ Found county_id:', county.id);
-        // Update user record with county_id
-        const { error: updateError } = await sb.from('users')
-          .update({ county_id: county.id })
-          .eq('id', currentUser.id);
-        if (updateError) console.error('✗ Error updating county_id:', updateError);
+      console.log('⚠ county_id missing, attempting to look up from county name:', currentProfile.counties.name);
+      try {
+        const { data: county, error: countyError } = await sb
+          .from('counties')
+          .select('id')
+          .eq('name', currentProfile.counties.name)
+          .single();
+        
+        if (!countyError && county) {
+          currentProfile.county_id = county.id;
+          console.log('✓ Found and assigned county_id:', county.id);
+          // Update user record with county_id
+          const { error: updateError } = await sb.from('users')
+            .update({ county_id: county.id })
+            .eq('id', currentUser.id);
+          if (updateError) {
+            console.error('✗ Error updating county_id:', updateError);
+          } else {
+            console.log('✓ Successfully saved county_id to database');
+          }
+        } else {
+          console.warn('⚠ Could not find county ID for name:', currentProfile.counties.name);
+        }
+      } catch (err) {
+        console.error('✗ Error during county lookup:', err);
+      }
+    }
+
+    // Additional recovery: if still missing county but have county_name in user metadata
+    if (!currentProfile.county_id && currentUser.user_metadata?.county_name) {
+      console.log('ℹ Attempting to lookup county from user metadata:', currentUser.user_metadata.county_name);
+      try {
+        const { data: county, error: countyError } = await sb
+          .from('counties')
+          .select('id')
+          .ilike('name', `%${currentUser.user_metadata.county_name}%`)
+          .single();
+        
+        if (!countyError && county) {
+          currentProfile.county_id = county.id;
+          console.log('✓ Recovered county_id from metadata:', county.id);
+          // Update user record
+          const { error: updateError } = await sb.from('users')
+            .update({ county_id: county.id })
+            .eq('id', currentUser.id);
+          if (updateError) console.error('✗ Error updating county_id:', updateError);
+        }
+      } catch (err) {
+        console.error('✗ Error during county metadata recovery:', err);
       }
     }
 
@@ -224,7 +266,7 @@ async function initDashboard() {
     
   } catch (error) {
     console.error('✗ Unexpected error in initDashboard:', error);
-    window.location.href = '../index-page/index.html?error=init-failed';
+    window.location.href = '../index.html?error=init-failed';
   }
 }
 
@@ -249,7 +291,7 @@ async function initDashboard() {
       console.log('✓ Dashboard will be initialized by page-protection script');
     } catch (error) {
       console.error('✗ Error initializing dashboard:', error);
-      window.location.href = '../index-page/index.html?error=init-failed';
+      window.location.href = '../index.html?error=init-failed';
     }
   } else {
     console.error('✗ Timeout waiting for auth protection to complete after', maxAttempts * 100, 'ms');

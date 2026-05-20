@@ -38,31 +38,59 @@
       }
 
       // Load counties for the register dropdown
-      const { data } = await sb
-        .from('counties')
-        .select('id, name, slug')
-        .order('name');
-
       const sel = document.getElementById('reg-county');
-      if (data && data.length > 0) {
-        data.forEach(c => {
-          const opt = document.createElement('option');
-          opt.value = c.id;
-          opt.textContent = c.name;
-          sel.appendChild(opt);
-        });
-      } else {
-        // Fallback counties if DB not populated yet
+      let hasLoadedCounties = false;
+      
+      try {
+        const { data, error } = await sb
+          .from('counties')
+          .select('id, name, slug')
+          .order('name');
+
+        if (!error && data && data.length > 0) {
+          hasLoadedCounties = true;
+          data.forEach(c => {
+            const opt = document.createElement('option');
+            opt.value = c.id;
+            opt.textContent = c.name;
+            opt.setAttribute('data-county-name', c.name); // Store name as data attribute
+            sel.appendChild(opt);
+          });
+          console.log('✓ Successfully loaded', data.length, 'counties from database');
+        } else if (error) {
+          console.warn('⚠ Error loading counties:', error.message);
+        }
+      } catch (err) {
+        console.warn('⚠ Exception loading counties:', err.message);
+      }
+
+      // If no counties loaded successfully, use fallback
+      if (!hasLoadedCounties) {
+        console.log('ℹ Using fallback counties - database connection may be unavailable');
+        // Define fallback counties with consistent IDs (using county name as fallback ID for lookup)
         const fallback = [
-          'Bong County', 'Bomi County', 'Gbarpolu County', 'Grand Bassa County',
-          'Grand Cape Mount County', 'Grand Gedeh County', 'Grand Kru County',
-          'Lofa County', 'Margibi County', 'Maryland County', 'Montserrado County',
-          'Nimba County', 'River Cess County', 'River Gee County', 'Sinoe County'
+          { name: 'Bong County', fallbackId: 'bong' },
+          { name: 'Bomi County', fallbackId: 'bomi' },
+          { name: 'Gbarpolu County', fallbackId: 'gbarpolu' },
+          { name: 'Grand Bassa County', fallbackId: 'grand-bassa' },
+          { name: 'Grand Cape Mount County', fallbackId: 'grand-cape-mount' },
+          { name: 'Grand Gedeh County', fallbackId: 'grand-gedeh' },
+          { name: 'Grand Kru County', fallbackId: 'grand-kru' },
+          { name: 'Lofa County', fallbackId: 'lofa' },
+          { name: 'Margibi County', fallbackId: 'margibi' },
+          { name: 'Maryland County', fallbackId: 'maryland' },
+          { name: 'Montserrado County', fallbackId: 'montserrado' },
+          { name: 'Nimba County', fallbackId: 'nimba' },
+          { name: 'River Cess County', fallbackId: 'river-cess' },
+          { name: 'River Gee County', fallbackId: 'river-gee' },
+          { name: 'Sinoe County', fallbackId: 'sinoe' }
         ];
-        fallback.forEach((name, i) => {
+        fallback.forEach(c => {
           const opt = document.createElement('option');
-          opt.value = `fallback-${i}`;
-          opt.textContent = name;
+          opt.value = c.fallbackId; // Use consistent fallback ID
+          opt.textContent = c.name;
+          opt.setAttribute('data-county-name', c.name);
+          opt.setAttribute('data-fallback', 'true');
           sel.appendChild(opt);
         });
       }
@@ -417,6 +445,10 @@
 
       setLoading('registerBtn', true);
 
+      // Get county name for reference
+      const countySelect = document.getElementById('reg-county');
+      const countyName = countySelect.options[countySelect.selectedIndex]?.getAttribute('data-county-name') || null;
+
       // Sign up via Supabase Auth
       const { data, error } = await sb.auth.signUp({
         email,
@@ -425,7 +457,8 @@
           data: {
             full_name:  name,
             role:       selectedRole,
-            county_id:  selectedCounty,
+            county_id:  selectedCounty && !selectedCounty.startsWith('fallback') ? selectedCounty : null,
+            county_name: countyName, // Store county name as reference
             phone:      selectedPhone
           },
           emailRedirectTo: window.location.origin + '../auth-page/auth.html'
@@ -451,6 +484,7 @@
         county_id: selectedCounty && !selectedCounty.startsWith('fallback')
           ? selectedCounty
           : null,
+        county_name: countyName, // Store county name as backup reference
         contributor_kind: selectedContributorKind,
         profile_visibility: 'public'
       };
@@ -467,9 +501,15 @@
 
       // Update the users table with extra info
       if (data.user) {
-        const { error: updateError } = await sb.from('users').upsert(userData);
-        if (updateError) {
-          console.error('Error updating user profile:', updateError);
+        try {
+          const { error: updateError } = await sb.from('users').upsert(userData);
+          if (updateError) {
+            console.error('Error updating user profile:', updateError);
+          } else {
+            console.log('✓ User profile saved with county_id:', userData.county_id);
+          }
+        } catch (err) {
+          console.error('Exception updating user profile:', err);
         }
       }
 

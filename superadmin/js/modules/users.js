@@ -295,6 +295,23 @@ const UserManagement = {
       return;
     }
 
+    // Load counties for the dropdown
+    let countiesOptions = '<option value="">No County</option>';
+    try {
+      const { data: counties } = await supabaseClient
+        .from('counties')
+        .select('id, name')
+        .order('name');
+      
+      if (counties && counties.length > 0) {
+        countiesOptions += counties.map(c => 
+          `<option value="${c.id}" ${item.county_id === c.id ? 'selected' : ''}>${c.name}</option>`
+        ).join('');
+      }
+    } catch (err) {
+      console.error('Error loading counties:', err);
+    }
+
     const content = `
       <form id="editUserForm" data-user-id="${item.id}">
         <div class="mb-4">
@@ -314,6 +331,12 @@ const UserManagement = {
             <option value="county_admin" ${item.role === 'county_admin' ? 'selected' : ''}>County Admin</option>
             <option value="contributor" ${item.role === 'contributor' ? 'selected' : ''}>Contributor</option>
             <option value="visitor" ${item.role === 'visitor' ? 'selected' : ''}>Visitor</option>
+          </select>
+        </div>
+        <div class="mb-4">
+          <label class="block text-gray-700 font-semibold mb-2">County</label>
+          <select id="editUserCounty" class="border border-gray-300 px-3 py-2 rounded w-full">
+            ${countiesOptions}
           </select>
         </div>
         <div class="mb-6">
@@ -389,6 +412,7 @@ const UserManagement = {
     const full_name = document.getElementById('editUserName').value.trim();
     const email = document.getElementById('editUserEmail').value.trim();
     const role = document.getElementById('editUserRole').value;
+    const county_id = document.getElementById('editUserCounty').value || null;
     const verified = document.getElementById('editUserVerified').checked;
 
     if (!full_name || !email || !role) {
@@ -403,6 +427,7 @@ const UserManagement = {
           full_name,
           email,
           role,
+          county_id,
           verified
         })
         .eq('id', id);
