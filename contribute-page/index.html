@@ -33,7 +33,7 @@
       <a href="../index.html"    class="topbar-link text-white">Home</a>
       <a href="../dashboard-page/dashboard.html" class="topbar-link text-white">Dashboard</a>
       <a href="../profile-page/profile.html">
-       <i class="fa-solid fa-user" style="color:white"></i>
+       <i class="material-icons" style="color:white">person</i>
         <span class="topbar-uname" id="nav-name">Loading…</span>
       </a>
       <button class="topbar-link text-red-600" onclick="logout()">Sign out</button>
@@ -51,6 +51,7 @@
 
         <div class="type-card" id="type-story" data-type="story">
           <div class="type-icon" style="background:#F0F9F4">
+            <i class="material-icons" style="color:#0246cd;font-size:2.1rem">description</i>
           </div>
           <div>
             <div class="type-name">Story / Article</div>
@@ -60,7 +61,7 @@
 
         <div class="type-card" id="type-event" data-type="event">
           <div class="type-icon" style="background:#FFF7ED">
-            <i class="fa-solid fa-calendar-days" style="color:#D97706;font-size:1.1rem"></i>
+            <i class="material-icons" style="color:#FF9800;font-size:1.1rem">event</i>
           </div>
           <div>
             <div class="type-name">Event</div>
@@ -70,17 +71,17 @@
 
         <div class="type-card" id="type-opportunity" data-type="opportunity">
           <div class="type-icon" style="background:#FFFBEB">
-            <i class="fa-solid fa-bullhorn" style="color:#B45309;font-size:1.1rem"></i>
+            <i class="material-icons" style="color:#B45309;font-size:1.1rem">work</i>
           </div>
           <div>
-            <div class="type-name"> <i class="fa-solid fa-bullhorn"></i> Opportunity</div>
+            <div class="type-name"> <i class="material-icons">work</i> Opportunity</div>
             <div class="type-desc">Scholarships, jobs, training</div>
           </div>
         </div>
 
         <div class="type-card" id="type-announcement" data-type="announcement">
           <div class="type-icon" style="background:#EFF6FF">
-            <i class="fa-solid fa-bullhorn" style="color:#3B82F6;font-size:1.1rem"></i>
+            <i class="material-icons" style="color:#3B82F6;font-size:1.1rem">notifications_active</i>
           </div>
           <div>
             <div class="type-name">Announcement</div>
@@ -92,23 +93,23 @@
 
 
 <!-- <div class="nav-item" onclick="openView('story')">
-  📝 <span class="nav-item-label">Story / Article</span>
+  <i class="material-icons">description</i> <span class="nav-item-label">Story / Article</span>
 </div>
 
 <div class="nav-item" onclick="openView('event')">
-  📅 <span class="nav-item-label">Event</span>
+  <i class="material-icons">event</i> <span class="nav-item-label">Event</span>
 </div>
 
 <div class="nav-item" onclick="openView('opportunity')">
-  💼 <span class="nav-item-label">Opportunity</span>
+  <i class="material-icons">work</i> <span class="nav-item-label">Opportunity</span>
 </div>
 
 <div class="nav-item" onclick="openView('announcement')">
-  📢 <span class="nav-item-label">Announcement</span>
+  <i class="material-icons">notifications_active</i> <span class="nav-item-label">Announcement</span>
 </div>
 
 <div class="nav-item" onclick="openView('tips')">
-  💡 <span class="nav-item-label">Writing Tips</span>
+  <i class="material-icons">lightbulb</i> <span class="nav-item-label">Writing Tips</span>
 </div> -->
       
       <!-- Tips -->
@@ -135,10 +136,10 @@
 
       <!-- SUCCESS STATE -->
       <div class="success-panel" id="success-panel">
-        <i class="fa-solid fa-circle-check success-ring"></i>
+        <i class="material-icons success-ring">check_circle</i>
         <div class="success-title">Submitted!</div>
         <p class="success-sub">Your submission is now in the review queue. A county admin will review it and publish it if approved.</p>
-        <div class="success-status"> <i class="fa-solid fa-hourglass-half"></i>
+        <div class="success-status"> <i class="material-icons">schedule</i>
            Pending Review — you'll be notified when it's published</div>
         <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
           <button class="btn btn-publish" onclick="resetForm()">Submit Another →</button>
@@ -161,7 +162,7 @@
         <!-- Metadata row -->
         <div class="meta-row">
           <div class="meta-chip">
-            <i class="fa-solid fa-layer-group meta-chip-icon"></i>
+            <i class="material-icons meta-chip-icon">category</i>
             <select id="story-category" style="background:none;border:none;outline:none;font-size:0.78rem;color:var(--ink2);cursor:pointer;font-family:'Instrument Sans',sans-serif">
               <option value="youth">Youth</option>
               <option value="education">Education</option>
@@ -174,11 +175,11 @@
             </select>
           </div>
           <div class="meta-chip" id="county-chip">
-            <i class="fa-solid fa-map-marker-alt meta-chip-icon"></i>
+            <i class="material-icons meta-chip-icon">location_on</i>
             <span id="county-display">Loading…</span>
           </div>
           <div class="meta-chip" style="font-size:0.78rem;color:var(--ink3)">
-            <i class="fa-solid fa-user meta-chip-icon"></i>
+            <i class="material-icons meta-chip-icon">person</i>
             <span id="author-display">You</span>
           </div>
         </div>
@@ -196,23 +197,23 @@
 
         <!-- Cover image -->
         <div style="margin-bottom:1.5rem">
-          <label class="field-label"> <i class="fa-solid fa-image" style="color:var(--ink3);margin-right:4px"></i>
+          <label class="field-label"> <i class="material-icons" style="color:var(--ink3);margin-right:4px">image</i>
             Cover Image <span style="font-weight:400;text-transform:none;letter-spacing:0">(optional)</span></label>
           <div class="cover-drop" id="cover-drop"
             onclick="document.getElementById('cover-file').click()"
             ondragover="e => { e.preventDefault(); this.classList.add('dragover'); }"
             ondragleave="this.classList.remove('dragover')">
             <div id="cover-upload-ui">
-              <i class="fat cover-drop-icon fa-solid fa-cloud-arrow-up"></i>
+              <i class="material-icons cover-drop-icon">cloud_upload</i>
               <div class="cover-drop-text">
-                <i class="fa-solid fa-cloud-arrow-up" style="color:var(--ink3);font-size:1.1rem;margin-bottom:0.25rem"></i>
+                <i class="material-icons" style="color:var(--ink3);font-size:1.1rem;margin-bottom:0.25rem">cloud_upload</i>
                 Click or drag to upload a cover image</div>
               <div class="cover-drop-sub">JPG, PNG or WebP · Max 5MB</div>
             </div>
             <div id="cover-preview">
               <img id="cover-img" src="" alt="Cover" />
               <button onclick="removeCover(event)">
-                <i class="fas fa-times"></i> Remove</button>
+                <i class="material-icons">close</i> Remove</button>
             </div>
           </div>
           <input type="file" id="cover-file" accept="image/*" style="display:none" onchange="handleCoverUpload(event)" />
@@ -267,7 +268,7 @@
       <div class="form-panel" id="panel-event">
         <div class="editor-header">
           <div class="editor-type-badge">
-            <i class="fa-solid fa-calendar"></i> Event</div>
+          <i class="material-icons">event</i> Event</div>
           <input type="text" class="editor-title-input" id="event-title"
             placeholder="Event name…"
             style="display:block;width:100%;font-size:2.25rem;font-family:'DM Serif Display',serif" />
@@ -298,7 +299,7 @@
             <div class="cover-drop" style="padding:1.25rem"
               onclick="document.getElementById('event-cover-file').click()">
               <div class="cover-drop-text">
-                <i class="fa-solid fa-cloud-arrow-up" style="font-size:1.5rem;color:var(--ink3);margin-bottom:0.25rem"></i>
+              <i class="material-icons" style="font-size:1.5rem;color:var(--ink3);margin-bottom:0.25rem">cloud_upload</i>
                  Click to upload event image</div>
             </div>
             <input type="file" id="event-cover-file" accept="image/*" style="display:none" />
@@ -325,7 +326,7 @@
       <div class="form-panel" id="panel-opportunity">
         <div class="editor-header">
           <div class="editor-type-badge">
-            <i class="fa-solid fa-star"></i> Opportunity</div>
+          <i class="material-icons">work</i> Opportunity</div>
           <input type="text" class="editor-title-input" id="opp-title"
             placeholder="Opportunity title…"
             style="display:block;width:100%;font-size:2.25rem;font-family:'DM Serif Display',serif" />
@@ -338,17 +339,17 @@
             <label class="field-label">Opportunity Type</label>
             <select id="opp-type" class="std-select">
               <option value="scholarship">
-                <i class="fa-solid fa-graduation-cap"></i> Scholarship</option>
+                <i class="material-icons">school</i> Scholarship</option>
               <option value="internship">
-                <i class="fa-solid fa-briefcase"></i> Internship</option>
+                <i class="material-icons">work</i> Internship</option>
               <option value="training">
-                <i class="fa-solid fa-graduation-cap"></i> Training Program</option>
+                <i class="material-icons">school</i> Training Program</option>
               <option value="fellowship">
-                <i class="fa-solid fa-handshake"></i> Fellowship</option>
+                <i class="material-icons">handshake</i> Fellowship</option>
               <option value="grant">
-                <i class="fa-solid fa-money-bill-wave"></i> Grant / Funding</option>
+                <i class="material-icons">attach_money</i> Grant / Funding</option>
               <option value="job">
-                <i class="fa-solid fa-briefcase"></i> Job Opening</option>
+                <i class="material-icons">work</i> Job Opening</option>
             </select>
           </div>
           <div class="fgroup">
@@ -397,7 +398,7 @@
       <div class="form-panel" id="panel-announcement">
         <div class="editor-header">
           <div class="editor-type-badge">
-            <i class="fa-solid fa-bullhorn"></i> Announcement</div>
+          <i class="material-icons">notifications_active</i> Announcement</div>
           <textarea class="editor-title-input" id="ann-title" rows="2"
             placeholder="Announcement headline…" oninput="autoResize(this)"></textarea>
         </div>
@@ -406,7 +407,7 @@
 
         <div class="meta-row">
           <div class="meta-chip">
-            <i class="fa-solid fa-map-marker-alt meta-chip-icon"></i>
+            <i class="material-icons meta-chip-icon">location_on</i>
             <span id="ann-county-display">Loading…</span>
           </div>
         </div>
@@ -505,36 +506,52 @@
   //  INIT
   // ─────────────────────────────────────────
   async function init() {
-    const { data: { session } } = await sb.auth.getSession();
-    if (!session) { window.location.href = '../auth-page/auth.html'; return; }
+    try {
+      const { data: { session } } = await sb.auth.getSession();
+      if (!session) { window.location.href = '../auth-page/auth.html'; return; }
 
-    currentUser = session.user;
+      currentUser = session.user;
 
-    const { data: profile } = await sb
-      .from('users')
-      .select('*, counties(id, name)')
-      .eq('id', currentUser.id)
-      .single();
+      const { data: profile, error: profileError } = await sb
+        .from('users')
+        .select('*, counties(id, name)')
+        .eq('id', currentUser.id)
+        .single();
 
-    currentProfile = profile;
+      if (profileError) {
+        console.error('Profile fetch error:', profileError);
+        // Set fallback values
+        document.getElementById('nav-name').textContent = currentUser.email;
+        document.getElementById('county-display').textContent = 'County not set';
+        document.getElementById('ann-county-display').textContent = 'County not set';
+        document.getElementById('author-display').textContent = currentUser.email;
+        return;
+      }
 
-    // Update UI
-    const name     = profile?.full_name || currentUser.email;
-    document.getElementById('nav-name').textContent = name;
+      currentProfile = profile;
 
-    const countyName = profile?.counties?.name || 'Your County';
-    document.getElementById('county-display').textContent = countyName;
-    document.getElementById('ann-county-display').textContent = countyName;
-    document.getElementById('author-display').textContent = name;
+      // Update UI
+      const name     = profile?.full_name || currentUser.email;
+      document.getElementById('nav-name').textContent = name;
 
-    // Load tips
-    renderTips('story');
+      const countyName = profile?.counties?.name || 'County not set';
+      document.getElementById('county-display').textContent = countyName;
+      document.getElementById('ann-county-display').textContent = countyName;
+      document.getElementById('author-display').textContent = name;
 
-    // Load recent submissions
-    loadRecentSubs();
+      // Load tips
+      renderTips('story');
 
-    // Auto-save every 30 seconds
-    autoSaveTimer = setInterval(() => autoSave(), 30000);
+      // Load recent submissions
+      loadRecentSubs();
+
+      // Auto-save every 30 seconds
+      autoSaveTimer = setInterval(() => autoSave(), 30000);
+    } catch (err) {
+      console.error('Init error:', err);
+      document.getElementById('nav-name').textContent = 'Error loading profile';
+      toast('❌', 'Error loading your profile');
+    }
   }
 
   // ─────────────────────────────────────────
@@ -565,33 +582,44 @@
   // ─────────────────────────────────────────
   async function loadRecentSubs() {
     const el = document.getElementById('my-subs-rail');
-    const { data } = await sb.from('content')
-      .select('id, title, type, status, created_at')
-      .eq('author_id', currentUser.id)
-      .order('created_at', { ascending:false })
-      .limit(5);
+    try {
+      const { data, error } = await sb.from('content')
+        .select('id, title, type, status, created_at')
+        .eq('author_id', currentUser.id)
+        .order('created_at', { ascending:false })
+        .limit(5);
 
-    if (!data || data.length === 0) {
-      el.innerHTML = `<div style="font-size:0.78rem;color:var(--ink3)">No submissions yet</div>`;
-      return;
-    }
+      if (error) {
+        console.error('Recent submissions fetch error:', error);
+        el.innerHTML = `<div style="font-size:0.78rem;color:var(--ink3)">Error loading submissions</div>`;
+        return;
+      }
 
-    const statusColors = {
-      published:      '#1B5E35',
-      pending_review: '#C8960C',
-      draft:          '#9ca3af',
-      rejected:       '#C41E3A',
-    };
+      if (!data || data.length === 0) {
+        el.innerHTML = `<div style="font-size:0.78rem;color:var(--ink3)">No submissions yet</div>`;
+        return;
+      }
 
-    el.innerHTML = data.map(c => `
-      <div class="my-sub-item">
-        <div class="my-sub-title">${c.title || 'Untitled draft'}</div>
-        <div class="my-sub-meta">
-          <span class="status-dot" style="background:${statusColors[c.status]||'#9ca3af'}"></span>
-          ${c.status.replace('_',' ')} · ${c.type}
+      const statusColors = {
+        published:      '#1B5E35',
+        pending_review: '#C8960C',
+        draft:          '#9ca3af',
+        rejected:       '#C41E3A',
+      };
+
+      el.innerHTML = data.map(c => `
+        <div class="my-sub-item">
+          <div class="my-sub-title">${c.title || 'Untitled draft'}</div>
+          <div class="my-sub-meta">
+            <span class="status-dot" style="background:${statusColors[c.status]||'#9ca3af'}"></span>
+            ${c.status.replace('_',' ')} · ${c.type}
+          </div>
         </div>
-      </div>
-    `).join('');
+      `).join('');
+    } catch (err) {
+      console.error('loadRecentSubs error:', err);
+      el.innerHTML = `<div style="font-size:0.78rem;color:var(--ink3)">Error loading submissions</div>`;
+    }
   }
 
   // ─────────────────────────────────────────
@@ -749,19 +777,28 @@
   //  AUTO SAVE (draft)
   // ─────────────────────────────────────────
   async function autoSave() {
-    const title = document.getElementById('story-title')?.value.trim();
-    const body  = document.getElementById('story-body')?.value.trim();
-    if (!title && !body) return;
-    if (!currentUser) return;
+    try {
+      const title = document.getElementById('story-title')?.value.trim();
+      const body  = document.getElementById('story-body')?.value.trim();
+      if (!title && !body) return;
+      if (!currentUser) return;
 
-    await sb.from('content').insert({
-      county_id: currentProfile?.county_id,
-      author_id: currentUser.id,
-      type:      'story',
-      title:     title || 'Untitled draft',
-      body:      body || '',
-      status:    'draft',
-    });
+      const { error } = await sb.from('content').insert({
+        county_id: currentProfile?.county_id,
+        author_id: currentUser.id,
+        type:      'story',
+        title:     title || 'Untitled draft',
+        body:      body || '',
+        status:    'draft',
+      });
+
+      if (error) {
+        console.error('Auto-save error:', error);
+        return;
+      }
+    } catch (err) {
+      console.error('autoSave error:', err);
+    }
   }
 
   // ─────────────────────────────────────────
@@ -797,7 +834,7 @@
     const inputId = wrapId === 'tags-wrap' ? 'tag-input' : 'opp-tag-input';
     wrap.innerHTML = tags.map(t => `
       <span class="tag-chip">${t}
-        <button type="button" onclick="removeTag('${t}','${wrapId}')">✕</button>
+        <button type="button" onclick="removeTag('${t}','${wrapId}')" style="padding:0;display:flex;align-items:center"><i class="material-icons" style="font-size:0.8rem">close</i></button>
       </span>`).join('') + `<input id="${inputId}" class="tag-input" placeholder="${tags.length ? '' : 'Add a tag…'}"
         onkeydown="handleTagInput(event,'${wrapId}','${inputId}')" maxlength="30" />`;
   }
