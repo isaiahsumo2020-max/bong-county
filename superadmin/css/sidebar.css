@@ -12,11 +12,18 @@
   font-size: 1rem;
   font-weight: 500;
   background: transparent;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
 }
 
 .sidebar-link:hover {
   background-color: #1e40af;
   color: white;
+}
+
+.sidebar-link:active {
+  transform: scale(0.98);
 }
 
 .sidebar-link.active-link {
@@ -59,9 +66,57 @@ aside nav::-webkit-scrollbar-thumb:hover {
 aside .p-6 button {
   font-weight: 600;
   transition: all 0.2s;
+  min-height: 44px;
 }
 
 aside .p-6 button:hover {
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(220, 38, 38, 0.2);
+}
+
+/* ====== MOBILE SIDEBAR STYLES ====== */
+@media (max-width: 768px) {
+  /* Mobile sidebar positioning */
+  aside {
+    transform: translateX(-100%);
+    z-index: 40;
+  }
+
+  aside.sidebar-open {
+    transform: translateX(0);
+  }
+
+  aside nav {
+    overflow-y: auto;
+    max-height: calc(100vh - 200px);
+  }
+
+  .sidebar-link {
+    padding: 1rem;
+    font-size: 0.95rem;
+  }
+
+  aside .p-6 {
+    margin-top: auto;
+  }
+
+  /* Hide close button on large screens */
+  #mobileSidebarClose {
+    display: none !important;
+  }
+}
+
+@media (min-width: 769px) {
+  aside {
+    transform: translateX(0) !important;
+  }
+
+  aside.sidebar-open {
+    transform: translateX(0) !important;
+  }
+
+  /* Hide close button on large screens */
+  #mobileSidebarClose {
+    display: none !important;
+  }
 }

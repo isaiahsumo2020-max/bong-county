@@ -47,7 +47,7 @@ const UserManagement = {
             <h3 class="text-2xl font-extrabold text-gray-900">User Management</h3>
             <p class="text-gray-500 mt-1">Manage system users and roles</p>
           </div>
-          <button onclick="UserManagement.openAddModal()" class="btn btn-primary">
+          <button id="addUserBtn" class="btn btn-primary">
             Add User
           </button>
         </div>
@@ -55,7 +55,7 @@ const UserManagement = {
         <div class="filter-bar">
           <div>
             <label>Role</label>
-            <select id="userRoleFilter" onchange="UserManagement.applyFilters()" class="border border-gray-300 px-3 py-2 rounded">
+            <select id="userRoleFilter" class="border border-gray-300 px-3 py-2 rounded">
               <option value="">All Roles</option>
               <option value="super_admin">Super Admin</option>
               <option value="county_admin">County Admin</option>
@@ -65,7 +65,7 @@ const UserManagement = {
           </div>
           <div>
             <label>Verified</label>
-            <select id="userVerifiedFilter" onchange="UserManagement.applyFilters()" class="border border-gray-300 px-3 py-2 rounded">
+            <select id="userVerifiedFilter" class="border border-gray-300 px-3 py-2 rounded">
               <option value="">All</option>
               <option value="true">Verified</option>
               <option value="false">Unverified</option>
@@ -73,10 +73,10 @@ const UserManagement = {
           </div>
           <div>
             <label>Search</label>
-            <input type="text" id="userSearchFilter" onkeyup="UserManagement.applyFilters()" 
+            <input type="text" id="userSearchFilter" 
               placeholder="Search name or email..." class="border border-gray-300 px-3 py-2 rounded w-64">
           </div>
-          <button onclick="UserManagement.loadUsers(); UserManagement.render();" class="btn btn-secondary">Reset</button>
+          <button id="resetUserFiltersBtn" class="btn btn-secondary">Reset</button>
         </div>
 
         <div class="overflow-x-auto">
@@ -98,6 +98,64 @@ const UserManagement = {
         </div>
       </div>
     `;
+
+    // Setup event listeners
+    this.setupEventListeners();
+    this.setupFilterListeners();
+  },
+
+  /**
+   * Setup filter event listeners
+   */
+  setupFilterListeners() {
+    const roleFilter = document.getElementById('userRoleFilter');
+    const verifiedFilter = document.getElementById('userVerifiedFilter');
+    const searchFilter = document.getElementById('userSearchFilter');
+    const resetBtn = document.getElementById('resetUserFiltersBtn');
+
+    if (roleFilter) {
+      roleFilter.addEventListener('change', () => this.applyFilters());
+    }
+    if (verifiedFilter) {
+      verifiedFilter.addEventListener('change', () => this.applyFilters());
+    }
+    if (searchFilter) {
+      searchFilter.addEventListener('keyup', () => this.applyFilters());
+    }
+    if (resetBtn) {
+      resetBtn.addEventListener('click', () => {
+        this.loadUsers().then(() => this.render());
+      });
+    }
+
+    const addBtn = document.getElementById('addUserBtn');
+    if (addBtn) {
+      addBtn.addEventListener('click', () => this.openAddModal());
+    }
+  },
+
+  /**
+   * Setup table row event listeners
+   */
+  setupEventListeners() {
+    const usersTableBody = document.getElementById('usersTableBody');
+    if (!usersTableBody) return;
+
+    usersTableBody.addEventListener('click', (e) => {
+      // Edit button
+      if (e.target.classList.contains('user-edit-btn')) {
+        e.stopPropagation();
+        const userId = e.target.getAttribute('data-id');
+        this.openEditModal(userId);
+      }
+
+      // Delete button
+      if (e.target.classList.contains('user-delete-btn')) {
+        e.stopPropagation();
+        const userId = e.target.getAttribute('data-id');
+        this.deleteUser(userId);
+      }
+    });
   },
 
   renderTableRows() {
@@ -114,12 +172,10 @@ const UserManagement = {
         <td class="py-5">${user.verified ? '<span class="badge badge-success">✓ Verified</span>' : '<span class="badge badge-warning">Unverified</span>'}</td>
         <td class="py-5">
           <div class="flex gap-2">
-            <button onclick="UserManagement.openEditModal(${user.id})" 
-              class="btn btn-primary" style="padding: 0.5rem 0.75rem; font-size: 0.875rem;">
+            <button class="btn btn-primary user-edit-btn" data-id="${user.id}" style="padding: 0.5rem 0.75rem; font-size: 0.875rem;">
               Edit
             </button>
-            <button onclick="UserManagement.deleteUser('${user.id}')" 
-              class="btn btn-danger" style="padding: 0.5rem 0.75rem; font-size: 0.875rem;">
+            <button class="btn btn-danger user-delete-btn" data-id="${user.id}" style="padding: 0.5rem 0.75rem; font-size: 0.875rem;">
               Delete
             </button>
           </div>
@@ -163,12 +219,10 @@ const UserManagement = {
             <td class="py-5">${user.verified ? '<span class="badge badge-success">✓ Verified</span>' : '<span class="badge badge-warning">Unverified</span>'}</td>
             <td class="py-5">
               <div class="flex gap-2">
-                <button onclick="UserManagement.openEditModal(${user.id})" 
-                  class="btn btn-primary" style="padding: 0.5rem 0.75rem; font-size: 0.875rem;">
+                <button class="btn btn-primary user-edit-btn" data-id="${user.id}" style="padding: 0.5rem 0.75rem; font-size: 0.875rem;">
                   Edit
                 </button>
-                <button onclick="UserManagement.deleteUser('${user.id}')" 
-                  class="btn btn-danger" style="padding: 0.5rem 0.75rem; font-size: 0.875rem;">
+                <button class="btn btn-danger user-delete-btn" data-id="${user.id}" style="padding: 0.5rem 0.75rem; font-size: 0.875rem;">
                   Delete
                 </button>
               </div>
@@ -180,7 +234,7 @@ const UserManagement = {
 
   openAddModal() {
     const content = `
-      <form onsubmit="UserManagement.saveNew(event)">
+      <form id="addUserForm">
         <div class="mb-4">
           <label class="block text-gray-700 font-semibold mb-2">Full Name *</label>
           <input type="text" id="newUserName" required placeholder="Enter full name" 
@@ -207,13 +261,31 @@ const UserManagement = {
           </label>
         </div>
         <div class="flex gap-3">
-          <button type="button" onclick="ModalManager.close('addUserModal')" class="flex-1 btn btn-secondary">Cancel</button>
+          <button type="button" class="cancel-add-btn flex-1 btn btn-secondary">Cancel</button>
           <button type="submit" class="flex-1 btn btn-primary">Add User</button>
         </div>
       </form>
     `;
 
     ModalManager.create('addUserModal', 'Add New User', content);
+
+    setTimeout(() => {
+      const form = document.getElementById('addUserForm');
+      const cancelBtn = document.querySelector('.cancel-add-btn');
+
+      if (form) {
+        form.addEventListener('submit', (e) => {
+          e.preventDefault();
+          this.saveNew(e);
+        });
+      }
+
+      if (cancelBtn) {
+        cancelBtn.addEventListener('click', () => {
+          ModalManager.close('addUserModal');
+        });
+      }
+    }, 0);
   },
 
   async openEditModal(id) {
@@ -224,7 +296,7 @@ const UserManagement = {
     }
 
     const content = `
-      <form onsubmit="UserManagement.saveEdit(event, '${item.id}')">
+      <form id="editUserForm" data-user-id="${item.id}">
         <div class="mb-4">
           <label class="block text-gray-700 font-semibold mb-2">Full Name *</label>
           <input type="text" id="editUserName" value="${Helpers.escapeHtml(item.full_name || '')}" required 
@@ -250,13 +322,32 @@ const UserManagement = {
           </label>
         </div>
         <div class="flex gap-3">
-          <button type="button" onclick="ModalManager.close('editUserModal')" class="flex-1 btn btn-secondary">Cancel</button>
+          <button type="button" class="cancel-edit-btn flex-1 btn btn-secondary">Cancel</button>
           <button type="submit" class="flex-1 btn btn-primary">Save Changes</button>
         </div>
       </form>
     `;
 
     ModalManager.create('editUserModal', 'Edit User', content);
+
+    setTimeout(() => {
+      const form = document.getElementById('editUserForm');
+      const cancelBtn = document.querySelector('.cancel-edit-btn');
+
+      if (form) {
+        form.addEventListener('submit', (e) => {
+          e.preventDefault();
+          const userId = form.getAttribute('data-user-id');
+          this.saveEdit(e, userId);
+        });
+      }
+
+      if (cancelBtn) {
+        cancelBtn.addEventListener('click', () => {
+          ModalManager.close('editUserModal');
+        });
+      }
+    }, 0);
   },
 
   async saveNew(event) {
@@ -346,3 +437,6 @@ const UserManagement = {
     }
   }
 };
+
+// Make UserManagement globally available
+window.UserManagement = UserManagement;

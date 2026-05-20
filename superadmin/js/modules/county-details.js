@@ -257,28 +257,22 @@ const CountyDetails = {
           <div class="border-t border-gray-200 pt-6">
             <h4 class="text-lg font-semibold text-gray-900 mb-4">Actions</h4>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-              <button onclick="CountyDetails.openEditModal(${county.id})" 
-                class="btn btn-primary flex items-center justify-center gap-2 py-3">
+              <button class="btn btn-primary edit-county-btn flex items-center justify-center gap-2 py-3" data-county-id="${county.id}">
                 <span>✎</span> Edit County
               </button>
-              <button onclick="CountyDetails.openPublicSite(${county.id})" 
-                class="btn btn-secondary flex items-center justify-center gap-2 py-3">
+              <button class="btn btn-secondary view-site-btn flex items-center justify-center gap-2 py-3" data-county-id="${county.id}">
                 <span>🌐</span> View Public Site
               </button>
-              <button onclick="CountyDetails.manageContributors(${county.id})" 
-                class="btn btn-secondary flex items-center justify-center gap-2 py-3">
+              <button class="btn btn-secondary manage-contributors-btn flex items-center justify-center gap-2 py-3" data-county-id="${county.id}">
                 <span>👥</span> Manage Contributors
               </button>
-              <button onclick="CountyDetails.manageContent(${county.id})" 
-                class="btn btn-secondary flex items-center justify-center gap-2 py-3">
+              <button class="btn btn-secondary manage-content-btn flex items-center justify-center gap-2 py-3" data-county-id="${county.id}">
                 <span>📄</span> Manage Content
               </button>
-              <button onclick="CountyDetails.manageOpportunities(${county.id})" 
-                class="btn btn-secondary flex items-center justify-center gap-2 py-3">
+              <button class="btn btn-secondary manage-opportunities-btn flex items-center justify-center gap-2 py-3" data-county-id="${county.id}">
                 <span>💼</span> Manage Opportunities
               </button>
-              <button onclick="CountyDetails.manageEvents(${county.id})" 
-                class="btn btn-secondary flex items-center justify-center gap-2 py-3">
+              <button class="btn btn-secondary manage-events-btn flex items-center justify-center gap-2 py-3" data-county-id="${county.id}">
                 <span>📅</span> Manage Events
               </button>
             </div>
@@ -286,8 +280,7 @@ const CountyDetails = {
 
           <!-- Footer -->
           <div class="border-t border-gray-200 pt-6 flex gap-3 justify-end">
-            <button onclick="ModalManager.close('countyDetailsModal')" 
-              class="btn btn-secondary px-6 py-2">
+            <button class="close-details-btn btn btn-secondary px-6 py-2">
               Close
             </button>
           </div>
@@ -300,6 +293,61 @@ const CountyDetails = {
       showClose: true,
       closeOnBackdrop: true
     });
+
+    // Setup event listeners for action buttons
+    setTimeout(() => {
+      this.setupActionButtonListeners();
+    }, 0);
+  },
+
+  /**
+   * Setup event listeners for action buttons
+   */
+  setupActionButtonListeners() {
+    const countyId = this.currentCounty?.id;
+    if (!countyId) return;
+
+    // Edit County
+    const editBtn = document.querySelector('.edit-county-btn');
+    if (editBtn) {
+      editBtn.addEventListener('click', () => this.openEditModal(countyId));
+    }
+
+    // View Public Site
+    const viewSiteBtn = document.querySelector('.view-site-btn');
+    if (viewSiteBtn) {
+      viewSiteBtn.addEventListener('click', () => this.openPublicSite(countyId));
+    }
+
+    // Manage Contributors
+    const contributorsBtn = document.querySelector('.manage-contributors-btn');
+    if (contributorsBtn) {
+      contributorsBtn.addEventListener('click', () => this.manageContributors(countyId));
+    }
+
+    // Manage Content
+    const contentBtn = document.querySelector('.manage-content-btn');
+    if (contentBtn) {
+      contentBtn.addEventListener('click', () => this.manageContent(countyId));
+    }
+
+    // Manage Opportunities
+    const opportunitiesBtn = document.querySelector('.manage-opportunities-btn');
+    if (opportunitiesBtn) {
+      opportunitiesBtn.addEventListener('click', () => this.manageOpportunities(countyId));
+    }
+
+    // Manage Events
+    const eventsBtn = document.querySelector('.manage-events-btn');
+    if (eventsBtn) {
+      eventsBtn.addEventListener('click', () => this.manageEvents(countyId));
+    }
+
+    // Close button
+    const closeBtn = document.querySelector('.close-details-btn');
+    if (closeBtn) {
+      closeBtn.addEventListener('click', () => ModalManager.close('countyDetailsModal'));
+    }
   },
 
   /**
@@ -344,7 +392,7 @@ const CountyDetails = {
     if (!county) return;
 
     const editContent = `
-      <form onsubmit="CountyDetails.saveEdit(event, ${countyId})">
+      <form id="editCountyForm" data-county-id="${countyId}">
         <div class="mb-4">
           <label class="block text-gray-700 font-semibold mb-2">County Name *</label>
           <input type="text" id="editCountyName" value="${Helpers.escapeHtml(county.name)}" required 
@@ -391,13 +439,33 @@ const CountyDetails = {
         </div>
 
         <div class="flex gap-3">
-          <button type="button" onclick="ModalManager.close('editCountyModalDetails')" class="flex-1 btn btn-secondary">Cancel</button>
+          <button type="button" class="cancel-edit-btn flex-1 btn btn-secondary">Cancel</button>
           <button type="submit" class="flex-1 btn btn-primary">Save Changes</button>
         </div>
       </form>
     `;
 
     ModalManager.create('editCountyModalDetails', 'Edit County Details', editContent);
+
+    // Setup event listeners for edit form
+    setTimeout(() => {
+      const form = document.getElementById('editCountyForm');
+      const cancelBtn = document.querySelector('.cancel-edit-btn');
+
+      if (form) {
+        form.addEventListener('submit', (e) => {
+          e.preventDefault();
+          const formCountyId = form.getAttribute('data-county-id');
+          this.saveEdit(e, formCountyId);
+        });
+      }
+
+      if (cancelBtn) {
+        cancelBtn.addEventListener('click', () => {
+          ModalManager.close('editCountyModalDetails');
+        });
+      }
+    }, 0);
   },
 
   /**

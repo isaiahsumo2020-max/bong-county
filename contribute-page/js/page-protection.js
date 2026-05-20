@@ -13,7 +13,7 @@
     }
 
     if (!window.supabaseClient) {
-      window.location.href = '../index-page/index.html?error=client-error';
+      window.location.href = '../../index.html?error=client-error';
       return;
     }
 
@@ -25,7 +25,7 @@
     const protection = await window.authGuard.protectPage({
       requiredAuth: true,
       requiredRoles: ['contributor', 'county_admin', 'super_admin'],
-      redirectTo: '../auth-page/auth.html?return=../contribute-page/index.html'
+      redirectTo: '../../auth-page/auth.html?return=../../../contribute-page/index.html'
     });
 
     if (!protection.allowed) {
@@ -36,6 +36,6 @@
 
   } catch (error) {
     console.error('Contribute page protection error:', error);
-    window.location.href = '../index-page/index.html?error=init-failed';
+    window.location.href = '../../index.html?error=init-failed';
   }
 })();

@@ -56,7 +56,7 @@ const Counties = {
             <h3 class="text-2xl font-extrabold text-gray-900">Counties</h3>
             <p class="text-gray-500 mt-1">Manage all Liberia counties</p>
           </div>
-          <button onclick="Counties.openAddModal()" class="btn btn-primary">
+          <button id="addCountyBtn" class="btn btn-primary">
             Add County
           </button>
         </div>
@@ -64,7 +64,7 @@ const Counties = {
         <div class="filter-bar">
           <div>
             <label>Status</label>
-            <select id="countyStatusFilter" onchange="Counties.applyFilters()" class="border border-gray-300 px-3 py-2 rounded">
+            <select id="countyStatusFilter" class="border border-gray-300 px-3 py-2 rounded">
               <option value="">All Statuses</option>
               <option value="active">Active</option>
               <option value="inactive">Inactive</option>
@@ -72,10 +72,10 @@ const Counties = {
           </div>
           <div>
             <label>Search</label>
-            <input type="text" id="countySearchFilter" onkeyup="Counties.applyFilters()" 
+            <input type="text" id="countySearchFilter" 
               placeholder="Search county name or region..." class="border border-gray-300 px-3 py-2 rounded w-64">
           </div>
-          <button onclick="Counties.loadCounties(); Counties.render();" class="btn btn-secondary">Reset</button>
+          <button id="resetCountyFiltersBtn" class="btn btn-secondary">Reset</button>
         </div>
 
         <div class="overflow-x-auto">
@@ -96,6 +96,35 @@ const Counties = {
         </div>
       </div>
     `;
+
+    // Setup event listeners after rendering
+    this.setupEventListeners();
+    this.setupFilterListeners();
+  },
+
+  /**
+   * Setup filter event listeners
+   */
+  setupFilterListeners() {
+    const statusFilter = document.getElementById('countyStatusFilter');
+    const searchFilter = document.getElementById('countySearchFilter');
+    const resetBtn = document.getElementById('resetCountyFiltersBtn');
+    const addBtn = document.getElementById('addCountyBtn');
+
+    if (statusFilter) {
+      statusFilter.addEventListener('change', () => this.applyFilters());
+    }
+    if (searchFilter) {
+      searchFilter.addEventListener('keyup', () => this.applyFilters());
+    }
+    if (resetBtn) {
+      resetBtn.addEventListener('click', () => {
+        this.loadCounties().then(() => this.render());
+      });
+    }
+    if (addBtn) {
+      addBtn.addEventListener('click', () => this.openAddModal());
+    }
   },
 
   /**
@@ -107,25 +136,21 @@ const Counties = {
     }
 
     return this.data.map(county => {
-      const safeName = Helpers.escapeHtml(county.name).replace(/"/g, '&quot;');
-      const safeRegion = (county.region || '').replace(/"/g, '&quot;');
-      const safeCapital = (county.capital || '').replace(/"/g, '&quot;');
-      
       return `
       <tr class="border-b border-gray-100 hover:bg-gray-50">
-        <td class="py-5 font-semibold text-gray-900">${county.name}</td>
+        <td class="py-5 font-semibold text-gray-900" data-county-id="${county.id}">${county.name}</td>
         <td class="py-5 text-gray-600">${county.region || '-'}</td>
         <td class="py-5 text-gray-600">${county.capital || '-'}</td>
         <td class="py-5">${Helpers.getStatusBadge(county.status)}</td>
-        <td class="py-5" onclick="event.stopPropagation();">
+        <td class="py-5">
           <div class="flex gap-2">
-            <button onclick="event.stopPropagation(); CountyDetails.open(${county.id})" class="btn btn-primary" style="padding: 0.5rem 0.75rem; font-size: 0.875rem;">
+            <button class="btn btn-primary county-view-details" data-id="${county.id}" style="padding: 0.5rem 0.75rem; font-size: 0.875rem;">
               View Details
             </button>
-            <button onclick="event.stopPropagation(); Counties.openEditModal(${county.id}, &quot;${safeName}&quot;, &quot;${safeRegion}&quot;, &quot;${safeCapital}&quot;, &quot;${county.status}&quot;)" class="btn btn-secondary" style="padding: 0.5rem 0.75rem; font-size: 0.875rem;">
+            <button class="btn btn-secondary county-edit" data-id="${county.id}" data-name="${Helpers.escapeHtml(county.name)}" data-region="${county.region || ''}" data-capital="${county.capital || ''}" data-status="${county.status}" style="padding: 0.5rem 0.75rem; font-size: 0.875rem;">
               Quick Edit
             </button>
-            <button onclick="event.stopPropagation(); Counties.deleteCounty(${county.id})" class="btn btn-danger" style="padding: 0.5rem 0.75rem; font-size: 0.875rem;">
+            <button class="btn btn-danger county-delete" data-id="${county.id}" style="padding: 0.5rem 0.75rem; font-size: 0.875rem;">
               Delete
             </button>
           </div>
@@ -133,6 +158,43 @@ const Counties = {
       </tr>
     `;
     }).join('');
+  },
+
+  /**
+   * Setup event listeners for county table
+   */
+  setupEventListeners() {
+    const countiesTableBody = document.getElementById('countiesTableBody');
+    if (!countiesTableBody) return;
+
+    // View Details button
+    countiesTableBody.addEventListener('click', (e) => {
+      if (e.target.classList.contains('county-view-details')) {
+        e.stopPropagation();
+        const countyId = e.target.getAttribute('data-id');
+        if (typeof CountyDetails !== 'undefined' && CountyDetails.open) {
+          CountyDetails.open(countyId);
+        }
+      }
+
+      // Edit button
+      if (e.target.classList.contains('county-edit')) {
+        e.stopPropagation();
+        const id = e.target.getAttribute('data-id');
+        const name = e.target.getAttribute('data-name');
+        const region = e.target.getAttribute('data-region');
+        const capital = e.target.getAttribute('data-capital');
+        const status = e.target.getAttribute('data-status');
+        this.openEditModal(id, name, region, capital, status);
+      }
+
+      // Delete button
+      if (e.target.classList.contains('county-delete')) {
+        e.stopPropagation();
+        const countyId = e.target.getAttribute('data-id');
+        this.deleteCounty(countyId);
+      }
+    });
   },
 
   /**
@@ -161,29 +223,29 @@ const Counties = {
       tableBody.innerHTML = filtered.length === 0
         ? '<tr><td colspan="6" class="py-8 text-center text-gray-500">No counties found</td></tr>'
         : filtered.map(county => `
-          <tr class="border-b border-gray-100 hover:bg-gray-50 cursor-pointer" onclick="CountyDetails.open(${county.id})">
-            <td class="py-5 font-semibold text-gray-900">${county.name}</td>
+          <tr class="border-b border-gray-100 hover:bg-gray-50">
+            <td class="py-5 font-semibold text-gray-900" data-county-id="${county.id}">${county.name}</td>
             <td class="py-5 text-gray-600">${county.region || '-'}</td>
             <td class="py-5 text-gray-600">${county.capital || '-'}</td>
             <td class="py-5">${Helpers.getStatusBadge(county.status)}</td>
             <td class="py-5">
               <div class="flex gap-2">
-                <button onclick="event.stopPropagation(); CountyDetails.open(${county.id})" 
-                  class="btn btn-primary" style="padding: 0.5rem 0.75rem; font-size: 0.875rem;">
+                <button class="btn btn-primary county-view-details" data-id="${county.id}" style="padding: 0.5rem 0.75rem; font-size: 0.875rem;">
                   View Details
                 </button>
-                <button onclick="event.stopPropagation(); Counties.openEditModal(${county.id}, '${Helpers.escapeHtml(county.name)}', '${county.region || ''}', '${county.capital || ''}', '${county.status}')" 
-                  class="btn btn-secondary" style="padding: 0.5rem 0.75rem; font-size: 0.875rem;">
+                <button class="btn btn-secondary county-edit" data-id="${county.id}" data-name="${Helpers.escapeHtml(county.name)}" data-region="${county.region || ''}" data-capital="${county.capital || ''}" data-status="${county.status}" style="padding: 0.5rem 0.75rem; font-size: 0.875rem;">
                   Quick Edit
                 </button>
-                <button onclick="event.stopPropagation(); Counties.deleteCounty(${county.id})" 
-                  class="btn btn-danger" style="padding: 0.5rem 0.75rem; font-size: 0.875rem;">
+                <button class="btn btn-danger county-delete" data-id="${county.id}" style="padding: 0.5rem 0.75rem; font-size: 0.875rem;">
                   Delete
                 </button>
               </div>
             </td>
           </tr>
         `).join('');
+      
+      // Re-setup event listeners for filtered results
+      this.setupEventListeners();
     }
   },
 
@@ -192,7 +254,7 @@ const Counties = {
    */
   openAddModal() {
     const content = `
-      <form onsubmit="Counties.saveNew(event)">
+      <form id="addCountyForm">
         <div class="mb-4">
           <label class="block text-gray-700 font-semibold mb-2">County Name *</label>
           <input type="text" id="newCountyName" required placeholder="Enter county name" 
@@ -217,13 +279,32 @@ const Counties = {
           </select>
         </div>
         <div class="flex gap-3">
-          <button type="button" onclick="ModalManager.close('addCountyModal')" class="flex-1 btn btn-secondary">Cancel</button>
+          <button type="button" id="cancelAddCounty" class="flex-1 btn btn-secondary">Cancel</button>
           <button type="submit" class="flex-1 btn btn-primary">Add County</button>
         </div>
       </form>
     `;
 
     ModalManager.create('addCountyModal', 'Add New County', content);
+
+    // Setup form event listeners
+    setTimeout(() => {
+      const form = document.getElementById('addCountyForm');
+      const cancelBtn = document.getElementById('cancelAddCounty');
+
+      if (form) {
+        form.addEventListener('submit', (e) => {
+          e.preventDefault();
+          this.saveNew(e);
+        });
+      }
+
+      if (cancelBtn) {
+        cancelBtn.addEventListener('click', () => {
+          ModalManager.close('addCountyModal');
+        });
+      }
+    }, 0);
   },
 
   /**
@@ -231,7 +312,7 @@ const Counties = {
    */
   openEditModal(id, name, region, capital, status) {
     const content = `
-      <form onsubmit="Counties.saveEdit(event, ${id})">
+      <form id="editCountyForm" data-id="${id}">
         <div class="mb-4">
           <label class="block text-gray-700 font-semibold mb-2">County Name *</label>
           <input type="text" id="editCountyName" value="${name}" required 
@@ -255,13 +336,33 @@ const Counties = {
           </select>
         </div>
         <div class="flex gap-3">
-          <button type="button" onclick="ModalManager.close('editCountyModal')" class="flex-1 btn btn-secondary">Cancel</button>
+          <button type="button" id="cancelEditCounty" class="flex-1 btn btn-secondary">Cancel</button>
           <button type="submit" class="flex-1 btn btn-primary">Save Changes</button>
         </div>
       </form>
     `;
 
     ModalManager.create('editCountyModal', 'Edit County', content);
+
+    // Setup form event listeners
+    setTimeout(() => {
+      const form = document.getElementById('editCountyForm');
+      const cancelBtn = document.getElementById('cancelEditCounty');
+
+      if (form) {
+        form.addEventListener('submit', (e) => {
+          e.preventDefault();
+          const formId = form.getAttribute('data-id');
+          this.saveEdit(e, parseInt(formId));
+        });
+      }
+
+      if (cancelBtn) {
+        cancelBtn.addEventListener('click', () => {
+          ModalManager.close('editCountyModal');
+        });
+      }
+    }, 0);
   },
 
   /**
@@ -350,3 +451,6 @@ const Counties = {
     }
   }
 };
+
+// Make Counties globally available
+window.Counties = Counties;
