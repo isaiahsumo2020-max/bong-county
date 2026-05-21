@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ExploreLiberia — County Admin Dashboard</title>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <!-- CHART LIBRARY -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <!-- AUTHENTICATION DEPENDENCIES - MUST LOAD FIRST -->
+  <script src="../supabaseClient.js"></script>
+  <script src="../auth-guard.js"></script>
+
+  <!-- SHARED UTILITIES -->
+  <script src="../shared/auth/auth-router.js"></script>
+  <script src="../shared/utils/theme-manager.js"></script>
+  <script src="../shared/utils/dashboard-utils.js"></script>
+
+  <!-- PAGE PROTECTION -->
+  <script src="./js/page-protection.js"></script>
+
+  <!-- UNIFIED COLOR SYSTEM -->
+  <link rel="stylesheet" href="../css/county-branding.css">
+  <script src="../js/county-branding.js"></script>
+
+  <link
+    href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=Playfair+Display:wght@700;900&display=swap"
+    rel="stylesheet">
+
+  <!-- Font Awesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <link rel="stylesheet" href="./dashboard.css">
+
+  <style>
+    :root {
+      --sidebar-w: 260px;
+      --header-h: 70px;
+      --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+    }
+
+    body {
+      font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: var(--county-bg);
+      color: var(--county-text);
+      overflow-x: hidden;
+      overflow-y: hidden;
+    }
+
+    @media (max-width: 768px) {
+      :root {
+        --sidebar-w: 200px;
+        --header-h: 60px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      :root {
+        --sidebar-w: 100%;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- LOADING SCREEN -->
+  <div id="view-loading" style="
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: var(--county-bg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+  ">
+    <div style="text-align: center;">
+      <div style="
+        width: 50px;
+        height: 50px;
+        border: 4px solid var(--county-border);
+        border-top-color: var(--county-primary);
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+        margin: 0 auto 20px;
+      "></div>
+      <p style="color: var(--county-text); margin: 0;">Loading county admin dashboard...</p>
+    </div>
+    <style>
+      @keyframes spin {
+        to { transform: rotate(360deg); }
+      }
+    </style>
+  </div>
+
+  <!-- DASHBOARD CONTAINER -->
+  <div id="dashboard-root" style="display: none; height: 100vh; display: flex; flex-direction: column; overflow-x: hidden; overflow-y: hidden;">
+
+    <!-- HEADER -->
+    <header id="dashboard-header" style="
+      height: var(--header-h);
+      background: linear-gradient(135deg, rgb(16, 4, 147), rgb(16, 4, 147));
+      color: white;
+      padding: 0 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      z-index: 100;
+      flex-wrap: nowrap;
+      gap: 15px;
+      overflow: hidden;
+    ">
+      <!-- LEFT SIDE: MENU TOGGLE & BRANDING -->
+      <div style="display: flex; align-items: center; gap: 15px;">
+        <button id="sidebar-toggle" style="
+          background: none;
+          border: none;
+          color: white;
+          font-size: 24px;
+          cursor: pointer;
+          padding: 8px;
+          border-radius: 4px;
+          transition: var(--transition);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        ">
+          <i class="fas fa-bars"></i>
+        </button>
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <div style="
+            width: 40px;
+            height: 40px;
+            border-radius: 6px;
+            background: rgb(206, 5, 5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            font-weight: 700;
+          " id="county-brand-icon">
+            LB
+          </div>
+          <div>
+            <div style="font-size: 14px; font-weight: 600;" id="county-name-display">ExploreLiberia</div>
+            <div style="font-size: 11px; opacity: 0.8;" id="user-role">Admin</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- CENTER: SEARCH BAR -->
+      <div style="
+        display: flex;
+        align-items: center;
+        flex: 0 1 300px;
+        background: rgb(206, 5, 5);
+        border-radius: 6px;
+        padding: 6px 12px;
+        gap: 8px;
+      ">
+        <i class="fas fa-search" style="opacity: 0.7; font-size: 14px;"></i>
+        <input id="dashboard-search" type="text" placeholder="Search content, contributors..." style="
+          background: none;
+          border: none;
+          color: white;
+          flex: 1;
+          font-size: 13px;
+          outline: none;
+        " />
+        <input id="dashboard-search" type="text" placeholder="Search..." style="
+          background: none;
+          border: none;
+          color: white;
+          flex: 1;
+          font-size: 13px;
+          outline: none;
+        ">
+        <style>
+          #dashboard-search::placeholder {
+            color: rgba(255,255,255,0.6);
+          }
+        </style>
+      </div>
+
+      <!-- RIGHT SIDE: ACTIONS & USER MENU -->
+      <div id="header-actions" style="display: flex; align-items: center; gap: 12px;">
+        <!-- QUICK ACTIONS -->
+        <div style="display: flex; gap: 8px;">
+          <button id="notifications-btn" style="
+            background: rgba(255,255,255,0.15);
+            border: none;
+            color: white;
+            width: 36px;
+            height: 36px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: var(--transition);
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+          ">
+            <i class="fas fa-bell"></i>
+            <span id="notification-badge" style="
+              position: absolute;
+              top: -6px;
+              right: -6px;
+              background: rgb(206, 5, 5);
+              color: white;
+              border-radius: 50%;
+              width: 20px;
+              height: 20px;
+              font-size: 11px;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              font-weight: 600;
+            " style="display: none;">0</span>
+          </button>
+
+          <button id="quick-actions-btn" style="
+            background: rgba(255,255,255,0.15);
+            border: none;
+            color: white;
+            padding: 6px 14px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 13px;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+          ">
+            <i class="fas fa-bolt"></i>
+            <span style="display: none;">Actions</span>
+          </button>
+        </div>
+
+        <!-- DIVIDER -->
+        <div style="width: 1px; height: 24px; background: rgba(255,255,255,0.2);"></div>
+
+        <!-- USER MENU -->
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <div style="text-align: right;">
+            <div style="font-size: 12px; font-weight: 600;" id="user-name">Admin</div>
+            <div style="font-size: 11px; opacity: 0.8;" id="user-county">Montserrado</div>
+          </div>
+          <div style="
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: rgb(206, 5, 5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            border: 2px solid rgba(255,255,255,0.2);
+          ">
+            <i class="fas fa-user"></i>
+          </div>
+        </div>
+
+        <!-- LOGOUT -->
+        <button id="logout-btn" style="
+          background: rgba(255,255,255,0.2);
+          border: none;
+          color: white;
+          padding: 6px 14px;
+          border-radius: 6px;
+          cursor: pointer;
+          font-size: 13px;
+          transition: var(--transition);
+          display: flex;
+          align-items: center;
+          gap: 6px;
+        ">
+          <i class="fas fa-sign-out-alt"></i>
+          <span style="display: none;">Logout</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- MAIN CONTENT AREA -->
+    <div style="display: flex; flex: 1; overflow: hidden;">
+
+      <!-- SIDEBAR -->
+      <aside id="dashboard-sidebar" style="
+        width: var(--sidebar-w);
+        background: linear-gradient(180deg, var(--county-primary) 0%, white 100%);
+        color: white;
+        overflow-y: auto;
+        padding: 20px 0;
+        transition: var(--transition);
+        z-index: 50;
+        box-shadow: 2px 0 8px rgba(0,0,0,0.1);
+        position: relative;
+      ">
+        <!-- SIDEBAR HEADER -->
+        <div style="padding: 0 16px 20px; border-bottom: 1px solid white; background: white; display: flex; align-items: center; gap: 10px;">
+          <h3 style="margin-left: 30px; font-size: 20px; color:rgb(16, 4, 147); font-weight: 900; text-transform: uppercase; letter-spacing: 1px;">
+            Main Menu
+          </h3>
+        </div>
+
+        <!-- NAVIGATION ITEMS -->
+        <nav id="sidebar-nav" style="padding: 12px 8px; background: rgb(16, 4, 147); display: flex; flex-direction: column; gap: 4px;">
+          <!-- Items will be populated by JS -->
+        </nav>
+
+        <!-- SIDEBAR FOOTER -->
+        <div style="
+          position: absolute;
+          bottom: 0;
+          left: 0;
+          right: 0;
+          padding: 12px;
+          border-top: 1px solid rgba(255,255,255,0.2);
+          background: rgb(16, 4, 147);
+          font-size: 12px;
+          opacity: 1;
+          text-align: center;
+          display: flex;
+          flex-direction: column;
+          gap: 10px;
+          align-items: center;
+        ">
+          <!-- Mobile Notifications Button -->
+          <button id="notifications-btn-mobile" style="
+            background: rgb(206, 5, 5);
+            border: none;
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 18px;
+            transition: var(--transition);
+            position: relative;
+            display: none;
+            align-items: center;
+            justify-content: center;
+          ">
+            <i class="fas fa-bell"></i>
+            <span id="notification-badge-mobile" style="
+              position: absolute;
+              top: -8px;
+              right: -8px;
+              background: rgb(206, 5, 5);
+              color: white;
+              border-radius: 50%;
+              width: 20px;
+              height: 20px;
+              font-size: 11px;
+              display: none;
+              align-items: center;
+              justify-content: center;
+              font-weight: 600;
+            ">0</span>
+          </button>
+          <p style="margin: 0; opacity: 0.8;">v2.0 • Admin Portal</p>
+        </div>
+      </aside>
+
+      <!-- CONTENT AREA -->
+      <main style="
+        flex: 1;
+        overflow-y: auto;
+        background: var(--county-bg);
+        padding: 0;
+      ">
+        <div id="view-content" style="padding: 30px; min-height: calc(100vh - var(--header-h));">
+          <!-- Views will be loaded here -->
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <!-- NOTIFICATIONS DROPDOWN (HIDDEN) -->
+  <div id="notifications-dropdown" style="
+    position: fixed;
+    top: calc(var(--header-h) + 10px);
+    right: 20px;
+    color: white;
+    width: 360px;
+    max-height: 400px;
+    background: black;
+    border-radius: 8px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+    z-index: 200;
+    display: none;
+    flex-direction: column;
+    overflow: hidden;
+  ">
+    <div style="
+      padding: 16px;
+      border-bottom: 1px solid var(--county-border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    ">
+      <h3 style="margin: 0; font-size: 14px; font-weight: 600; color: var(--county-primary);">Notifications</h3>
+      <button id="close-notifications" style="
+        background: none;
+        border: none;
+        font-size: 18px;
+        cursor: pointer;
+        color: var(--county-text);
+      ">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+    <div id="notifications-list" style="
+      flex: 1;
+      overflow-y: auto;
+      padding: 12px 0;
+    ">
+      <!-- Notifications will be populated here -->
+    </div>
+  </div>
+
+  <!-- QUICK ACTIONS MENU (HIDDEN) -->
+  <div id="quick-actions-menu" style="
+    position: fixed;
+    top: calc(var(--header-h) + 10px);
+    right: 120px;
+    background: gray;
+    color: rgb(16, 4, 147);
+    border-radius: 8px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+    z-index: 200;
+    display: none;
+    flex-direction: column;
+    min-width: 200px;
+    overflow: hidden;
+  ">
+    <button class="quick-action-item" data-action="create-post" style="
+      padding: 12px 16px;
+      border: none;
+      background: none;
+      text-align: left;
+      cursor: pointer;
+      transition: var(--transition);
+      border-bottom: 1px solid var(--county-border);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: rgb(16, 4, 147);
+      font-size: 13px;
+    ">
+      <i class="fas fa-plus-circle" style="width: 16px; color: rgb(16, 4, 147);"></i>
+      Create Post
+    </button>
+    <button class="quick-action-item" data-action="review-pending" style="
+      padding: 12px 16px;
+      border: none;
+      background: none;
+      text-align: left;
+      cursor: pointer;
+      transition: var(--transition);
+      border-bottom: 1px solid var(--county-border);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: rgb(16, 4, 147);
+      font-size: 13px;
+    ">
+      <i class="fas fa-check-circle" style="width: 16px; color:rgb(16, 4, 147);"></i>
+      Review Pending
+    </button>
+    <button class="quick-action-item" data-action="send-announcement" style="
+      padding: 12px 16px;
+      border: none;
+      background: none;
+      text-align: left;
+      cursor: pointer;
+      transition: var(--transition);
+      border-bottom: 1px solid var(--county-border);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: rgb(16, 4, 147);
+      font-size: 13px;
+    ">
+      <i class="fas fa-bell" style="width: 16px; color: rgb(16, 4, 147)"></i>
+      Send Announcement
+    </button>
+    <button class="quick-action-item" data-action="view-reports" style="
+      padding: 12px 16px;
+      border: none;
+      background: none;
+      text-align: left;
+      cursor: pointer;
+      transition: var(--transition);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: rgb(16, 4, 147);
+      font-size: 13px;
+    ">
+      <i class="fas fa-chart-line" style="width: 16px; color: #F59E0B;"></i>
+      View Reports
+    </button>
+  </div>
+
+  <!-- REVIEW MODAL -->
+  <div id="review-modal" style="
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0,0,0,0.5);
+    z-index: 1000;
+    align-items: center;
+    justify-content: center;
+  ">
+    <div style="
+      background: white;
+      padding: 30px;
+      border-radius: 8px;
+      max-width: 600px;
+      width: 90%;
+      max-height: 80vh;
+      overflow-y: auto;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    ">
+      <h2 style="margin-top: 0; color: var(--county-primary);">Review Submission</h2>
+      <div id="modal-content"></div>
+      <div style="display: flex; gap: 12px; margin-top: 20px; flex-wrap: wrap;">
+        <button id="approve-btn" style="
+          flex: 1;
+          min-width: 120px;
+          padding: 10px 20px;
+          background: #1040b9;
+          color: white;
+          border: none;
+          border-radius: 4px;
+          cursor: pointer;
+          font-weight: 600;
+          transition: var(--transition);
+        ">
+          <i class="fas fa-check" style="margin-right: 6px;"></i>
+          Approve
+        </button>
+        <button id="reject-btn" style="
+          flex: 1;
+          min-width: 120px;
+          padding: 10px 20px;
+          background: #EF4444;
+          color: white;
+          border: none;
+          border-radius: 4px;
+          cursor: pointer;
+          font-weight: 600;
+          transition: var(--transition);
+        ">
+          <i class="fas fa-xmark" style="margin-right: 6px;"></i>
+          Reject
+        </button>
+        <button id="modal-close" style="
+          flex: 1;
+          min-width: 120px;
+          padding: 10px 20px;
+          background: var(--county-border);
+          color: var(--county-primary);
+          border: none;
+          border-radius: 4px;
+          cursor: pointer;
+          font-weight: 600;
+          transition: var(--transition);
+        ">
+          <i class="fas fa-times" style="margin-right: 6px;" color: red></i>
+          Close
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script src="./dashboard.js"></script>
+
+</body>
+
+</html>

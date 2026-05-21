@@ -1,8 +1,8 @@
 /**
- * COUNTY BRANDING - COMPONENT COLOR CUSTOMIZATION
+ * UNIFIED COLOR SYSTEM - CONSISTENT BRANDING
  * 
- * This file applies county-specific colors to components defined in design-system.css.
- * Colors are dynamically set by county-branding.js
+ * This file applies unified colors (White, Blue, Red) to components defined in design-system.css.
+ * Colors are now consistent across all dashboards and county platforms.
  * 
  * Load order:
  * 1. design-system.css (base styles, layouts, components)
@@ -11,29 +11,29 @@
  */
 
 /* ═══════════════════════════════════════════════════════════════════ */
-/* CSS VARIABLES - Set by county-branding.js */
+/* CSS VARIABLES - UNIFIED COLOR SCHEME */
 /* ═══════════════════════════════════════════════════════════════════ */
 
 :root {
-  /* County Primary Colors */
-  --county-primary: #10B981;      /* Main brand color */
-  --county-secondary: #059669;    /* Secondary/complement */
-  --county-accent: #6EE7B7;       /* Accent/highlight */
+  /* Unified Primary Colors - White, Blue, and Red */
+  --county-primary: #1D4ED8;      /* Professional Blue - Main brand color */
+  --county-secondary: #DC2626;    /* Deep Red - Secondary/complement */
+  --county-accent: #3B82F6;       /* Light Blue - Accent/highlight */
   
-  /* County Surface Colors */
-  --county-bg: #FFFFFF;           /* Main background */
-  --county-surface: #F0FDF4;      /* Surface/card bg */
-  --county-surface-light: #DCFCE7; /* Lighter surface */
+  /* Unified Surface Colors */
+  --county-bg: #FFFFFF;           /* White background */
+  --county-surface: #DBEAFE;      /* Light blue surface/card bg */
+  --county-surface-light: #EFF6FF; /* Lighter blue surface */
   
-  /* County Text & Borders */
-  --county-text: #1A1A1A;         /* Primary text */
-  --county-border: #D1FAE5;       /* Light borders */
-  --county-border-dark: #A7F3D0;  /* Darker borders */
+  /* Unified Text & Borders */
+  --county-text: #1A1A1A;         /* Dark text */
+  --county-border: #93C5FD;       /* Light blue borders */
+  --county-border-dark: #60A5FA;  /* Medium blue borders */
   
-  /* County State Colors */
-  --county-hover: rgba(16, 185, 129, 0.1);    /* Hover state */
-  --county-active: rgba(16, 185, 129, 0.15);  /* Active state */
-  --county-glow: rgba(16, 185, 129, 0.25);    /* Glow/shadow */
+  /* Unified State Colors */
+  --county-hover: rgba(29, 78, 216, 0.1);    /* Hover state - Blue */
+  --county-active: rgba(29, 78, 216, 0.15);  /* Active state - Blue */
+  --county-glow: rgba(29, 78, 216, 0.25);    /* Glow/shadow - Blue */
 }
 
 /* ═══════════════════════════════════════════════════════════════════ */
@@ -73,11 +73,11 @@
 }
 
 /* ═══════════════════════════════════════════════════════════════════ */
-/* SIDEBAR COUNTY BRANDING */
+/* SIDEBAR UNIFIED BRANDING */
 /* ═══════════════════════════════════════════════════════════════════ */
 
 .dashboard-sidebar {
-  background: linear-gradient(180deg, var(--county-secondary) 0%, #0F2F1F 100%);
+  background: linear-gradient(180deg, var(--county-secondary) 0%, #8B1818 100%);
   border-right-color: var(--county-primary);
 }
 

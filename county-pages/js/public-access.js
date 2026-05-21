@@ -36,10 +36,10 @@
 // Sample navigation links that should work:
 const COUNTY_PAGES = {
   montserrado: '/county-pages/montserrado.html',
-  bong: '/county-pages/bong.html',
-  nimba: '/county-pages/nimba.html',
-  lofa: '/county-pages/lofa.html',
-  bassa: '/county-pages/bassa.html'
+  bong: '../bong.html',
+  nimba: '../nimba.html',
+  lofa: '../lofa.html',
+  bassa: '../bassa.html'
 };
 
 // ============================================================================
@@ -71,12 +71,25 @@ window.location.href = '/county-pages/montserrado.html';
 
 // County pages can load PUBLIC content from Supabase:
 
-async function loadCountyData(countyName) {
+async function loadCountyData(countySlug) {
   try {
+    // First, get the county ID from the slug
+    const { data: countyData, error: countyError } = await supabaseClient
+      .from('counties')
+      .select('id')
+      .eq('slug', countySlug)
+      .single();
+    
+    if (countyError || !countyData) {
+      console.warn('County not found:', countySlug);
+      return [];
+    }
+
+    // Then fetch public content for that county
     const { data, error } = await supabaseClient
       .from('content')
       .select('*')
-      .eq('county', countyName)
+      .eq('county_id', countyData.id)
       .eq('visibility', 'public')  // Only public content
       .eq('status', 'published');
     

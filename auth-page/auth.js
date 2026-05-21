@@ -1,6 +1,16 @@
     // ─────────────────────────────────────────
     //  SUPABASE
     // ─────────────────────────────────────────
+    const link1 = document.createElement('link');
+    link1.href = 'https://fonts.googleapis.com/icon?family=Material+Icons';
+    link1.rel = 'stylesheet';
+    document.head.appendChild(link1) ;
+
+   const link2 = document.createElement('link');
+    link2.href = 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css';
+    link2.rel = 'stylesheet';
+    document.head.appendChild(link2) ;
+
     const SUPABASE_URL = 'https://choagncxtmsewzvxoncx.supabase.co';
     const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNob2FnbmN4dG1zZXd6dnhvbmN4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgzMzk3NjUsImV4cCI6MjA5MzkxNTc2NX0.hVPjF0_b-5DTXMzeFUPYZ82tL27CrsFBIUQrm-XYonE';
     const { createClient } = supabase;
@@ -118,15 +128,17 @@
         .single();
 
       if (!profile) {
-        window.location.href = '../index-page/index.html';
+        window.location.href = '../index.html';
         return;
       }
-      if (profile.role === 'super_admin' || profile.role === 'county_admin') {
+      if (profile.role === 'super_admin') {
         window.location.href = '../superadmin/superadmin.html';
+      }else if (profile.role === 'county_admin') {
+        window.location.href = '../county-admin-dashboard/index.html';
       } else if (profile.role === 'contributor') {
-        window.location.href = '../dashboard-page/dashboard.html';
+        window.location.href = '../contributor-dashboard/index.html';
       } else {
-        window.location.href = '../index-page/index.html';
+        window.location.href = '../index.html';
       }
     }
 
@@ -782,7 +794,7 @@
           <div class="input-group">
             <label class="input-label">New Password</label>
             <div class="input-wrap">
-              <span class="input-icon">🔒</span>
+            <i class="fa-solid fa-lock input-icon"></i>
               <input id="new-pw" type="password" class="form-input" placeholder="Min 8 characters"
                 oninput="checkStrength(this.value)" />
               <button type="button" class="pw-toggle" onclick="togglePw('new-pw',this)">👁</button>
@@ -793,13 +805,13 @@
           <div class="input-group">
             <label class="input-label">Confirm New Password</label>
             <div class="input-wrap">
-              <span class="input-icon">🔒</span>
+              <i class="fa-solid fa-lock input-icon"></i>
               <input id="new-pw-confirm" type="password" class="form-input" placeholder="Repeat password" />
             </div>
           </div>
           <button class="btn-primary" id="newPwBtn" onclick="submitNewPassword()">
             <div class="spinner"></div>
-            <span class="btn-text">Update Password →</span>
+            <span class="btn-text">Update Password </span>
           </button>
         `;
       }
