@@ -1388,6 +1388,57 @@ createApp({
       }
     };
 
+
+
+    // ROLE-BASED DASHBOARD REDIRECT
+async function goToDashboard() {
+  try {
+
+    const {
+      data: { user },
+      error: userError
+    } = await supabase.auth.getUser();
+
+    if (userError || !user) {
+      window.location.href = "../auth-page/auth.html";
+      return;
+    }
+
+    // GET USER ROLE
+    const { data: profile, error: profileError } = await supabase
+      .from("profiles")
+      .select("role")
+      .eq("id", user.id)
+      .single();
+
+    if (profileError || !profile) {
+      alert("Unable to load profile");
+      return;
+    }
+
+    // REDIRECT BASED ON ROLE
+    switch (profile.role) {
+
+      case "contributor":
+        window.location.href = "../contributor-dashboard/index.html";
+        break;
+
+      case "county_admin":
+        window.location.href = "../county-admin-dashboard/index.html";
+        break;
+
+      case "super_admin":
+        window.location.href = "../super-admin-dashboard/index.html";
+        break;
+
+      default:
+        window.location.href = "../dashboard-page/dashboard.html";
+    }
+
+  } catch (err) {
+    console.error("Dashboard redirect error:", err);
+  }
+}
     // Sign out
     const doSignOut = async () => {
       try {
