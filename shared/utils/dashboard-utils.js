@@ -43,11 +43,11 @@ class DashboardUtils {
   static getStatusColor(status) {
     const statusColors = {
       'draft': '#6B7280',      // Gray
-      'pending': '#F59E0B',    // Amber
-      'approved': '#10B981',   // Green
-      'published': '#3B82F6',  // Blue
-      'rejected': '#EF4444',   // Red
-      'archived': '#9CA3AF'    // Light gray
+      'pending': '#e49d05',    // Amber
+      'approved': '#057f42',   // Green
+      'published': '#0b06f9',  // Blue
+      'rejected': '#e60606',   // Red
+      'archived': '#797b7d'    // Light gray
     };
     return statusColors[status?.toLowerCase()] || '#6B7280';
   }
@@ -119,11 +119,11 @@ class DashboardUtils {
     // Create toast element
     const toast = document.createElement('div');
     const bgColor = {
-      'success': '#10B981',
-      'error': '#EF4444',
-      'warning': '#F59E0B',
-      'info': '#3B82F6'
-    }[type] || '#3B82F6';
+      'success': '#057f42',
+      'error': '#e60606',
+      'warning': '#e49d05',
+      'info': '#0b06f9'
+    }[type] || '#0b06f9';
 
     toast.style.cssText = `
       padding: 12px 16px;
@@ -156,7 +156,7 @@ class DashboardUtils {
           width: 40px;
           height: 40px;
           border: 4px solid #E5E7EB;
-          border-top-color: #3B82F6;
+          border-top-color: #0b06f9;
           border-radius: 50%;
           animation: spin 1s linear infinite;
         "></div>

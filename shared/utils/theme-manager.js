@@ -8,15 +8,15 @@
 class ThemeManager {
   constructor() {
     this.colors = {
-      primary: '#1D4ED8',      // Professional Blue
-      secondary: '#DC2626',    // Deep Red
-      accent: '#3B82F6',       // Light Blue
+      primary: '#0b06f9',      // Professional Blue
+      secondary: '#c50404',    // Deep Red
+      accent: '#0b06f9',       // Light Blue
       bg: '#FFFFFF',           // White
       text: '#1A1A1A',         // Dark text
       surface: '#DBEAFE',      // Light blue surface
       surface2: '#EFF6FF',     // Lighter blue surface
-      border: '#93C5FD',       // Blue border
-      border2: '#60A5FA',      // Medium blue border
+      border: '#0879f9',       // Blue border
+      border2: '#0b06f9',      // Medium blue border
       hover: 'rgba(29,78,216,0.1)',
       active: 'rgba(29,78,216,0.15)',
       glow: 'rgba(29,78,216,0.25)'

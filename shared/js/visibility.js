@@ -75,42 +75,42 @@ export class ContentVisibility {
   static getVisibilityInfo(visibility) {
     const info = {
       [VISIBILITY_LEVELS.PUBLIC]: {
-        icon: '🌍',
+        icon: '',
         label: 'Public',
         description: 'Visible to everyone',
-        color: '#10b981'
+        color: '#05a160ad'
       },
       [VISIBILITY_LEVELS.AUTHENTICATED_ONLY]: {
-        icon: '🔐',
+        icon: '',
         label: 'Authenticated',
         description: 'Visible to logged-in users',
-        color: '#3b82f6'
+        color: '#0a06f9e2'
       },
       [VISIBILITY_LEVELS.COUNTY_ONLY]: {
-        icon: '🏛️',
+        icon: '',
         label: 'County Only',
         description: 'Visible to county members',
-        color: '#f59e0b'
+        color: '#e49605'
       },
       [VISIBILITY_LEVELS.ADMIN_ONLY]: {
-        icon: '🔒',
+        icon: '',
         label: 'Admin Only',
         description: 'Visible to administrators',
-        color: '#ef4444'
+        color: '#c30404e9'
       },
       [VISIBILITY_LEVELS.PRIVATE]: {
-        icon: '🔑',
+        icon: '',
         label: 'Private',
         description: 'Visible to owner only',
-        color: '#8b5cf6'
+        color: '#4e06f4'
       }
     };
 
     return info[visibility] || {
-      icon: '❓',
+      icon: '',
       label: 'Unknown',
       description: 'Unknown visibility level',
-      color: '#6b7280'
+      color: '#6b7280cb'
     };
   }
 

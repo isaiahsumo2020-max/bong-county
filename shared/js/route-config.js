@@ -18,7 +18,7 @@ export const ROUTE_CONFIG = {
     requiresAuth: false,
     layout: 'public',
     title: 'Home',
-    icon: '🏠',
+    icon: '',
     visible: true,
     description: 'Platform landing page and county discovery'
   },
@@ -29,7 +29,7 @@ export const ROUTE_CONFIG = {
     requiresAuth: false,
     layout: 'public',
     title: 'County',
-    icon: '🏛️',
+    icon: '',
     description: 'County information and content'
   },
   
@@ -49,7 +49,7 @@ export const ROUTE_CONFIG = {
     requiresAuth: false,
     layout: 'public',
     title: 'Gallery',
-    icon: '🖼️',
+    icon: '',
     description: 'Photo galleries and media'
   },
   
@@ -59,7 +59,7 @@ export const ROUTE_CONFIG = {
     requiresAuth: false,
     layout: 'public',
     title: 'About',
-    icon: 'ℹ️',
+    icon: '',
     description: 'About the platform'
   },
   
@@ -69,7 +69,7 @@ export const ROUTE_CONFIG = {
     requiresAuth: false,
     layout: 'public',
     title: 'Announcements',
-    icon: '📢',
+    icon: '',
     description: 'Public announcements and news'
   },
   
@@ -81,7 +81,7 @@ export const ROUTE_CONFIG = {
     requiresAuth: false,
     layout: 'auth',
     title: 'Login',
-    icon: '🔐',
+    icon: '',
     description: 'Sign in or create account'
   },
   
@@ -106,7 +106,7 @@ export const ROUTE_CONFIG = {
     minRole: 'contributor',
     layout: 'authenticated',
     title: 'Profile',
-    icon: '👤',
+    icon: '',
     visible: true,
     description: 'View and edit your profile'
   },
@@ -118,7 +118,7 @@ export const ROUTE_CONFIG = {
     minRole: 'contributor',
     layout: 'authenticated',
     title: 'Settings',
-    icon: '⚙️',
+    icon: '',
     visible: true,
     description: 'Account settings and preferences'
   },
@@ -130,7 +130,7 @@ export const ROUTE_CONFIG = {
     minRole: 'contributor',
     layout: 'authenticated',
     title: 'Community',
-    icon: '👥',
+    icon: '',
     visible: true,
     description: 'Community discussions and collaboration'
   },
@@ -142,7 +142,7 @@ export const ROUTE_CONFIG = {
     minRole: 'contributor',
     layout: 'authenticated',
     title: 'Education',
-    icon: '📚',
+    icon: '',
     visible: true,
     description: 'Education resources and learning'
   },
@@ -154,7 +154,7 @@ export const ROUTE_CONFIG = {
     minRole: 'contributor',
     layout: 'authenticated',
     title: 'Opportunities',
-    icon: '💼',
+    icon: '',
     visible: true,
     description: 'Jobs, grants, internships, and scholarships'
   },
@@ -166,7 +166,7 @@ export const ROUTE_CONFIG = {
     minRole: 'contributor',
     layout: 'authenticated',
     title: 'Collaborate',
-    icon: '🤝',
+    icon: '',
     visible: true,
     description: 'Team collaboration and projects'
   },
@@ -178,7 +178,7 @@ export const ROUTE_CONFIG = {
     minRole: 'contributor',
     layout: 'authenticated',
     title: 'Contribute',
-    icon: '✍️',
+    icon: '',
     visible: true,
     description: 'Submit content and stories'
   },
@@ -192,7 +192,7 @@ export const ROUTE_CONFIG = {
     minRole: 'super_admin',
     layout: 'admin',
     title: 'Admin Panel',
-    icon: '🔧',
+    icon: '',
     visible: false,
     description: 'Administrative controls'
   },

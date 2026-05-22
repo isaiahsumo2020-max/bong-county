@@ -21,11 +21,11 @@ const SubmissionHandler = (() => {
         id, 
         title, 
         description,
+        excerpt,
         county_id,
         type = 'news',
-        category,
         tags, 
-        featuredImage,
+        coverImage,
         userId
       } = submissionData;
 
@@ -34,20 +34,25 @@ const SubmissionHandler = (() => {
         throw new Error('Title, description, and county are required');
       }
 
-      // Map type from form to schema enum
-      const validTypes = ['tourism', 'event', 'opportunity', 'news', 'community_story'];
-      const mappedType = type && validTypes.includes(type) ? type : 'news';
+      // Map type from form to schema enum (valid: 'story', 'announcement', 'article')
+      const typeMapping = {
+        'news': 'story',
+        'event': 'announcement',
+        'opportunity': 'article',
+        'tourism': 'article',
+        'community_story': 'story'
+      };
+      const mappedType = typeMapping[type] || 'story';
 
       const contentPayload = {
         title: title.trim(),
-        description: description.trim(),
+        body: description.trim(),
+        excerpt: excerpt?.trim() || null,
         county_id: county_id,
         type: mappedType,
-        category: category?.trim() || null,
         tags: Array.isArray(tags) ? tags : (tags ? tags.split(',').map(t => t.trim()).filter(t => t) : []),
-        featured_image_url: featuredImage || null,
-        visibility: 'public',
-        status: isDraft ? 'draft' : 'submitted',
+        cover_image_url: coverImage || null,
+        status: isDraft ? 'draft' : 'pending_review',
         updated_at: new Date().toISOString(),
         author_id: userId
       };
@@ -82,22 +87,8 @@ const SubmissionHandler = (() => {
         console.log('✓ Content created', contentResult);
       }
 
-      // If submitting (not just saving as draft), create submissions record
-      if (!isDraft && contentResult?.id) {
-        console.log('Creating submission record...');
-        const { error: submissionError } = await sb
-          .from('submissions')
-          .insert([{
-            content_id: contentResult.id,
-            submitter_id: userId,
-            status: 'pending'
-          }]);
-
-        if (submissionError) {
-          console.error('Warning: submissions record not created', submissionError);
-          // Don't fail - content was created successfully
-        }
-      }
+      // Note: submissions table doesn't exist in schema
+      // Content status handles submission state via 'pending_review' status
 
       return { success: true, data: contentResult };
 
@@ -170,12 +161,6 @@ const SubmissionHandler = (() => {
         throw new Error('Only draft submissions can be deleted');
       }
 
-      // Delete submissions record if exists
-      await sb
-        .from('submissions')
-        .delete()
-        .eq('content_id', submissionId);
-
       // Delete content record
       const { error } = await sb
         .from('content')
@@ -194,9 +179,9 @@ const SubmissionHandler = (() => {
   }
 
   // ─────────────────────────────────────────
-  // UPLOAD FEATURED IMAGE
+  // UPLOAD COVER IMAGE
   // ─────────────────────────────────────────
-  async function uploadFeaturedImage(file, userId) {
+  async function uploadCoverImage(file, userId) {
     try {
       if (!file) return { success: false, error: 'No file provided' };
 
@@ -214,18 +199,30 @@ const SubmissionHandler = (() => {
       const fileName = `${Date.now()}_${Math.random().toString(36).substr(2, 9)}.${fileExt}`;
       const filePath = `featured-images/${userId}/${fileName}`;
 
-      console.log(`Uploading image to ${filePath}...`);
+      console.log(`Uploading image to storage bucket 'content-images' at ${filePath}...`);
 
       const { data, error } = await sb.storage
         .from('content-images')
-        .upload(filePath, file);
+        .upload(filePath, file, {
+          cacheControl: '3600',
+          upsert: false
+        });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Upload error details:', error);
+        throw new Error(`Upload failed: ${error.message || 'Unknown storage error'}`);
+      }
 
       // Get public URL
-      const { data: { publicUrl } } = sb.storage
+      const { data: urlData } = sb.storage
         .from('content-images')
         .getPublicUrl(filePath);
+
+      const publicUrl = urlData?.publicUrl;
+
+      if (!publicUrl) {
+        throw new Error('Could not generate public URL for uploaded image');
+      }
 
       console.log('✓ Image uploaded:', publicUrl);
       return { success: true, url: publicUrl };
@@ -255,11 +252,11 @@ const SubmissionHandler = (() => {
         throw new Error('Only draft content can be submitted for review');
       }
 
-      // Update content status to 'submitted'
+      // Update content status to 'pending_review'
       const { data: updatedContent, error: contentError } = await sb
         .from('content')
         .update({
-          status: 'submitted',
+          status: 'pending_review',
           updated_at: new Date().toISOString(),
         })
         .eq('id', contentId)
@@ -267,27 +264,8 @@ const SubmissionHandler = (() => {
 
       if (contentError) throw contentError;
 
-      // Create submissions record if doesn't exist
-      const { data: existingSubmission } = await sb
-        .from('submissions')
-        .select('id')
-        .eq('content_id', contentId)
-        .single();
-
-      if (!existingSubmission) {
-        const { error: submissionError } = await sb
-          .from('submissions')
-          .insert([{
-            content_id: contentId,
-            submitter_id: userId,
-            status: 'pending'
-          }]);
-
-        if (submissionError) {
-          console.warn('Note: submissions record creation failed', submissionError);
-          // Don't fail - content status was updated
-        }
-      }
+      // submissions table doesn't exist in schema
+      // Content status 'pending_review' handles submission state
 
       console.log('✓ Content submitted for review');
       return { success: true, data: updatedContent?.[0] };
@@ -313,7 +291,7 @@ const SubmissionHandler = (() => {
       const stats = {
         total: submissions?.length || 0,
         draft: submissions?.filter(s => s.status === 'draft').length || 0,
-        submitted: submissions?.filter(s => s.status === 'submitted').length || 0,
+        pending_review: submissions?.filter(s => s.status === 'pending_review').length || 0,
         published: submissions?.filter(s => s.status === 'published').length || 0,
         rejected: submissions?.filter(s => s.status === 'rejected').length || 0,
       };
@@ -334,7 +312,7 @@ const SubmissionHandler = (() => {
     getSubmissions,
     getSubmission,
     deleteSubmission,
-    uploadFeaturedImage,
+    uploadCoverImage,
     submitForReview,
     getStats,
   };

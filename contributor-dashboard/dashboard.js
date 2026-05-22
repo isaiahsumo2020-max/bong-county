@@ -26,14 +26,14 @@ let countiesList = []; // Cache of counties from database
 // NAVIGATION
 // ─────────────────────────────────────────
 const CONTRIBUTOR_NAV = [
-  { id: 'overview', label: 'My Dashboard', icon: '📊' },
-  { id: 'submissions', label: 'My Submissions', icon: '📝' },
-  { id: 'drafts', label: 'Drafts', icon: '✏️' },
-  { id: 'pending', label: 'Pending Review', icon: '⏳' },
-  { id: 'published', label: 'Published', icon: '✅' },
-  { id: 'rejected', label: 'Rejected', icon: '❌' },
-  { id: 'activity', label: 'Activity History', icon: '📋' },
-  { id: 'account', label: 'Account Settings', icon: '⚙️' },
+  { id: 'overview', label: 'My Dashboard', icon: 'dashboard' },
+  { id: 'submissions', label: 'My Submissions', icon: 'description' },
+  { id: 'drafts', label: 'Drafts', icon: 'edit' },
+  { id: 'pending', label: 'Pending Review', icon: 'hourglass_empty' },
+  { id: 'published', label: 'Published', icon: 'check_circle' },
+  { id: 'rejected', label: 'Rejected', icon: 'cancel' },
+  { id: 'activity', label: 'Activity History', icon: 'history' },
+  { id: 'account', label: 'Account Settings', icon: 'settings' },
 ];
 
 // ─────────────────────────────────────────
@@ -171,9 +171,15 @@ async function initDashboard() {
 // UI SETUP
 // ─────────────────────────────────────────
 function setupHeader() {
-  const userEmail = document.getElementById('user-email');
-  if (userEmail) {
-    userEmail.textContent = currentProfile?.email || currentUser?.email;
+  const userEmailEl = document.getElementById('user-email');
+  const userNameEl = document.getElementById('user-name');
+  
+  if (userEmailEl) {
+    userEmailEl.textContent = currentProfile?.email || currentUser?.email;
+  }
+  
+  if (userNameEl) {
+    userNameEl.textContent = currentProfile?.full_name || 'Contributor';
   }
 }
 
@@ -183,18 +189,20 @@ function setupSidebar() {
 
   sidebarNav.innerHTML = CONTRIBUTOR_NAV.map(item => `
     <div class="nav-item" data-view="${item.id}" style="
-      padding: 12px 20px;
+      padding: 16px 24px;
       cursor: pointer;
-      transition: all 0.2s;
-      border-left: 3px solid transparent;
-      color: rgba(255,255,255,0.8);
+      transition: all 0.3s ease;
+      border-left: 4px solid transparent;
+      color: rgba(255,255,255,0.85);
       display: flex;
       align-items: center;
-      gap: 12px;
-      font-size: 14px;
-    ">
-      <span style="font-size: 18px;">${item.icon}</span>
-      <span>${item.label}</span>
+      gap: 16px;
+      font-size: 15px;
+      font-weight: 500;
+      user-select: none;
+    " class="nav-item-hover">
+      <span class="material-icons" style="font-size: 26px; flex-shrink: 0;">${item.icon}</span>
+      <span style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${item.label}</span>
     </div>
   `).join('');
 
@@ -203,6 +211,19 @@ function setupSidebar() {
     item.addEventListener('click', async (e) => {
       const viewId = e.currentTarget.dataset.view;
       await navigate(viewId);
+    });
+    
+    // Add hover effect
+    item.addEventListener('mouseenter', function() {
+      this.style.backgroundColor = 'rgba(255, 255, 255, 0.15)';
+      this.style.borderLeftColor = 'rgba(255, 255, 255, 0.6)';
+    });
+    
+    item.addEventListener('mouseleave', function() {
+      if (!this.classList.contains('active')) {
+        this.style.backgroundColor = 'transparent';
+        this.style.borderLeftColor = 'transparent';
+      }
     });
   });
 }
@@ -215,8 +236,36 @@ function setupEventListeners() {
       sidebarOpen = !sidebarOpen;
       const sidebar = document.getElementById('dashboard-sidebar');
       if (sidebar) {
-        sidebar.style.transform = sidebarOpen ? 'translateX(0)' : 'translateX(-100%)';
+        sidebar.classList.toggle('open');
       }
+    });
+  }
+
+  // Search bar functionality
+  const searchInput = document.getElementById('dashboard-search');
+  if (searchInput) {
+    searchInput.addEventListener('input', (e) => {
+      const query = e.target.value.toLowerCase();
+      const submissions = document.querySelectorAll('[data-submission-title]');
+      submissions.forEach(item => {
+        const title = item.getAttribute('data-submission-title').toLowerCase();
+        item.style.display = title.includes(query) ? '' : 'none';
+      });
+    });
+
+    searchInput.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') {
+        console.log('Search for:', e.target.value);
+      }
+    });
+  }
+
+  // Notifications button
+  const notificationsBtn = document.getElementById('notifications-btn');
+  if (notificationsBtn) {
+    notificationsBtn.addEventListener('click', () => {
+      // Placeholder for notifications functionality
+      console.log('Notifications clicked');
     });
   }
 
@@ -301,12 +350,22 @@ async function navigate(viewId) {
   try {
     currentView = viewId;
 
-    // Update active nav item
+    // Update active nav item with professional styling
     document.querySelectorAll('.nav-item').forEach(item => {
       const isActive = item.dataset.view === viewId;
-      item.style.borderLeftColor = isActive ? 'white' : 'transparent';
-      item.style.backgroundColor = isActive ? 'rgba(255,255,255,0.1)' : 'transparent';
-      item.style.color = isActive ? 'white' : 'rgba(255,255,255,0.8)';
+      if (isActive) {
+        item.classList.add('active');
+        item.style.backgroundColor = 'rgba(255,255,255,0.2)';
+        item.style.borderLeftColor = 'rgba(255,255,255,0.8)';
+        item.style.color = 'rgba(255,255,255,1)';
+        item.style.fontWeight = '600';
+      } else {
+        item.classList.remove('active');
+        item.style.backgroundColor = 'transparent';
+        item.style.borderLeftColor = 'transparent';
+        item.style.color = 'rgba(255,255,255,0.85)';
+        item.style.fontWeight = '500';
+      }
     });
 
     // Load view
@@ -324,7 +383,7 @@ async function navigate(viewId) {
         await loadSubmissions('draft');
         break;
       case 'pending':
-        await loadSubmissions('pending');
+        await loadSubmissions('pending_review');
         break;
       case 'published':
         await loadSubmissions('published');
@@ -390,7 +449,7 @@ async function loadOverview() {
             padding: 20px;
             border-radius: 8px;
           ">
-            <div style="font-size: 24px; margin-bottom: 8px;">📝</div>
+            <span class="material-icons" style="font-size: 32px; color: var(--county-primary); display: block; margin-bottom: 8px;">description</span>
             <p style="margin: 0 0 8px 0; color: var(--county-text); font-size: 14px;">Total Submissions</p>
             <h2 style="margin: 0; font-size: 32px; color: var(--county-primary);">${stats.total}</h2>
           </div>
@@ -401,7 +460,7 @@ async function loadOverview() {
             padding: 20px;
             border-radius: 8px;
           ">
-            <div style="font-size: 24px; margin-bottom: 8px;">✏️</div>
+            <span class="material-icons" style="font-size: 32px; color: #6B7280; display: block; margin-bottom: 8px;">edit</span>
             <p style="margin: 0 0 8px 0; color: var(--county-text); font-size: 14px;">Drafts</p>
             <h2 style="margin: 0; font-size: 32px; color: #6B7280;">${stats.draft}</h2>
           </div>
@@ -412,9 +471,9 @@ async function loadOverview() {
             padding: 20px;
             border-radius: 8px;
           ">
-            <div style="font-size: 24px; margin-bottom: 8px;">⏳</div>
-            <p style="margin: 0 0 8px 0; color: var(--county-text); font-size: 14px;">Submitted</p>
-            <h2 style="margin: 0; font-size: 32px; color: #F59E0B;">${stats.submitted}</h2>
+            <span class="material-icons" style="font-size: 32px; color: #F59E0B; display: block; margin-bottom: 8px;">hourglass_empty</span>
+            <p style="margin: 0 0 8px 0; color: var(--county-text); font-size: 14px;">Pending Review</p>
+            <h2 style="margin: 0; font-size: 32px; color: #F59E0B;">${stats.pending_review}</h2>
           </div>
 
           <div class="stat-card" style="
@@ -423,7 +482,7 @@ async function loadOverview() {
             padding: 20px;
             border-radius: 8px;
           ">
-            <div style="font-size: 24px; margin-bottom: 8px;">✅</div>
+            <span class="material-icons" style="font-size: 32px; color: #10B981; display: block; margin-bottom: 8px;">check_circle</span>
             <p style="margin: 0 0 8px 0; color: var(--county-text); font-size: 14px;">Published</p>
             <h2 style="margin: 0; font-size: 32px; color: #10B981;">${stats.published}</h2>
           </div>
@@ -547,7 +606,7 @@ async function loadSubmissions(filter) {
                 <div style="flex: 1;">
                   <h3 style="margin: 0 0 8px 0; color: var(--county-primary);">${sub.title}</h3>
                   <p style="margin: 0 0 12px 0; color: #6B7280; font-size: 14px;">
-                    ${DashboardUtils.truncateText(sub.description || sub.category || '', 150)}
+                    ${DashboardUtils.truncateText(sub.body || sub.excerpt || '', 150)}
                   </p>
                   <div style="display: flex; gap: 12px; font-size: 12px; color: #9CA3AF; flex-wrap: wrap;">
                     <span> ${DashboardUtils.formatDate(sub.created_at)}</span>
@@ -658,7 +717,7 @@ async function loadAccountSettings() {
               color: white;
               font-size: 36px;
             ">
-              ${profile.avatar_url ? `<img src="${profile.avatar_url}" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;">` : '👤'}
+              ${profile.avatar_url ? `<img src="${profile.avatar_url}" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;">` : '<span class="material-icons" style="font-size: 50px;">account_circle</span>'}
             </div>
             <div>
               <p style="margin: 0 0 8px 0; color: #6B7280; font-size: 14px;">Profile Photo</p>
@@ -970,20 +1029,20 @@ async function loadSubmissionIntoForm(submissionId) {
 
     const sub = result.data;
     
-    // Map schema field names
+    // Map schema field names to form fields
     document.getElementById('form-title-input').value = sub.title || '';
     document.getElementById('form-content-type').value = sub.type || 'news';
     document.getElementById('form-county').value = sub.county_id || '';
-    document.getElementById('form-excerpt').value = sub.category || ''; // Using category as excerpt field for now
-    document.getElementById('form-content').value = sub.description || '';
+    document.getElementById('form-excerpt').value = sub.excerpt || '';
+    document.getElementById('form-content').value = sub.body || '';
     
     // Handle tags - they may be an array in database
     const tagsValue = Array.isArray(sub.tags) ? sub.tags.join(', ') : (sub.tags || '');
     document.getElementById('form-tags').value = tagsValue;
 
-    if (sub.featured_image_url) {
-      currentCoverImageUrl = sub.featured_image_url;
-      displayImagePreview(sub.featured_image_url);
+    if (sub.cover_image_url) {
+      currentCoverImageUrl = sub.cover_image_url;
+      displayImagePreview(sub.cover_image_url);
     }
 
   } catch (error) {
@@ -1018,29 +1077,27 @@ async function handleFormSubmit(isDraft) {
 
     loading.style.display = 'block';
 
-    // Map content type from form to schema enum
+    // Map content type from form to schema enum (valid: 'story', 'announcement', 'article')
     const typeMapping = {
-      'article': 'news',
-      'event': 'event',
-      'opportunity': 'opportunity',
-      'announcement': 'community_story',
-      'tourism': 'tourism',
-      'news': 'news',
-      'community_story': 'community_story'
+      'news': 'story',
+      'event': 'announcement',
+      'opportunity': 'article',
+      'tourism': 'article',
+      'community_story': 'story'
     };
     
     const formType = document.getElementById('form-content-type').value;
-    const type = typeMapping[formType] || 'news';
+    const type = typeMapping[formType] || 'story';
 
     const submissionData = {
       id: currentEditingSubmissionId,
       title,
       description,
+      excerpt: document.getElementById('form-excerpt').value.trim() || null,
       county_id,
       type,
-      category: document.getElementById('form-excerpt').value.trim() || null, // Using excerpt field as category for now
       tags: document.getElementById('form-tags').value,
-      featuredImage: currentCoverImageUrl,
+      coverImage: currentCoverImageUrl,
       userId: currentUser.id,
     };
 

@@ -314,34 +314,34 @@ export class RoleManager {
   static getNavigationForRole(role) {
     const navItems = {
       'visitor': [
-        { label: 'Home', path: '/', icon: '🏠' },
-        { label: 'Counties', path: '/counties', icon: '🗺️' },
-        { label: 'Tourism', path: '/tourism', icon: '✈️' },
-        { label: 'Gallery', path: '/gallery', icon: '🖼️' },
-        { label: 'About', path: '/about', icon: 'ℹ️' }
+        { label: 'Home', path: '/', icon: '' },
+        { label: 'Counties', path: '/counties', icon: '' },
+        { label: 'Tourism', path: '/tourism', icon: '' },
+        { label: 'Gallery', path: '/gallery', icon: '' },
+  
       ],
       'contributor': [
-        { label: 'Dashboard', path: '/dashboard', icon: '📊' },
-        { label: 'Profile', path: '/profile', icon: '👤' },
-        { label: 'My Content', path: '/my-content', icon: '📝' },
-        { label: 'Notifications', path: '/notifications', icon: '🔔' },
-        { label: 'Opportunities', path: '/opportunities', icon: '💡' },
-        { label: 'Community', path: '/community', icon: '👥' }
+        { label: 'Dashboard', path: '/dashboard', icon: '' },
+        { label: 'Profile', path: '/profile', icon: '' },
+        { label: 'My Content', path: '/my-content', icon: '' },
+        { label: 'Notifications', path: '/notifications', icon: '' },
+        { label: 'Opportunities', path: '/opportunities', icon: '' },
+        { label: 'Community', path: '/community', icon: '' }
       ],
       'county_admin': [
-        { label: 'Dashboard', path: '/admin/dashboard', icon: '📊' },
-        { label: 'Content', path: '/admin/content', icon: '📝' },
-        { label: 'Users', path: '/admin/users', icon: '👥' },
-        { label: 'Settings', path: '/admin/settings', icon: '⚙️' },
-        { label: 'Analytics', path: '/admin/analytics', icon: '📈' }
+        { label: 'Dashboard', path: '/admin/dashboar', icon: '' },
+        { label: 'Content', path: '/admin/content', icon: '' },
+        { label: 'Users', path: '/admin/users', icon: '' },
+        { label: 'Settings', path: '/admin/settings', icon: '' },
+        { label: 'Analytics', path: '/admin/analytics', icon: '' }
       ],
       'super_admin': [
-        { label: 'Dashboard', path: '/super-admin/dashboard', icon: '📊' },
-        { label: 'Content', path: '/super-admin/content', icon: '📝' },
-        { label: 'Users', path: '/super-admin/users', icon: '👥' },
-        { label: 'System', path: '/super-admin/system', icon: '⚙️' },
-        { label: 'Analytics', path: '/super-admin/analytics', icon: '📈' },
-        { label: 'Configuration', path: '/super-admin/config', icon: '🔧' }
+        { label: 'Dashboard', path: '/super-admin/dashboard', icon: '' },
+        { label: 'Content', path: '/super-admin/content', icon: '' },
+        { label: 'Users', path: '/super-admin/users', icon: '' },
+        { label: 'System', path: '/super-admin/system', icon: '' },
+        { label: 'Analytics', path: '/super-admin/analytics', icon: '' },
+        { label: 'Configuration', path: '/super-admin/config', icon: '' }
       ]
     };
 
@@ -354,7 +354,7 @@ export class RoleManager {
   static getDashboardComponents(role) {
     const components = {
       'visitor': ['public_content', 'featured_counties', 'galleries'],
-      'contributor': ['my_stats', 'recent_content', 'notifications', 'opportunities', 'trending'],
+      'contributor': ['public_content', 'my_stats', 'recent_content', 'notifications', 'opportunities', 'trending'],
       'county_admin': ['county_stats', 'content_overview', 'user_management', 'pending_content'],
       'super_admin': ['system_stats', 'all_content', 'all_users', 'system_health', 'analytics']
     };

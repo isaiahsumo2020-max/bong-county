@@ -10,6 +10,7 @@
  * - Archive/delete functionality
  */
 
+
 export class NotificationCenter {
   
   constructor(containerId, notificationEngine, supabaseClient) {
@@ -73,7 +74,7 @@ export class NotificationCenter {
           <h2>Notifications</h2>
           <div class="header-actions">
             <button class="btn-clear-all" data-action="clearAll">Clear All</button>
-            <button class="btn-settings" data-action="openSettings">⚙️ Settings</button>
+            <button class="btn-settings" data-action="openSettings">Settings</button>
           </div>
         </div>
 
@@ -151,7 +152,7 @@ export class NotificationCenter {
     if (filtered.length === 0) {
       return `
         <div class="empty-state">
-          <div class="empty-icon">🔔</div>
+          <div class="empty-icon"></div>
           <p>No notifications yet</p>
           <small>Check back soon for updates</small>
         </div>
@@ -160,7 +161,7 @@ export class NotificationCenter {
 
     return filtered.map(notif => `
       <div class="notification-item ${notif.is_read ? 'read' : 'unread'}" data-id="${notif.id}">
-        <div class="notification-icon">${notif.icon || '📢'}</div>
+        <div class="notification-icon">${notif.icon || ''}</div>
         
         <div class="notification-content">
           <div class="notification-title">${notif.title}</div>
@@ -634,7 +635,7 @@ const notificationCenterStyles = `
 
 .notification-item.unread {
   background: #f0f9ff;
-  border-left: 4px solid #3b82f6;
+  border-left: 4px solid #0a06f4e2;
 }
 
 .notification-item:hover {
@@ -813,7 +814,7 @@ const notificationCenterStyles = `
 }
 
 .btn-save {
-  background: #3b82f6;
+  background: #0a06f4e2;
   color: white;
 }
 
@@ -845,7 +846,7 @@ const notificationCenterStyles = `
   position: absolute;
   top: -8px;
   right: -8px;
-  background: #ef4444;
+  background: #da0707e1;
 }
 
 .widget-dropdown {
@@ -903,7 +904,7 @@ const notificationCenterStyles = `
 }
 
 .view-all {
-  color: #3b82f6;
+  color: #0a06f4e2;
   text-decoration: none;
   font-size: 13px;
   font-weight: 500;

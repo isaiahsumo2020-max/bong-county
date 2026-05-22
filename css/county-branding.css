@@ -16,9 +16,9 @@
 
 :root {
   /* Unified Primary Colors - White, Blue, and Red */
-  --county-primary: #1D4ED8;      /* Professional Blue - Main brand color */
-  --county-secondary: #DC2626;    /* Deep Red - Secondary/complement */
-  --county-accent: #3B82F6;       /* Light Blue - Accent/highlight */
+  --county-primary: #033bd5de;      /* Professional Blue - Main brand color */
+  --county-secondary: #da0c0cd8;    /* Deep Red - Secondary/complement */
+  --county-accent: #133efbd9;       /* Light Blue - Accent/highlight */
   
   /* Unified Surface Colors */
   --county-bg: #FFFFFF;           /* White background */
@@ -28,7 +28,7 @@
   /* Unified Text & Borders */
   --county-text: #1A1A1A;         /* Dark text */
   --county-border: #93C5FD;       /* Light blue borders */
-  --county-border-dark: #60A5FA;  /* Medium blue borders */
+  --county-border-dark: #0a6ce4;  /* Medium blue borders */
   
   /* Unified State Colors */
   --county-hover: rgba(29, 78, 216, 0.1);    /* Hover state - Blue */

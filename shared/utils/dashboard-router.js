@@ -51,11 +51,11 @@ class DashboardRouter {
       const userRole = profile?.role || 'visitor';
       const dashboardUrl = this.getDashboardUrl(userRole);
 
-      console.log(`✓ Routing ${userRole} to ${dashboardUrl}`);
+      console.log(` Routing ${userRole} to ${dashboardUrl}`);
       window.location.href = dashboardUrl;
 
     } catch (error) {
-      console.error('✗ Error redirecting to dashboard:', error);
+      console.error('Error redirecting to dashboard:', error);
       window.location.href = this.getDashboardUrl('visitor');
     }
   }

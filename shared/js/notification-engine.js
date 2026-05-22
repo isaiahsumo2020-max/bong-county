@@ -394,14 +394,14 @@ export class NotificationEngine {
 
   getIcon(opportunityType) {
     const icons = {
-      'job': '💼',
-      'grant': '💰',
-      'scholarship': '🎓',
-      'partnership': '🤝',
-      'event': '📅',
-      'none': '📢'
+      'job': '',
+      'grant': '',
+      'scholarship': '',
+      'partnership': '',
+      'event': '',
+      'none': ''
     };
-    return icons[opportunityType] || '📢';
+    return icons[opportunityType] || '';
   }
 
   getTargetAudience(content, subscriber) {
