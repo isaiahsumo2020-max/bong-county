@@ -22,7 +22,21 @@
 
     if (!window.supabaseClient) {
       console.error('✗ Supabase client not loaded');
-      window.location.href = '../index-page/index.html?error=client-error';
+      const fallback = '../index.html?error=client-error';
+      if (window.location.pathname + window.location.search !== new URL(fallback, window.location.href).pathname + new URL(fallback, window.location.href).search) {
+        try {
+          const REDIRECT_KEY = '__redirect_in_progress_v1';
+          const last = Number(sessionStorage.getItem(REDIRECT_KEY) || 0);
+          if (!last || (Date.now() - last) > 5000) {
+            sessionStorage.setItem(REDIRECT_KEY, String(Date.now()));
+            window.location.replace(fallback);
+          } else {
+            console.log('Safe redirect suppressed (client not loaded)');
+          }
+        } catch (e) {
+          window.location.replace(fallback);
+        }
+      }
       return;
     }
 
@@ -30,11 +44,6 @@
     if (!window.authGuard) {
       window.authGuard = new AuthGuard(window.supabaseClient);
       await window.authGuard.init();
-    }
-
-    // Initialize auth router
-    if (!window.authRouter) {
-      window.authRouter = new AuthRouter(window.supabaseClient, window.authGuard);
     }
 
     console.log('✓ Auth system initialized');
@@ -50,15 +59,32 @@
 
     if (!protection.allowed) {
       console.warn('⚠ Access denied - redirecting to appropriate dashboard');
-      
       // Redirect to correct dashboard based on role
       const userRole = window.authGuard.userProfile?.role || 'visitor';
-      if (userRole === 'county_admin') {
-        window.location.href = '../county-admin-dashboard/index.html';
-      } else if (userRole === 'super_admin') {
-        window.location.href = '../superadmin/superadmin.html';
+      let target = '../auth-page/auth.html';
+      if (userRole === 'county_admin') target = '../county-admin-dashboard/county-admin-dashboard.html';
+      else if (userRole === 'super_admin') target = '../superadmin/superadmin.html';
+
+      if (window.location.pathname + window.location.search !== new URL(target, window.location.href).pathname + new URL(target, window.location.href).search) {
+        // Prefer AuthGuard's redirect helper when available (it has its own guard)
+        if (window.authGuard && typeof window.authGuard.redirect === 'function') {
+          window.authGuard.redirect(target);
+        } else {
+          try {
+            const REDIRECT_KEY = '__redirect_in_progress_v1';
+            const last = Number(sessionStorage.getItem(REDIRECT_KEY) || 0);
+            if (!last || (Date.now() - last) > 5000) {
+              sessionStorage.setItem(REDIRECT_KEY, String(Date.now()));
+              window.location.replace(target);
+            } else {
+              console.log('Safe redirect suppressed (access denied)');
+            }
+          } catch (e) {
+            window.location.replace(target);
+          }
+        }
       } else {
-        window.location.href = '../auth-page/auth.html';
+        console.log('Not redirecting — already on', target);
       }
       return;
     }
@@ -68,11 +94,18 @@
     // PHASE 3: Hide loading, apply theme
     console.log('PHASE 3: Setting up dashboard...');
     
+    const authLoading = document.getElementById('auth-loading');
+    if (authLoading) authLoading.style.display = 'none';
     const loadingScreen = document.getElementById('view-loading');
     if (loadingScreen) loadingScreen.style.display = 'none';
 
     const dashboardRoot = document.getElementById('dashboard-root');
-    if (dashboardRoot) dashboardRoot.style.display = 'flex';
+    if (dashboardRoot) {
+      Array.from(dashboardRoot.children)
+        .filter(child => child.tagName === 'SECTION')
+        .forEach(section => section.remove());
+      dashboardRoot.style.display = 'flex';
+    }
 
     // Apply theme
     if (window.ThemeManager) {
@@ -89,6 +122,20 @@
 
   } catch (error) {
     console.error('✗ Dashboard initialization error:', error);
-    window.location.href = '../auth-page/auth.html?error=init-failed';
+    const fallback = '../auth-page/auth.html?error=init-failed';
+    if (window.location.pathname + window.location.search !== new URL(fallback, window.location.href).pathname + new URL(fallback, window.location.href).search) {
+      try {
+        const REDIRECT_KEY = '__redirect_in_progress_v1';
+        const last = Number(sessionStorage.getItem(REDIRECT_KEY) || 0);
+        if (!last || (Date.now() - last) > 5000) {
+          sessionStorage.setItem(REDIRECT_KEY, String(Date.now()));
+          window.location.replace(fallback);
+        } else {
+          console.log('Safe redirect suppressed (init failed)');
+        }
+      } catch (e) {
+        window.location.replace(fallback);
+      }
+    }
   }
 })();

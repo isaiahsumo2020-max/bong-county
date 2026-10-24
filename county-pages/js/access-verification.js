@@ -154,7 +154,7 @@ function testCountyCardLinks() {
 }
 
 // Run verification on page load
-console.log('📋 County Pages Verification Tools Loaded');
+console.log(' County Pages Verification Tools Loaded');
 console.log('Available commands:');
 console.log('  • verifyCountyPagesAccess() - Full accessibility test');
 console.log('  • quickCountyNavigationTest() - Quick navigation test');
@@ -164,8 +164,8 @@ console.log('\n⏳ Running verification...\n');
 
 // Auto-run main verification
 verifyCountyPagesAccess().then(result => {
-  console.log('\n✅ Verification complete. Check results above.');
+  console.log('\n Verification complete. Check results above.');
   if (result.allAccessible) {
-    console.log('🎉 County pages are ready for access!');
+    console.log(' County pages are ready for access!');
   }
 });

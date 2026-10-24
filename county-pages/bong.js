@@ -1331,10 +1331,10 @@ const PageCommunity = {
     const typeMap = { announcement:'Announcement', event:'Event', youth:'Youth' };
     const filtered = computed(() => activeType.value === 'all' ? updates : updates.filter(u => u.type === typeMap[activeType.value]));
     const youthInits = [
-      { icon:'📚', title:'Bong Reads Community Libraries',            desc:'Youth-led mini-libraries across communities in Gbarnga, Salala, Suakoko and beyond — supporting literacy for all ages.',               stat:'6 communities · 1,200+ readers' },
-      { icon:'💻', title:'Code Bong: Digital Skills at BCTC',         desc:'Peer-led coding workshops at Bong County Technical College expanding digital skills for secondary and post-secondary students.',    stat:'200+ students trained' },
-      { icon:'🌿', title:'Green Bong Environmental Initiative',        desc:'Youth-led tree planting campaigns and river cleanups across Bong County\'s 12 districts, in partnership with schools.',             stat:'3,000+ trees planted' },
-      { icon:'🎙️', title:'Youth Radio: Voice of Bong County',          desc:'Youth-led radio program broadcasting stories, interviews, and community news from Gbarnga FM, reaching all parts of the county.',  stat:'Weekly broadcast · 10,000+ listeners' },
+      { icon:'', title:'Bong Reads Community Libraries',            desc:'Youth-led mini-libraries across communities in Gbarnga, Salala, Suakoko and beyond — supporting literacy for all ages.',               stat:'6 communities · 1,200+ readers' },
+      { icon:'', title:'Code Bong: Digital Skills at BCTC',         desc:'Peer-led coding workshops at Bong County Technical College expanding digital skills for secondary and post-secondary students.',    stat:'200+ students trained' },
+      { icon:'', title:'Green Bong Environmental Initiative',        desc:'Youth-led tree planting campaigns and river cleanups across Bong County\'s 12 districts, in partnership with schools.',             stat:'3,000+ trees planted' },
+      { icon:'', title:'Youth Radio: Voice of Bong County',          desc:'Youth-led radio program broadcasting stories, interviews, and community news from Gbarnga FM, reaching all parts of the county.',  stat:'Weekly broadcast · 10,000+ listeners' },
     ];
     return { activeType, types, filtered, youthInits };
   }
@@ -1400,39 +1400,37 @@ async function goToDashboard() {
     } = await supabase.auth.getUser();
 
     if (userError || !user) {
-      window.location.href = "../auth-page/auth.html";
+      window.location.assign("/auth-page/auth.html");
       return;
     }
 
     // GET USER ROLE
     const { data: profile, error: profileError } = await supabase
-      .from("profiles")
+      .from("users")
       .select("role")
       .eq("id", user.id)
       .single();
 
-    if (profileError || !profile) {
-      alert("Unable to load profile");
-      return;
-    }
+    if (profileError) throw profileError;
+    if (!profile) throw new Error("Authenticated user profile was not found.");
 
     // REDIRECT BASED ON ROLE
     switch (profile.role) {
 
       case "contributor":
-        window.location.href = "../contributor-dashboard/index.html";
+        window.location.assign("/contributor-dashboard/contributor-dashboard.html");
         break;
 
       case "county_admin":
-        window.location.href = "../county-admin-dashboard/index.html";
+        window.location.assign("/county-admin-dashboard/county-admin-dashboard.html");
         break;
 
       case "super_admin":
-        window.location.href = "../super-admin-dashboard/index.html";
+        window.location.assign("/superadmin/superadmin.html");
         break;
 
       default:
-        window.location.href = "../dashboard-page/dashboard.html";
+        window.location.assign("/auth-page/auth.html");
     }
 
   } catch (err) {
@@ -1445,7 +1443,7 @@ async function goToDashboard() {
         const result = await window.supabaseHelpers?.signOut?.() || { success: false };
         if (result.success) {
           authUser.value = null;
-          window.location.href = '../auth-page/auth.html';
+          window.location.assign('/auth-page/auth.html');
         }
       } catch (error) {
         console.error('Sign out error:', error);
@@ -1464,7 +1462,7 @@ async function goToDashboard() {
     checkAuth();
 
     const nav = [
-      { to:'index.html',     label:'← Back to Explore Liberia', external: true },
+      { to:'index.html',     label:'Home', external: true },
       { to:'/about',         label:'About' },
       { to:'/tourism',       label:'Tourism' },
       { to:'/leadership',    label:'Leadership' },
@@ -1472,13 +1470,14 @@ async function goToDashboard() {
       { to:'/opportunities', label:'Opportunities' },
       { to:'/stories',       label:'Stories' },
       { to:'/community',     label:'Community' },
+      { to:'javascript:void(0)', label:'', action:'dashboard' },
     ];
     const footerCols = [
       { title:'Explore',   links:[{ to:'/tourism', label:'Tourist Sites' }, { to:'/about', label:'Districts & Towns' }, { to:'/leadership', label:'Leadership' }, { to:'/stories', label:'Stories' }] },
       { title:'Resources', links:[{ to:'/education', label:'Universities' }, { to:'/education', label:'High Schools' }, { to:'/education', label:'Healthcare' }, { to:'/opportunities', label:'Scholarships' }] },
-      { title:'Community', links:[{ to:'/community', label:'Announcements' }, { to:'/community', label:'Events' }, { to:'/youth', label:'Youth Hub' }, { to:'/stories', label:'Voices' }] },
+      { title:'Community', links:[{ to:'/community', label:'Announcements' }, { to:'/community', label:'Events' }, { to:'/community', label:'Youth Hub' }, { to:'/stories', label:'Voices' }] },
     ];
-    return { mob, nav, footerCols, showAuthMenu, authUser, doSignOut };
+    return { mob, nav, footerCols, showAuthMenu, authUser, doSignOut, goToDashboard };
   }
 }).use(router).mount('#app');
 

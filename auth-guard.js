@@ -264,10 +264,36 @@ class AuthGuard {
    * @param {string} url - URL to redirect to
    */
   redirect(url) {
-    // Handle relative paths
-    if (url.startsWith('/')) {
-      window.location.href = window.location.origin + url;
-    } else {
+    try {
+      // Prevent rapid repeated redirects across scripts
+      try {
+        const REDIRECT_KEY = '__redirect_in_progress_v1';
+        const now = Date.now();
+        const last = Number(sessionStorage.getItem(REDIRECT_KEY) || 0);
+        if (last && (now - last) < 5000) {
+          console.log('Redirect suppressed — recent redirect in progress');
+          return;
+        }
+        sessionStorage.setItem(REDIRECT_KEY, String(now));
+      } catch (e) {
+        // sessionStorage may be unavailable in some contexts — ignore
+      }
+      // Resolve absolute URL from relative input
+      const target = url.startsWith('/') ? (window.location.origin + url) : new URL(url, window.location.href).href;
+
+      // If we're already on the target path, avoid redirect to prevent loops
+      const currentPath = window.location.pathname + window.location.search;
+      const targetPath = new URL(target).pathname + new URL(target).search;
+      if (currentPath === targetPath) {
+        console.log('Redirect skipped — already on target:', targetPath);
+        return;
+      }
+
+      // Use replace to avoid polluting history and reduce back/forward bounce
+      window.location.replace(target);
+    } catch (err) {
+      // Fallback to simple assignment if URL construction fails
+      console.warn('Redirect fallback to href due to', err);
       window.location.href = url;
     }
   }

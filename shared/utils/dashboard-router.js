@@ -20,8 +20,8 @@ class DashboardRouter {
   getDashboardUrl(role) {
     const routes = {
       'super_admin': '/superadmin/superadmin.html',
-      'county_admin': '/county-admin-dashboard/index.html',
-      'contributor': '/contributor-dashboard/index.html',
+      'county_admin': '/county-admin-dashboard/county-admin-dashboard.html',
+      'contributor': '/contributor-dashboard/contributor-dashboard.html',
       'visitor': '/auth-page/auth.html'
     };
 
@@ -42,21 +42,23 @@ class DashboardRouter {
       }
 
       // Get user profile
-      const { data: profile } = await this.supabase
+      const { data: profile, error: profileError } = await this.supabase
         .from('users')
         .select('role')
         .eq('id', session.user.id)
         .single();
 
+      if (profileError) throw profileError;
+
       const userRole = profile?.role || 'visitor';
       const dashboardUrl = this.getDashboardUrl(userRole);
 
-      console.log(` Routing ${userRole} to ${dashboardUrl}`);
-      window.location.href = dashboardUrl;
+      console.log(`Routing ${userRole} to ${dashboardUrl}`);
+      window.location.assign(dashboardUrl);
 
     } catch (error) {
       console.error('Error redirecting to dashboard:', error);
-      window.location.href = this.getDashboardUrl('visitor');
+      window.location.assign(this.getDashboardUrl('visitor'));
     }
   }
 

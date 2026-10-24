@@ -137,7 +137,7 @@
     }
 
     .left-logo span {
-      color: rgb(15, 61, 247);
+      color: rgba(22, 6, 247, 0.929);
     }
 
     .left-headline {
@@ -229,7 +229,7 @@
     }
 
     .mobile-logo span {
-      color: #036ff3;
+      color: #1302faf0;
     }
 
     @media (min-width: 1024px) {
@@ -350,7 +350,7 @@
     }
 
     .form-input.success {
-      border-color: #22c55e;
+      border-color: #069d3eed;
     }
 
     /* Password toggle */
@@ -468,7 +468,7 @@
     /* Error message */
     .field-error {
       font-size: 0.72rem;
-      color: #ef4444;
+      color: #f80303cb;
       margin-top: 5px;
       display: none;
     }
@@ -726,7 +726,7 @@
     <div class="left-content">
       <!-- Logo -->
       <div class="left-logo text-red-700">
-        C.<span class="text-white">S.</span><span class="text-blue-600">Liberia</span>
+        Connect<span class="text-blue-600">Liberia</span>
       </div>
 
       <!-- Main copy -->
@@ -763,17 +763,17 @@
       <!-- Mobile Logo -->
       <a href="../index.html">
       <div class="text-2xl text-red-700 font-extrabold">
-       County <span class="text-white">Sphere</span><span class="text-blue-500">Liberia</span>
+       Connect</span><span class="text-blue-500">Liberia</span>
       </div></a>
 
       <!-- ════════════════════════════
            LOGIN / REGISTER TABS
       ════════════════════════════ -->
-      <!-- <div id="mainAuth"> -->
+      <div id="mainAuth">
 
         <!-- Tabs -->
-        
-          
+
+
           <!-- <button class="auth-tab active" onclick="switchTab('login')">Sign In</button> -->
           <!-- <button class="auth-tab" onclick="switchTab('register')">Create Account</button> -->
 
@@ -782,7 +782,7 @@
         <div class="form-panel active" id="panel-login">
           <h2 class="sign1">Sign In</h2>
           <div class="form-title">Welcome back</div>
-          <div class="form-subtitle">Sign in to your CountySphere Liberia account</div>
+          <div class="form-subtitle">Sign in to your ConnectLiberia account</div>
 
           <div class="alert alert-error" id="login-alert"></div>
 
@@ -836,7 +836,7 @@
         <!-- ── REGISTER FORM ── -->
           <!-- <button class="auth-tab active" onclick="switchTab('login')">Sign In</button> -->
         <!-- <button class="auth-tab" onclick="switchTab('register')">Create Account</button> -->
-        
+
         <div class="form-panel" id="panel-register">
           <div class="steps" id="reg-steps">
             <div class="step-dot active" id="step-1"></div>
@@ -849,23 +849,17 @@
           <!-- Step 1: Platform Role selection -->
           <div id="reg-step-1">
             <div class="form-title">Join the Platform</div>
-            <div class="form-subtitle">Choose your role to get started</div>
 
             <div class="alert alert-error" id="reg-step1-alert"></div>
 
-            <label class="input-label" style="margin-bottom:0.6rem;display:block">I want to join as a</label>
-            <div class="role-cards">
+            <label class="input-label" style="margin-bottom:0.6rem;display:block">Start your contributor journey</label>
+
               <div class="role-card selected" id="role-contributor" onclick="selectRole('contributor')">
                 <i class="fas fa-user"></i>
                 <div class="role-card-name">Contributor</div>
                 <div class="role-card-desc">Submit stories, events & opportunities</div>
               </div>
-              <div class="role-card" id="role-county_admin" onclick="selectRole('county_admin')">
-                <i class="fas fa-user-shield"></i>
-                <div class="role-card-name">County Admin</div>
-                <div class="role-card-desc">Manage a county's content & info</div>
-              </div>
-            </div>
+
 
             <div class="input-group" id="county-select-group">
               <label class="input-label">Select Your County</label>
@@ -883,7 +877,7 @@
               <span class="btn-text">Continue</span>
             </button>
              <div class="terms-text" style="margin-top:1.5rem">
-            Already an have an account? 
+            Already have an account?
             <a onclick="switchTab('login')">Login</a>
           </div>
           </div>
@@ -1041,7 +1035,7 @@
 
             <div class="input-group">
               <label class="input-label">Bio <span
-                  style="color:var(--muted);font-weight:400;text-transform:none">(optional)</span></label>
+                  style="color:var(--muted);font-weight:400;text-transform:none">(optional), <span> you can set it up in setting</span> later</span></label>
               <div class="input-wrap">
                 <span class="input-icon" style="top:14px;transform:none"></span>
                 <textarea id="reg-bio" class="form-input" style="padding-top:13px;resize:none;height:80px"
@@ -1094,7 +1088,7 @@
               <input type="checkbox" id="agree-terms" />
               <label for="agree-terms">
                 I agree to the <a href="#">Terms of Service</a> and
-                <a href="#">Privacy Policy</a> of ExploreLiberia
+                <a href="#">Privacy Policy</a> of CountySphere Liberia
               </label>
             </div>
 
@@ -1142,8 +1136,7 @@
         </div>
         <!-- end register form -->
 
-      <!-- </div> -->
-      <!-- end mainAuth -->
+      </div>
 
 
       <!-- ════════════════════════════
@@ -1186,18 +1179,21 @@
             <i class="fas fa-envelope input-icon"></i>
           <div class="form-title" style="margin-bottom:0.5rem">Check Your Email</div>
           <p style="color:var(--muted);font-size:0.875rem;line-height:1.7;margin-bottom:1.5rem">
-            We sent a verification link to<br>
+            If email confirmation is enabled, a verification link should arrive at<br>
             <strong id="verify-email-display" style="color:white"></strong>
           </p>
           <p style="color:var(--muted);font-size:0.8rem;line-height:1.6;margin-bottom:2rem">
             Click the link in the email to activate your account.
-            Check your spam folder if you don't see it within a few minutes.
+            Check your spam folder. If no message arrives after resending, the site administrator may need to check email delivery settings.
           </p>
           <button class="btn-primary" onclick="showMain()" style="max-width:260px;margin:0 auto">
             Back to Sign In
           </button>
+          <p id="verify-status" role="status" aria-live="polite"
+            style="color:var(--muted);font-size:0.78rem;line-height:1.5;margin:1rem 0 0"></p>
           <div style="margin-top:1rem">
-            <button onclick="resendVerification()"
+            <button id="resend-verification-btn" onclick="resendVerification()"
+              type="button"
               style="background:none;border:none;color:var(--muted);font-size:0.78rem;cursor:pointer;font-family:Poppins,sans-serif;transition:color 0.2s"
               onmouseover="this.style.color='white'" onmouseout="this.style.color='var(--muted)'">
               Didn't receive it? Resend email

@@ -15,7 +15,7 @@
 
     if (!window.supabaseClient) {
       console.error('Supabase client not available');
-      window.location.href = '../../index-page/index.html?error=client-error';
+      window.location.href = '../../index.html?error=client-error';
       return;
     }
 

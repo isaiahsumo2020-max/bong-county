@@ -841,8 +841,8 @@
 
           </div>
         </div>
-        <a class="nav-link" href="../contribute-page/index.html"> Contribute</a>
-        <a class="nav-link" href="../dashboard-page/dashboard.html">Dashboard</a>
+        <a class="nav-link" href="../contributor-dashboard/contributor-dashboard.html">Contribute</a>
+        <a class="nav-link" href="../auth-page/auth.html">Dashboard</a>
         <button class="btn-small btn-secondary" onclick="goHome()">
           Back Home
         </button>
@@ -850,11 +850,11 @@
 
       <!-- Mobile Dropdown -->
       <div class="mobile-menu" id="mobileMenu">
-        <a class="mobile-link" href="../dashboard-page/dashboard.html">
+        <a class="mobile-link" href="../auth-page/auth.html">
           Dashboard
         </a>
 
-        <a class="mobile-link" href="../contribute-page/index.html">
+        <a class="mobile-link" href="../contributor-dashboard/contributor-dashboard.html">
           Contribute
         </a>
 
@@ -1334,11 +1334,11 @@
 
     async function handleLogout() {
       await sb.auth.signOut();
-      window.location.href = '../index-page/index.html';
+      window.location.assign('../index.html');
     }
 
     function goHome() {
-      window.location.href = '../index-page/index.html';
+      window.location.assign('../index.html');
     }
 
     function goToSettings() {

@@ -1,993 +1,779 @@
-/**
- * COUNTY ADMIN DASHBOARD - Complete Application Logic
- * 
- * Features:
- * - Dashboard Overview with Statistics
- * - Pending Reviews Management
- * - Published Content
- * - Contributors Management
- * - Announcements, Events, Opportunities
- * - Notifications
- * - Settings
- * - Real-time Analytics
- */
+﻿let currentUserProfile = null;
 
-const sb = window.supabaseClient;
+const pageTemplates = {
+  overview: () => `
+    <section>
+      <h2>Welcome, ${currentUserProfile?.full_name || 'Admin'}</h2>
+      <p>Managing ${currentUserProfile?.county || 'Your'} County</p>
+      <div class="flex flex-col sm:flex-row gap-2 sm:gap-4 mt-4">
+        <button onclick="navigateTo('content-review')" class="px-4 py-2 bg-white text-green-600 rounded-lg shadow hover:bg-gray-100 transition duration-200 text-sm">Review Content</button>
+        <button onclick="navigateTo('leaders')" class="px-4 py-2 bg-white text-green-600 rounded-lg shadow hover:bg-gray-100 transition duration-200 text-sm">Add Leader</button>
+        <button class="px-4 py-2 bg-white text-green-600 rounded-lg shadow hover:bg-gray-100 transition duration-200 text-sm">View County Page</button>
+      </div>
+    </section>
+    <section>
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
+        <div class="bg-white p-4 md:p-5 rounded-lg shadow-md border-l-4 border-blue-500"><div class="flex justify-between items-center mb-2"><h3 class="text-base md:text-lg font-semibold text-gray-700">Total Content</h3><svg class="h-5 w-5 md:h-6 md:w-6 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path></svg></div><p class="text-3xl md:text-4xl font-bold text-gray-900">250</p><p class="text-xs md:text-sm text-gray-500">+5% from last month</p></div>
+        <div class="bg-white p-4 md:p-5 rounded-lg shadow-md border-l-4 border-orange-500"><div class="flex justify-between items-center mb-2"><h3 class="text-base md:text-lg font-semibold text-gray-700">Pending Review</h3><svg class="h-5 w-5 md:h-6 md:w-6 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg></div><p class="text-3xl md:text-4xl font-bold text-gray-900">12</p><p class="text-xs md:text-sm text-gray-500">-10% from last week</p></div>
+        <div class="bg-white p-4 md:p-5 rounded-lg shadow-md border-l-4 border-green-500"><div class="flex justify-between items-center mb-2"><h3 class="text-base md:text-lg font-semibold text-gray-700">Published Content</h3><svg class="h-5 w-5 md:h-6 md:w-6 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg></div><p class="text-3xl md:text-4xl font-bold text-gray-900">200</p><p class="text-xs md:text-sm text-gray-500">+8% from last month</p></div>
+      </div>
+    </section>
+  `,
+  'content-review': () => `
+    <section>
+      <h2>Content Review</h2>
+      <div class="overflow-x-auto"><table class="min-w-full divide-y divide-gray-200"><thead class="bg-gray-50"><tr><th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Title</th><th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th><th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Author</th><th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th><th class="relative px-6 py-3"><span class="sr-only">Actions</span></th></tr></thead><tbody class="bg-white divide-y divide-gray-200"><tr><td data-label="Title" class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Tourism Initiative Proposal</td><td data-label="Type" class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Article</td><td data-label="Author" class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Mary Doe</td><td data-label="Status" class="px-6 py-4 whitespace-nowrap"><span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-orange-100 text-orange-800">Pending Review</span></td><td data-label="Actions" class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium"><a href="#" class="text-green-600 hover:text-green-900 mr-3">Approve</a><a href="#" class="text-red-600 hover:text-red-900">Reject</a></td></tr><tr><td data-label="Title" class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Community Health Workshop Announcement</td><td data-label="Type" class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Announcement</td><td data-label="Author" class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Peter Smith</td><td data-label="Status" class="px-6 py-4 whitespace-nowrap"><span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-orange-100 text-orange-800">Pending Review</span></td><td data-label="Actions" class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium"><a href="#" class="text-green-600 hover:text-green-900 mr-3">Approve</a><a href="#" class="text-red-600 hover:text-red-900">Reject</a></td></tr></tbody></table></div>
+    </section>
+  `,
+  leaders: () => `
+    <section>
+      <h2>Manage County Leaders</h2>
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6"><div class="border border-gray-200 rounded-lg overflow-hidden shadow-sm"><img src="https://via.placeholder.com/300x200" alt="Leader Photo" class="w-full h-48 object-cover"><div class="p-4"><h3 class="text-lg font-semibold text-gray-800">Hon. James K. Doe</h3><p class="text-sm text-gray-600">County Superintendent</p><p class="text-xs text-gray-500 mb-3">2020 - Present</p><div class="flex justify-between"><button class="text-blue-600 hover:underline text-sm font-medium">Edit</button><button class="text-red-600 hover:underline text-sm font-medium">Delete</button></div></div></div><div class="border border-gray-200 rounded-lg overflow-hidden shadow-sm"><img src="https://via.placeholder.com/300x200" alt="Leader Photo" class="w-full h-48 object-cover"><div class="p-4"><h3 class="text-lg font-semibold text-gray-800">Madam Sarah L. Johnson</h3><p class="text-sm text-gray-600">Assistant Superintendent for Development</p><p class="text-xs text-gray-500 mb-3">2022 - Present</p><div class="flex justify-between"><button class="text-blue-600 hover:underline text-sm font-medium">Edit</button><button class="text-red-600 hover:underline text-sm font-medium">Delete</button></div></div></div></div>
+    </section>
+  `,
+  contributors: () => `
+    <section>
+      <h2>Contributors</h2>
+      <p class="text-gray-600">People who contribute content to the county page.</p>
+      <div class="overflow-x-auto mt-4">
+        <table class="min-w-full divide-y divide-gray-200">
+          <thead class="bg-gray-50">
+            <tr>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Role</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Contributions</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
+              <th class="relative px-6 py-3"><span class="sr-only">Actions</span></th>
+            </tr>
+          </thead>
+          <tbody class="bg-white divide-y divide-gray-200">
+            <tr>
+              <td data-label="Name" class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Mary Doe</td>
+              <td data-label="Role" class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Reporter</td>
+              <td data-label="Contributions" class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">12 articles</td>
+              <td data-label="Email" class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">mary@example.com</td>
+              <td data-label="Actions" class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium"><a href="#" class="text-blue-600 hover:text-blue-900 mr-3">View</a><a href="#" class="text-red-600 hover:text-red-900">Remove</a></td>
+            </tr>
+            <tr>
+              <td data-label="Name" class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Peter Smith</td>
+              <td data-label="Role" class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Contributor</td>
+              <td data-label="Contributions" class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">5 posts</td>
+              <td data-label="Email" class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">peter@example.com</td>
+              <td data-label="Actions" class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium"><a href="#" class="text-blue-600 hover:text-blue-900 mr-3">View</a><a href="#" class="text-red-600 hover:text-red-900">Remove</a></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+  `,
+  opportunities: () => `
+    <section>
+      <h2>Manage Opportunities</h2>
+      <div class="overflow-x-auto"><table class="min-w-full divide-y divide-gray-200"><thead class="bg-gray-50"><tr><th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Title</th><th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th><th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th><th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Deadline</th><th class="relative px-6 py-3"><span class="sr-only">Actions</span></th></tr></thead><tbody class="bg-white divide-y divide-gray-200"><tr><td data-label="Title" class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">County Scholarship Program</td><td data-label="Type" class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Scholarship</td><td data-label="Status" class="px-6 py-4 whitespace-nowrap"><span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">Open</span></td><td data-label="Deadline" class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">2023-08-31</td><td data-label="Actions" class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium"><a href="#" class="text-blue-600 hover:text-blue-900 mr-3">Edit</a><a href="#" class="text-red-600 hover:text-red-900">Delete</a></td></tr></tbody></table></div>
+    </section>
+  `,
+  events: () => `
+    <section>
+      <h2>Manage Events</h2>
+      <div class="overflow-x-auto"><table class="min-w-full divide-y divide-gray-200"><thead class="bg-gray-50"><tr><th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Title</th><th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th><th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Location</th><th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th><th class="relative px-6 py-3"><span class="sr-only">Actions</span></th></tr></thead><tbody class="bg-white divide-y divide-gray-200"><tr><td data-label="Title" class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">County Cultural Festival</td><td data-label="Date" class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">2023-07-10</td><td data-label="Location" class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Main City Park</td><td data-label="Status" class="px-6 py-4 whitespace-nowrap"><span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">Upcoming</span></td><td data-label="Actions" class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium"><a href="#" class="text-blue-600 hover:text-blue-900 mr-3">Edit</a><a href="#" class="text-red-600 hover:text-red-900">Delete</a></td></tr></tbody></table></div>
+    </section>
+  `,
+  analytics: () => `
+    <section>
+      <h2>County Analytics Overview</h2>
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6"><div class="border border-gray-200 p-4 rounded-lg flex items-center justify-center h-64 bg-gray-50"><p class="text-gray-500">[Content Status Distribution Pie Chart]</p></div><div class="border border-gray-200 p-4 rounded-lg flex items-center justify-center h-64 bg-gray-50"><p class="text-gray-500">[Monthly Content Views Line Chart]</p></div></div>
+    </section>
+  `,
+  media: () => `<section><h2>Media Library</h2><p class="text-gray-600">Media items will appear here.</p></section>`,
+  settings: () => `<section><h2>Profile Settings</h2><p class="text-gray-600">This section is ready for profile and account settings.</p></section>`,
+  'county-settings': () => `
+    <section>
+      <h2>County Settings</h2>
+      <p class="text-gray-600">Manage the public information and administrative preferences for this county.</p>
+      <form class="mt-4 grid gap-4 md:grid-cols-2">
+        <label class="grid gap-2">
+          <span class="font-semibold">County Name</span>
+          <input type="text" value="Bong County" class="border border-gray-200 rounded-lg px-3 py-2">
+        </label>
+        <label class="grid gap-2">
+          <span class="font-semibold">Official Contact</span>
+          <input type="text" value="+231 77 000 0000" class="border border-gray-200 rounded-lg px-3 py-2">
+        </label>
+        <label class="grid gap-2">
+          <span class="font-semibold">Website</span>
+          <input type="url" value="https://county.gov.lr" class="border border-gray-200 rounded-lg px-3 py-2">
+        </label>
+        <label class="grid gap-2">
+          <span class="font-semibold">Admin Email</span>
+          <input type="email" value="admin@county.gov.lr" class="border border-gray-200 rounded-lg px-3 py-2">
+        </label>
+        <label class="grid gap-2 md:col-span-2">
+          <span class="font-semibold">County Description</span>
+          <textarea rows="4" class="border border-gray-200 rounded-lg px-3 py-2">Supporting civic updates, public services, and county-level development initiatives.</textarea>
+        </label>
+        <label class="flex items-center gap-2 md:col-span-2">
+          <input type="checkbox" checked>
+          <span>Enable public county page visibility</span>
+        </label>
+        <div class="md:col-span-2 flex justify-end gap-3">
+          <button type="button" class="secondary-btn">Cancel</button>
+          <button type="submit" class="primary-btn">Save Changes</button>
+        </div>
+      </form>
+    </section>
+  `,
+  help: () => `<section><h2>Help & Support</h2><p class="text-gray-600">Support contact and FAQs will appear here.</p></section>`
+};
 
-// ─────────────────────────────────────────
-// STATE
-// ─────────────────────────────────────────
-let currentUser = null;
-let currentProfile = null;
-let currentView = 'overview';
-let sidebarOpen = window.innerWidth > 768;
-let reviewingContentId = null;
-let dashboardCharts = {};
+async function getAdminCountyId() {
+  if (!window.supabaseClient) return null;
 
-// ─────────────────────────────────────────
-// NAVIGATION MENU STRUCTURE
-// ─────────────────────────────────────────
-const ADMIN_NAV = [
-  { id: 'overview', label: 'Dashboard', icon: 'fa-chart-line', divider: false },
-  { id: 'pending', label: 'Pending Reviews', icon: 'fa-hourglass-end', badge: true, divider: false },
-  { id: 'content', label: 'Published Content', icon: 'fa-file-alt', divider: false },
-  { id: 'contributors', label: 'Contributors', icon: 'fa-users', divider: false },
-  { id: 'announcements', label: 'Announcements', icon: 'fa-bullhorn', divider: false },
-  { id: 'events', label: 'Events', icon: 'fa-calendar', divider: false },
-  { id: 'opportunities', label: 'Opportunities', icon: 'fa-briefcase', divider: false },
-  { id: 'notifications', label: 'Notifications', icon: 'fa-bell', divider: false },
-  { id: 'settings', label: 'Settings', icon: 'fa-cog', divider: true },
-];
+  const countyId = currentUserProfile?.county_id || null;
+  if (countyId) return countyId;
 
-// ─────────────────────────────────────────
-// INITIALIZATION
-// ─────────────────────────────────────────
-async function initDashboard() {
+  const countyKey = currentUserProfile?.county;
+  if (!countyKey) return null;
+
   try {
-    console.log('🚀 Initializing county admin dashboard...');
+    const client = window.supabaseClient;
+    let { data, error } = await client
+      .from('counties')
+      .select('id')
+      .eq('slug', countyKey)
+      .maybeSingle();
 
-    // Wait for auth system
-    let attempts = 0;
-    while (!window.countyAdminDashboardReady && attempts < 20) {
-      await new Promise(resolve => setTimeout(resolve, 100));
-      attempts++;
+    if (error) throw error;
+    if (!data) {
+      ({ data, error } = await client
+        .from('counties')
+        .select('id')
+        .eq('name', countyKey)
+        .maybeSingle());
+      if (error) throw error;
     }
+    return data?.id || null;
+  } catch (error) {
+    console.warn('Could not resolve admin county ID:', error);
+    return null;
+  }
+}
 
-    // Get current user
-    const { data: { session } } = await sb.auth.getSession();
-    if (!session) {
-      window.location.href = '../auth-page/auth.html';
+async function fetchPendingSubmissions() {
+  if (!window.supabaseClient) return { data: [], error: new Error('Supabase client unavailable') };
+
+  const countyId = await getAdminCountyId();
+  if (!countyId) {
+    return { data: [], error: new Error('Your county assignment could not be verified. Contact an administrator.') };
+  }
+
+  let query = window.supabaseClient
+    .from('content')
+    .select('id,title,type,status,created_at,author:author_id(full_name)')
+    .eq('status', 'pending_review')
+    .eq('county_id', countyId)
+    .order('created_at', { ascending: false });
+
+  return query;
+}
+
+function escapeHtml(value) {
+  return String(value ?? '').replace(/[&<>"']/g, character => ({
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;',
+    '"': '&quot;',
+    "'": '&#39;'
+  })[character]);
+}
+
+const countyAdminCollections = {
+  leaders: {
+    title: 'County leaders',
+    table: 'leaders',
+    columns: [['name', 'Name'], ['role', 'Role'], ['era', 'Term'], ['category', 'Category'], ['is_published', 'Published']],
+    select: 'name,role,era,category,is_published',
+    order: 'display_order'
+  },
+  contributors: {
+    title: 'County contributors',
+    table: 'users',
+    columns: [['full_name', 'Name'], ['role', 'Role'], ['verified', 'Verified'], ['created_at', 'Joined']],
+    select: 'full_name,role,verified,created_at',
+    order: 'created_at',
+    role: 'contributor'
+  },
+  opportunities: {
+    title: 'County opportunities',
+    table: 'opportunities',
+    columns: [['title', 'Title'], ['type', 'Type'], ['status', 'Status'], ['deadline', 'Deadline'], ['is_published', 'Published']],
+    select: 'title,type,status,deadline,is_published',
+    order: 'created_at'
+  },
+  events: {
+    title: 'County events',
+    table: 'events',
+    columns: [['title', 'Title'], ['event_date', 'Date'], ['location', 'Location'], ['status', 'Status'], ['is_published', 'Published']],
+    select: 'title,event_date,location,status,is_published',
+    order: 'event_date'
+  },
+  media: {
+    title: 'County media',
+    table: 'content',
+    columns: [['title', 'Content'], ['type', 'Type'], ['cover_image_url', 'Image'], ['created_at', 'Added']],
+    select: 'title,type,cover_image_url,created_at',
+    order: 'created_at',
+    notNull: 'cover_image_url'
+  }
+};
+
+function formatCountyAdminValue(value) {
+  if (typeof value === 'boolean') return value ? 'Yes' : 'No';
+  if (value === null || value === undefined || value === '') return '—';
+  if (typeof value === 'string' && /^\d{4}-\d{2}-\d{2}(T.*)?$/.test(value)) {
+    const date = new Date(value);
+    if (!Number.isNaN(date.getTime())) {
+      return date.toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' });
+    }
+  }
+  return String(value);
+}
+
+async function renderCountyCollectionPage(pageName) {
+  const mainContent = document.getElementById('main-content');
+  const config = countyAdminCollections[pageName];
+  if (!mainContent || !config) return;
+  mainContent.innerHTML = `<section><h2>${config.title}</h2><p role="status" class="mt-4 text-gray-600">Loading county records…</p></section>`;
+
+  const countyId = await getAdminCountyId();
+  if (!countyId) {
+    mainContent.innerHTML = `<section><h2>${config.title}</h2><p role="alert" class="mt-4 text-red-700">Your county assignment could not be verified. Contact an administrator.</p></section>`;
+    return;
+  }
+
+  let query = window.supabaseClient
+    .from(config.table)
+    .select(config.select)
+    .eq('county_id', countyId)
+    .order(config.order, { ascending: pageName === 'leaders' || pageName === 'events' })
+    .limit(100);
+  if (config.role) query = query.eq('role', config.role);
+  if (config.notNull) query = query.not(config.notNull, 'is', null);
+
+  const { data, error } = await query;
+  if (error) {
+    console.error(`Failed to load ${config.title.toLowerCase()}:`, error);
+    mainContent.innerHTML = `<section><h2>${config.title}</h2><p role="alert" class="mt-4 text-red-700">County records could not be loaded. Check your access and try again.</p></section>`;
+    return;
+  }
+
+  if (!data?.length) {
+    mainContent.innerHTML = `<section><h2>${config.title}</h2><p class="mt-4 rounded-lg border border-gray-200 bg-white p-6 text-gray-600">No ${config.title.toLowerCase()} are available for this county yet.</p></section>`;
+    return;
+  }
+
+  const headers = config.columns.map(([, label]) => `<th scope="col" class="px-4 py-3 text-left text-sm font-semibold text-gray-700">${escapeHtml(label)}</th>`).join('');
+  const rows = data.map(record => `<tr>${config.columns.map(([field]) => `<td class="px-4 py-3 text-sm text-gray-700">${escapeHtml(formatCountyAdminValue(record[field]))}</td>`).join('')}</tr>`).join('');
+  mainContent.innerHTML = `
+    <section>
+      <h2>${config.title}</h2>
+      <p class="mt-1 text-sm text-gray-600">Showing up to 100 records assigned to your county.</p>
+      <div class="mt-4 overflow-x-auto rounded-lg border border-gray-200 bg-white">
+        <table class="min-w-full divide-y divide-gray-200">
+          <thead class="bg-gray-50"><tr>${headers}</tr></thead>
+          <tbody class="divide-y divide-gray-200">${rows}</tbody>
+        </table>
+      </div>
+    </section>
+  `;
+  applyResponsiveTableLabels(mainContent);
+  enableTableSorting(mainContent);
+}
+
+async function renderCountySettingsPage() {
+  const mainContent = document.getElementById('main-content');
+  if (!mainContent) return;
+  mainContent.innerHTML = '<section><h2>County settings</h2><p role="status" class="mt-4 text-gray-600">Loading county profile…</p></section>';
+  const countyId = await getAdminCountyId();
+  if (!countyId) {
+    mainContent.innerHTML = '<section><h2>County settings</h2><p role="alert" class="mt-4 text-red-700">Your county assignment could not be verified. Contact an administrator.</p></section>';
+    return;
+  }
+  const { data, error } = await window.supabaseClient
+    .from('counties')
+    .select('name,slug,region,capital,tagline,description,status')
+    .eq('id', countyId)
+    .maybeSingle();
+  if (error || !data) {
+    if (error) console.error('Failed to load county profile:', error);
+    mainContent.innerHTML = '<section><h2>County settings</h2><p role="alert" class="mt-4 text-red-700">County profile information could not be loaded.</p></section>';
+    return;
+  }
+  const fields = [['name', 'County'], ['slug', 'URL slug'], ['region', 'Region'], ['capital', 'Capital'], ['tagline', 'Tagline'], ['description', 'Description'], ['status', 'Page status']];
+  mainContent.innerHTML = `<section><h2>County profile</h2><dl class="mt-4 grid gap-4 rounded-lg border border-gray-200 bg-white p-6 md:grid-cols-2">${fields.map(([field, label]) => `<div><dt class="text-sm font-semibold text-gray-600">${label}</dt><dd data-county-profile="${field}" class="mt-1 whitespace-pre-wrap text-gray-900"></dd></div>`).join('')}</dl><p class="mt-3 text-sm text-gray-600">Profile editing is managed by a platform administrator.</p></section>`;
+  fields.forEach(([field]) => {
+    mainContent.querySelector(`[data-county-profile="${field}"]`).textContent = data[field] || '—';
+  });
+}
+
+async function renderCountyAnalyticsPage() {
+  const mainContent = document.getElementById('main-content');
+  if (!mainContent) return;
+  mainContent.innerHTML = '<section><h2>County analytics</h2><p role="status" class="mt-4 text-gray-600">Loading content statistics…</p></section>';
+  const countyId = await getAdminCountyId();
+  if (!countyId) {
+    mainContent.innerHTML = '<section><h2>County analytics</h2><p role="alert" class="mt-4 text-red-700">Your county assignment could not be verified. Contact an administrator.</p></section>';
+    return;
+  }
+  const count = status => {
+    let query = window.supabaseClient.from('content').select('id', { count: 'exact', head: true }).eq('county_id', countyId);
+    if (status) query = query.eq('status', status);
+    return query;
+  };
+  const [total, pending, published, rejected] = await Promise.all([
+    count(), count('pending_review'), count('published'), count('rejected')
+  ]);
+  const stats = [['Total content', total], ['Pending review', pending], ['Published', published], ['Rejected', rejected]];
+  mainContent.innerHTML = `<section><h2>County analytics</h2><p class="mt-1 text-sm text-gray-600">Current content totals for your county.</p><div class="mt-4 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">${stats.map(([label]) => `<article class="rounded-lg border border-gray-200 bg-white p-5"><h3 class="text-sm font-medium text-gray-600">${label}</h3><p class="mt-2 text-3xl font-bold" data-analytics="${label}">Unavailable</p></article>`).join('')}</div></section>`;
+  stats.forEach(([label, result]) => {
+    const metric = mainContent.querySelector(`[data-analytics="${label}"]`);
+    if (result.error) {
+      console.error(`Failed to load ${label.toLowerCase()} analytics:`, result.error);
       return;
     }
-
-    currentUser = session.user;
-    currentProfile = window.authGuard.userProfile;
-
-    console.log('✓ Admin user loaded:', currentUser.email);
-
-    // Setup UI
-    setupHeader();
-    setupSidebar();
-    setupEventListeners();
-    setupMobileListener();
-
-    // Load initial view
-    await navigate('overview');
-
-    // Hide loading screen
-    const loadingScreen = document.getElementById('view-loading');
-    const dashboardRoot = document.getElementById('dashboard-root');
-    if (loadingScreen) loadingScreen.style.display = 'none';
-    if (dashboardRoot) dashboardRoot.style.display = 'flex';
-
-    console.log('✓ County admin dashboard ready');
-
-  } catch (error) {
-    console.error('✗ Initialization error:', error);
-    alert('Error initializing dashboard: ' + error.message);
-  }
-}
-
-// ─────────────────────────────────────────
-// UI SETUP
-// ─────────────────────────────────────────
-function setupHeader() {
-  const userName = document.getElementById('user-name');
-  const userCounty = document.getElementById('user-county');
-  const userRole = document.getElementById('user-role');
-  const countyNameDisplay = document.getElementById('county-name-display');
-
-  if (userName) userName.textContent = currentProfile?.full_name || 'Admin';
-  if (userCounty) userCounty.textContent = currentProfile?.county || 'County';
-  if (userRole) userRole.textContent = 'Administrator';
-  if (countyNameDisplay) countyNameDisplay.textContent = currentProfile?.county || 'ExploreLiberia';
-}
-
-function setupSidebar() {
-  const sidebarNav = document.getElementById('sidebar-nav');
-  if (!sidebarNav) return;
-
-  sidebarNav.innerHTML = ADMIN_NAV.map((item, index) => `
-    ${item.divider && index > 0 ? '<div style="height: 1px; background: rgba(255,255,255,0.1); margin: 8px 0;"></div>' : ''}
-    <div class="nav-item ${item.id === 'overview' ? 'active' : ''}" data-view="${item.id}">
-      <i class="fas ${item.icon}"></i>
-      <span>${item.label}</span>
-      ${item.badge ? '<span class="nav-badge badge-count" style="display: none;">0</span>' : ''}
-    </div>
-  `).join('');
-
-  // Event listeners
-  sidebarNav.querySelectorAll('.nav-item').forEach(item => {
-    item.addEventListener('click', async () => {
-      const viewId = item.dataset.view;
-      await navigate(viewId);
-      // Close sidebar on mobile after click
-      if (window.innerWidth < 768) {
-        closeSidebar();
-      }
-    });
+    metric.textContent = String(result.count ?? 0);
   });
 }
 
-function setupEventListeners() {
-  // Sidebar toggle - Hamburger menu
-  const sidebarToggle = document.getElementById('sidebar-toggle');
-  if (sidebarToggle) {
-    sidebarToggle.addEventListener('click', (e) => {
-      e.stopPropagation();
-      toggleSidebar();
-    });
-  }
-
-  // Search
-  const searchInput = document.getElementById('dashboard-search');
-  if (searchInput) {
-    searchInput.addEventListener('keyup', (e) => {
-      if (e.key === 'Enter') {
-        performSearch(e.target.value);
-      }
-    });
-  }
-
-  // Notifications (Header & Mobile Nav)
-  const notificationsBtns = document.querySelectorAll('[id*="notifications-btn"]');
-  notificationsBtns.forEach(btn => {
-    btn.addEventListener('click', (e) => {
-      e.stopPropagation();
-      toggleNotifications();
-    });
-  });
-
-  // Close notifications
-  const closeNotif = document.getElementById('close-notifications');
-  if (closeNotif) {
-    closeNotif.addEventListener('click', closeNotifications);
-  }
-
-  // Quick actions
-  const quickActionsBtn = document.getElementById('quick-actions-btn');
-  if (quickActionsBtn) {
-    quickActionsBtn.addEventListener('click', toggleQuickActions);
-  }
-
-  // Quick action items
-  document.querySelectorAll('.quick-action-item').forEach(btn => {
-    btn.addEventListener('click', handleQuickAction);
-  });
-
-  // Logout
-  const logoutBtn = document.getElementById('logout-btn');
-  if (logoutBtn) {
-    logoutBtn.addEventListener('click', logout);
-  }
-
-  // Modal close
-  const modalClose = document.getElementById('modal-close');
-  if (modalClose) {
-    modalClose.addEventListener('click', closeModal);
-  }
-
-  // Click outside to close dropdowns
-  document.addEventListener('click', closeDropdowns);
+function renderCountyAdminAccount() {
+  const mainContent = document.getElementById('main-content');
+  if (!mainContent) return;
+  const user = window.authGuard?.currentUser;
+  mainContent.innerHTML = '<section><h2>Account settings</h2><dl class="mt-4 grid gap-4 rounded-lg border border-gray-200 bg-white p-6 md:grid-cols-2"><div><dt class="text-sm font-semibold text-gray-600">Name</dt><dd data-account-name class="mt-1 text-gray-900"></dd></div><div><dt class="text-sm font-semibold text-gray-600">Email</dt><dd data-account-email class="mt-1 break-all text-gray-900"></dd></div><div><dt class="text-sm font-semibold text-gray-600">Role</dt><dd data-account-role class="mt-1 text-gray-900"></dd></div></dl><p class="mt-3 text-sm text-gray-600">For account changes, use the account settings page.</p><a class="mt-3 inline-block text-green-800 underline" href="../profile-page/profile.html">Open account profile</a></section>';
+  mainContent.querySelector('[data-account-name]').textContent = currentUserProfile?.full_name || '—';
+  mainContent.querySelector('[data-account-email]').textContent = currentUserProfile?.email || user?.email || '—';
+  mainContent.querySelector('[data-account-role]').textContent = currentUserProfile?.role || 'County administrator';
 }
 
-function setupMobileListener() {
-  window.addEventListener('resize', () => {
-    const sidebar = document.getElementById('dashboard-sidebar');
-    if (window.innerWidth > 768) {
-      if (sidebar) sidebar.classList.remove('open');
-      sidebarOpen = true;
-    }
-  });
-}
+async function renderCountyAdminOverview() {
+  const mainContent = document.getElementById('main-content');
+  if (!mainContent) return;
+  mainContent.innerHTML = '<section><h2>County overview</h2><p role="status" class="mt-4 text-gray-600">Loading county statistics…</p></section>';
 
-// ─────────────────────────────────────────
-// NAVIGATION
-// ─────────────────────────────────────────
-async function navigate(viewId) {
-  try {
-    currentView = viewId;
-
-    // Update active nav item
-    document.querySelectorAll('.nav-item').forEach(item => {
-      if (item.dataset.view === viewId) {
-        item.classList.add('active');
-      } else {
-        item.classList.remove('active');
-      }
-    });
-
-    // Load view
-    const viewContent = document.getElementById('view-content');
-    if (viewContent) {
-      viewContent.style.opacity = '0.5';
-      viewContent.style.pointerEvents = 'none';
-    }
-
-    switch (viewId) {
-      case 'overview':
-        await loadOverviewDashboard();
-        break;
-      case 'pending':
-        await loadPendingReviews();
-        break;
-      case 'content':
-        await loadPublishedContent();
-        break;
-      case 'contributors':
-        await loadContributors();
-        break;
-      case 'announcements':
-        await loadAnnouncements();
-        break;
-      case 'events':
-        await loadEvents();
-        break;
-      case 'opportunities':
-        await loadOpportunities();
-        break;
-      case 'notifications':
-        await loadNotifications();
-        break;
-      case 'settings':
-        await loadSettings();
-        break;
-      default:
-        await loadOverviewDashboard();
-    }
-
-    if (viewContent) {
-      viewContent.style.opacity = '1';
-      viewContent.style.pointerEvents = 'auto';
-    }
-
-    // Close sidebar on mobile
-    if (window.innerWidth < 768) {
-      closeSidebar();
-    }
-
-  } catch (error) {
-    console.error('Navigation error:', error);
-    DashboardUtils.showToast('Error loading view', 'error');
+  const countyId = await getAdminCountyId();
+  if (!countyId) {
+    mainContent.innerHTML = '<section><h2>County overview</h2><p role="alert" class="mt-4 text-red-700">Your county assignment could not be verified. Contact an administrator.</p></section>';
+    return;
   }
-}
 
-// ─────────────────────────────────────────
-// DASHBOARD OVERVIEW VIEW
-// ─────────────────────────────────────────
-async function loadOverviewDashboard() {
-  try {
-    console.log(' Loading dashboard overview...');
+  const client = window.supabaseClient;
+  const countQuery = (table, column, value) => {
+    let query = client.from(table).select('id', { count: 'exact', head: true }).eq('county_id', countyId);
+    if (column) query = query.eq(column, value);
+    return query;
+  };
+  const [total, pending, published, contributors] = await Promise.all([
+    countQuery('content'),
+    countQuery('content', 'status', 'pending_review'),
+    countQuery('content', 'status', 'published'),
+    countQuery('users', 'role', 'contributor')
+  ]);
+  const results = [total, pending, published, contributors];
+  const labels = ['Total content', 'Pending review', 'Published content', 'County contributors'];
 
-    const viewContent = document.getElementById('view-content');
-    if (!viewContent) return;
-
-    // Fetch data
-    const { data: allContent } = await sb
-      .from('content')
-      .select('*')
-      .eq('county', currentProfile.county);
-
-    const { data: allAnnouncements } = await sb
-      .from('announcements')
-      .select('*')
-      .eq('county', currentProfile.county);
-
-    const { data: allEvents } = await sb
-      .from('events')
-      .select('*')
-      .eq('county', currentProfile.county);
-
-    const { data: allOpportunities } = await sb
-      .from('opportunities')
-      .select('*')
-      .eq('county', currentProfile.county);
-
-    const { data: contributors } = await sb
-      .from('profiles')
-      .select('*')
-      .eq('county', currentProfile.county)
-      .eq('role', 'contributor');
-
-    // Calculate statistics
-    const stats = {
-      submissions: allContent?.length || 0,
-      pending: allContent?.filter(c => c.status === 'pending').length || 0,
-      published: allContent?.filter(c => c.status === 'published').length || 0,
-      rejected: allContent?.filter(c => c.status === 'rejected').length || 0,
-      contributors: contributors?.length || 0,
-      announcements: allAnnouncements?.length || 0,
-      events: allEvents?.length || 0,
-      opportunities: allOpportunities?.length || 0,
-    };
-
-    // Get recent activities
-    const recentActivities = [
-      ...(allContent?.slice(0, 3) || []).map(c => ({
-        type: 'content',
-        title: `New submission: ${c.title}`,
-        desc: c.status,
-        time: c.created_at,
-        icon: 'fa-file',
-      })),
-      ...(contributors?.slice(0, 2) || []).map(c => ({
-        type: 'contributor',
-        title: `New contributor: ${c.full_name}`,
-        desc: 'joined as contributor',
-        time: c.created_at,
-        icon: 'fa-user-plus',
-      })),
-    ].sort((a, b) => new Date(b.time) - new Date(a.time)).slice(0, 5);
-
-    const html = `
-      <div style="max-width: 1400px; margin: 0 auto;">
-        <!-- HEADER -->
-        <div class="section-header">
-          <div>
-            <h2><i class="fas fa-chart-line" style="margin-right: 10px;"></i>Dashboard Overview</h2>
-            <p style="margin: 8px 0 0 0; color: var(--county-text-light); font-size: 14px;">
-              Welcome back, ${currentProfile?.full_name || 'Admin'}! Last updated just now.
-            </p>
-          </div>
-          <button class="section-header-action">
-            <i class="fas fa-sync" style="margin-right: 6px;"></i>Refresh
-          </button>
-        </div>
-
-        <!-- STATISTICS GRID -->
-        <div class="stats-grid">
-          <!-- Total Submissions -->
-          <div class="stat-card">
-            <div style="display: flex; justify-content: space-between; align-items: flex-start;">
-              <div>
-                <div class="stat-card-label">Total Submissions</div>
-                <div class="stat-card-value">${stats.submissions}</div>
-                <div class="stat-card-change positive">
-                  <i class="fas fa-arrow-up"></i> +${Math.floor(Math.random() * 10)} this week
-                </div>
-              </div>
-              <div class="stat-card-icon primary">
-                <i class="fas fa-inbox"></i>
-              </div>
-            </div>
-          </div>
-
-          <!-- Pending Reviews -->
-          <div class="stat-card">
-            <div style="display: flex; justify-content: space-between; align-items: flex-start;">
-              <div>
-                <div class="stat-card-label">Pending Reviews</div>
-                <div class="stat-card-value" style="color: #F59E0B;">${stats.pending}</div>
-                <div class="stat-card-change ${stats.pending > 5 ? 'negative' : 'positive'}">
-                  <i class="fas ${stats.pending > 5 ? 'fa-arrow-up' : 'fa-arrow-down'}"></i>
-                  ${stats.pending > 5 ? 'Action needed' : 'All caught up'}
-                </div>
-              </div>
-              <div class="stat-card-icon warning">
-                <i class="fas fa-hourglass-end"></i>
-              </div>
-            </div>
-          </div>
-
-          <!-- Published Posts -->
-          <div class="stat-card">
-            <div style="display: flex; justify-content: space-between; align-items: flex-start;">
-              <div>
-                <div class="stat-card-label">Published Posts</div>
-                <div class="stat-card-value" style="color: #10B981;">${stats.published}</div>
-                <div class="stat-card-change positive">
-                  <i class="fas fa-arrow-up"></i> +${Math.floor(Math.random() * 8)} this week
-                </div>
-              </div>
-              <div class="stat-card-icon success">
-                <i class="fas fa-check-circle"></i>
-              </div>
-            </div>
-          </div>
-
-          <!-- Rejected Posts -->
-          <div class="stat-card">
-            <div style="display: flex; justify-content: space-between; align-items: flex-start;">
-              <div>
-                <div class="stat-card-label">Rejected Posts</div>
-                <div class="stat-card-value" style="color: #EF4444;">${stats.rejected}</div>
-                <div class="stat-card-change ${stats.rejected > 0 ? 'negative' : 'positive'}">
-                  <i class="fas fa-circle"></i> ${stats.rejected > 0 ? 'Review & improve' : 'None'}
-                </div>
-              </div>
-              <div class="stat-card-icon danger">
-                <i class="fas fa-times-circle"></i>
-              </div>
-            </div>
-          </div>
-
-          <!-- Total Contributors -->
-          <div class="stat-card">
-            <div style="display: flex; justify-content: space-between; align-items: flex-start;">
-              <div>
-                <div class="stat-card-label">Contributors</div>
-                <div class="stat-card-value" style="color: #3f33ea;">${stats.contributors}</div>
-                <div class="stat-card-change positive">
-                  <i class="fas fa-arrow-up"></i> +${Math.floor(Math.random() * 3)} new
-                </div>
-              </div>
-              <div class="stat-card-icon purple">
-                <i class="fas fa-users"></i>
-              </div>
-            </div>
-          </div>
-
-          <!-- Content Overview -->
-          <div class="stat-card">
-            <div style="display: flex; justify-content: space-between; align-items: flex-start;">
-              <div>
-                <div class="stat-card-label">Total Announcements</div>
-                <div class="stat-card-value" style="color: #3B82F6;">${stats.announcements}</div>
-                <div class="stat-card-change positive">
-                  <i class="fas fa-plus-circle"></i> Active
-                </div>
-              </div>
-              <div class="stat-card-icon info">
-                <i class="fas fa-bullhorn"></i>
-              </div>
-            </div>
-          </div>
-
-          <!-- Events -->
-          <div class="stat-card">
-            <div style="display: flex; justify-content: space-between; align-items: flex-start;">
-              <div>
-                <div class="stat-card-label">Total Events</div>
-                <div class="stat-card-value">${stats.events}</div>
-                <div class="stat-card-change positive">
-                  <i class="fas fa-calendar"></i> Upcoming
-                </div>
-              </div>
-              <div class="stat-card-icon info">
-                <i class="fas fa-calendar"></i>
-              </div>
-            </div>
-          </div>
-
-          <!-- Opportunities -->
-          <div class="stat-card">
-            <div style="display: flex; justify-content: space-between; align-items: flex-start;">
-              <div>
-                <div class="stat-card-label">Total Opportunities</div>
-                <div class="stat-card-value">${stats.opportunities}</div>
-                <div class="stat-card-change positive">
-                  <i class="fas fa-briefcase"></i> Listed
-                </div>
-              </div>
-              <div class="stat-card-icon info">
-                <i class="fas fa-briefcase"></i>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- ANALYTICS & ACTIVITY SECTION -->
-        <div class="activity-section">
-          <!-- ANALYTICS CHARTS -->
-          <div class="chart-container">
-            <h3><i class="fas fa-chart-bar" style="margin-right: 8px;"></i>Submission Trends</h3>
-            <canvas id="submissions-chart"></canvas>
-          </div>
-
-          <!-- CONTENT STATUS BREAKDOWN -->
-          <div class="chart-container">
-            <h3><i class="fas fa-pie-chart" style="margin-right: 8px;"></i>Content Status</h3>
-            <canvas id="status-chart"></canvas>
-          </div>
-        </div>
-
-        <!-- RECENT ACTIVITY & SHORTCUTS -->
-        <div class="activity-section">
-          <!-- RECENT ACTIVITY -->
-          <div class="chart-container">
-            <h3><i class="fas fa-history" style="margin-right: 8px;"></i>Recent Activity</h3>
-            <div style="max-height: 300px; overflow-y: auto;">
-              ${recentActivities.map(activity => `
-                <div class="activity-item">
-                  <div class="activity-avatar">
-                    <i class="fas ${activity.icon}"></i>
-                  </div>
-                  <div class="activity-content">
-                    <div class="activity-title">${activity.title}</div>
-                    <div class="activity-desc">${activity.desc}</div>
-                  </div>
-                  <div class="activity-time">${formatTimeAgo(activity.time)}</div>
-                </div>
-              `).join('')}
-            </div>
-          </div>
-
-          <!-- MODERATION SHORTCUTS -->
-          <div class="chart-container">
-            <h3><i class="fas fa-bolt" style="margin-right: 8px;"></i>Quick Actions</h3>
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
-              <button class="shortcut-button" onclick="navigate('pending')">
-                <i class="fas fa-hourglass-end"></i>
-                <span>Review Pending</span>
-              </button>
-              <button class="shortcut-button" onclick="navigate('contributors')">
-                <i class="fas fa-users"></i>
-                <span>Contributors</span>
-              </button>
-              <button class="shortcut-button" onclick="navigate('announcements')">
-                <i class="fas fa-bullhorn"></i>
-                <span>Announcements</span>
-              </button>
-              <button class="shortcut-button" onclick="navigate('events')">
-                <i class="fas fa-calendar"></i>
-                <span>Events</span>
-              </button>
-            </div>
-          </div>
-        </div>
+  mainContent.innerHTML = `
+    <section>
+      <h2>Welcome, <span id="county-admin-welcome"></span></h2>
+      <p class="text-gray-600 mt-1">County overview</p>
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 mt-6">
+        ${labels.map((label, index) => `
+          <article class="rounded-lg bg-white p-5 shadow-sm border border-gray-200">
+            <h3 class="text-sm font-medium text-gray-600">${label}</h3>
+            <p class="mt-2 text-3xl font-bold text-gray-900" data-county-metric="${index}">Unavailable</p>
+          </article>
+        `).join('')}
       </div>
+      <button type="button" data-open-content-review class="mt-6 rounded-lg bg-green-700 px-4 py-2 text-white hover:bg-green-800">Review pending content</button>
+    </section>
+  `;
+  mainContent.querySelector('#county-admin-welcome').textContent = currentUserProfile?.full_name || 'Admin';
+  results.forEach((result, index) => {
+    const metric = mainContent.querySelector(`[data-county-metric="${index}"]`);
+    if (result.error) {
+      console.error(`Failed to load ${labels[index].toLowerCase()} metric:`, result.error);
+      metric.setAttribute('aria-label', `${labels[index]} unavailable`);
+      return;
+    }
+    metric.textContent = String(result.count ?? 0);
+  });
+  if (results.some(result => result.error)) {
+    const notice = document.createElement('p');
+    notice.className = 'mt-4 text-amber-800';
+    notice.setAttribute('role', 'status');
+    notice.textContent = 'Some statistics could not be loaded. Please try again later.';
+    mainContent.querySelector('section').appendChild(notice);
+  }
+  mainContent.querySelector('[data-open-content-review]').addEventListener('click', () => navigateTo('content-review'));
+}
+
+async function renderContentReviewPage() {
+  const mainContent = document.getElementById('main-content');
+  if (!mainContent) return;
+
+  mainContent.innerHTML = `
+    <section>
+      <h2>Content Review</h2>
+      <div class="mt-4 text-gray-500">Loading pending submissions…</div>
+    </section>
+  `;
+
+  let data;
+  let error;
+  try {
+    ({ data, error } = await fetchPendingSubmissions());
+  } catch (caughtError) {
+    console.error('Failed to load pending submissions:', caughtError);
+    error = caughtError;
+  }
+  if (error) {
+    console.error('Failed to load pending submissions:', error);
+    mainContent.innerHTML = '<section><h2>Content Review</h2><p role="alert" class="text-red-600 mt-4">Pending submissions could not be loaded. Verify your county assignment and try again.</p></section>';
+    return;
+  }
+
+  if (!data || data.length === 0) {
+    mainContent.innerHTML = `
+      <section>
+        <h2>Content Review</h2>
+        <div class="mt-4 rounded-lg bg-white p-6 shadow-sm border border-gray-200">
+          <p class="text-gray-600">There are no pending submissions for review right now.</p>
+        </div>
+      </section>
     `;
+    return;
+  }
 
-    viewContent.innerHTML = html;
-
-    // Initialize charts
-    initializeCharts(stats, allContent);
-
-  } catch (error) {
-    console.error('Error loading overview:', error);
-    document.getElementById('view-content').innerHTML = `
-      <div style="padding: 40px; text-align: center;">
-        <i class="fas fa-exclamation-circle" style="font-size: 48px; color: #EF4444; margin-bottom: 16px; display: block;"></i>
-        <h3 style="color: var(--county-primary);">Error Loading Dashboard</h3>
-        <p>There was an error loading your dashboard. Please try again.</p>
-        <button onclick="loadOverviewDashboard()" style="
-          background: var(--county-primary);
-          color: white;
-          border: none;
-          padding: 10px 20px;
-          border-radius: 6px;
-          cursor: pointer;
-          margin-top: 16px;
-        ">Retry</button>
-      </div>
+  const rows = data.map(item => {
+    const authorName = item.author?.full_name || 'County contributor';
+    const createdAt = item.created_at ? new Date(item.created_at).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }) : 'Unknown';
+    const itemType = item.type || 'Story';
+    return `
+      <tr>
+        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${escapeHtml(item.title || 'Untitled')}</td>
+        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${escapeHtml(itemType)}</td>
+        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${escapeHtml(authorName)}</td>
+        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${escapeHtml(createdAt)}</td>
+        <td class="px-6 py-4 whitespace-nowrap"><span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-orange-100 text-orange-800">Pending Review</span></td>
+        <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+          <button type="button" data-review-action="approve" data-content-id="${escapeHtml(item.id)}" class="text-green-600 hover:text-green-900 mr-3">Approve</button>
+          <button type="button" data-review-action="reject" data-content-id="${escapeHtml(item.id)}" class="text-red-600 hover:text-red-900">Reject</button>
+        </td>
+      </tr>
     `;
-  }
-}
+  }).join('');
 
-// ─────────────────────────────────────────
-// CHARTS INITIALIZATION
-// ─────────────────────────────────────────
-function initializeCharts(stats, allContent) {
-  // Destroy existing charts
-  Object.values(dashboardCharts).forEach(chart => {
-    if (chart && chart.destroy) chart.destroy();
+  mainContent.innerHTML = `
+    <section>
+      <h2>Content Review</h2>
+      <div class="overflow-x-auto mt-4">
+        <table class="min-w-full divide-y divide-gray-200">
+          <thead class="bg-gray-50">
+            <tr>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Title</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Author</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Submitted</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+              <th class="relative px-6 py-3"><span class="sr-only">Actions</span></th>
+            </tr>
+          </thead>
+          <tbody class="bg-white divide-y divide-gray-200">
+            ${rows}
+          </tbody>
+        </table>
+      </div>
+    </section>
+  `;
+
+  applyResponsiveTableLabels(mainContent);
+  enableTableSorting(mainContent);
+  mainContent.querySelectorAll('[data-review-action]').forEach(button => {
+    button.addEventListener('click', () => {
+      const action = button.dataset.reviewAction;
+      if (action === 'approve') approveContent(button.dataset.contentId);
+      if (action === 'reject') rejectContent(button.dataset.contentId);
+    });
   });
-  dashboardCharts = {};
+}
 
-  // Submissions Trend Chart
-  const submissionsCtx = document.getElementById('submissions-chart');
-  if (submissionsCtx) {
-    dashboardCharts.submissions = new Chart(submissionsCtx, {
-      type: 'line',
-      data: {
-        labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
-        datasets: [
-          {
-            label: 'Submissions',
-            data: [12, 19, 3, 5, 2, 3, 8],
-            borderColor: 'var(--county-primary)',
-            backgroundColor: 'rgba(29, 78, 216, 0.1)',
-            borderWidth: 2,
-            fill: true,
-            tension: 0.4,
-            pointRadius: 4,
-            pointBackgroundColor: 'var(--county-primary)',
-            pointBorderColor: '#fff',
-            pointBorderWidth: 2,
-          }
-        ]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: true,
-        plugins: {
-          legend: {
-            display: false,
-          }
-        },
-        scales: {
-          y: {
-            beginAtZero: true,
-            grid: {
-              color: 'rgba(0, 0, 0, 0.05)',
-            }
-          }
+function applyResponsiveTableLabels(root) {
+  root.querySelectorAll('table').forEach(table => {
+    const headers = Array.from(table.querySelectorAll('thead th')).map(th => th.textContent.trim());
+    table.querySelectorAll('tbody tr').forEach(row => {
+      Array.from(row.children).forEach((cell, index) => {
+        if (headers[index]) {
+          cell.setAttribute('data-label', headers[index]);
         }
-      }
+      });
     });
-  }
+  });
+}
 
-  // Content Status Chart
-  const statusCtx = document.getElementById('status-chart');
-  if (statusCtx) {
-    dashboardCharts.status = new Chart(statusCtx, {
-      type: 'doughnut',
-      data: {
-        labels: ['Published', 'Pending', 'Rejected'],
-        datasets: [{
-          data: [stats.published, stats.pending, stats.rejected],
-          backgroundColor: ['#10B981', '#F59E0B', '#EF4444'],
-          borderColor: '#fff',
-          borderWidth: 2,
-        }]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: true,
-        plugins: {
-          legend: {
-            position: 'bottom',
-            labels: {
-              padding: 16,
-              font: { size: 12 },
-              usePointStyle: true,
-            }
-          }
-        }
-      }
+/* Enable clickable sorting for any tables inside the provided root element. */
+function enableTableSorting(root) {
+  root.querySelectorAll('table').forEach(table => {
+    const thead = table.querySelector('thead');
+    const tbody = table.querySelector('tbody');
+    if (!thead || !tbody) return;
+
+    // Clear previous handlers to avoid duplicates
+    thead.querySelectorAll('th').forEach((th, colIndex) => {
+      th.style.cursor = 'pointer';
+      th.removeEventListener('click', th._sortHandler);
+      const handler = () => {
+        const currentDir = th.getAttribute('data-sort-dir') || 'none';
+        const newDir = currentDir === 'asc' ? 'desc' : 'asc';
+        // reset other headers
+        thead.querySelectorAll('th').forEach(h => h.removeAttribute('data-sort-dir'));
+        th.setAttribute('data-sort-dir', newDir);
+
+        const rows = Array.from(tbody.querySelectorAll('tr'));
+        const collator = new Intl.Collator(undefined, {numeric: true, sensitivity: 'base'});
+
+        rows.sort((a, b) => {
+          const aCell = a.children[colIndex];
+          const bCell = b.children[colIndex];
+          const aText = (aCell && aCell.textContent || '').trim();
+          const bText = (bCell && bCell.textContent || '').trim();
+          return collator.compare(aText, bText) * (newDir === 'asc' ? 1 : -1);
+        });
+
+        // reattach rows in sorted order
+        rows.forEach(r => tbody.appendChild(r));
+      };
+      th._sortHandler = handler;
+      th.addEventListener('click', handler);
     });
+  });
+}
+
+function toggleSidebar(force) {
+  const sidebar = document.querySelector('.sidebar');
+  const overlay = document.getElementById('sidebar-overlay');
+  if (!sidebar || !overlay) return;
+  const shouldOpen = typeof force === 'boolean' ? force : !sidebar.classList.contains('active');
+  sidebar.classList.toggle('active', shouldOpen);
+  overlay.classList.toggle('active', shouldOpen);
+  document.body.classList.toggle('no-scroll', shouldOpen && window.innerWidth < 1024);
+}
+
+function handleNavClick(event) {
+  const link = event.target.closest('.nav-item');
+  if (!link) return;
+  event.preventDefault();
+  const page = link.getAttribute('data-page');
+  if (page === 'logout') {
+    handleLogout();
+    return;
+  }
+  navigateTo(page);
+  if (window.innerWidth < 1024) {
+    toggleSidebar(false);
   }
 }
 
-// ─────────────────────────────────────────
-// OTHER VIEWS (PLACEHOLDER)
-// ─────────────────────────────────────────
-async function loadPendingReviews() {
-  const { data } = await sb
-    .from('content')
-    .select('*')
-    .eq('county', currentProfile.county)
-    .eq('status', 'pending');
-
-  document.getElementById('view-content').innerHTML = `
-    <div style="max-width: 1200px;">
-      <div class="section-header">
-        <h2><i class="fas fa-hourglass-end" style="margin-right: 10px;"></i>Pending Reviews</h2>
-        <span style="color: var(--county-text-light);">${data?.length || 0} pending</span>
-      </div>
-      ${data && data.length > 0 ? `
-        <div style="display: grid; gap: 16px;">
-          ${data.map(item => `
-            <div style="background: white; padding: 20px; border-radius: 8px; border-left: 4px solid #F59E0B;">
-              <h3 style="margin: 0 0 8px 0; color: var(--county-primary);">${item.title}</h3>
-              <p style="margin: 0 0 12px 0; color: var(--county-text); font-size: 14px;">${item.description?.substring(0, 100)}...</p>
-              <button style="
-                background: var(--county-primary);
-                color: white;
-                border: none;
-                padding: 8px 16px;
-                border-radius: 6px;
-                cursor: pointer;
-              ">Review Now</button>
-            </div>
-          `).join('')}
-        </div>
-      ` : `
-        <div style="background: white; padding: 40px; text-align: center; border-radius: 8px;">
-          <i class="fas fa-check-circle" style="font-size: 48px; color: #10B981; margin-bottom: 16px; display: block;"></i>
-          <p style="color: var(--county-text);">No pending reviews! Great job staying on top of things.</p>
-        </div>
-      `}
-    </div>
-  `;
-}
-
-async function loadPublishedContent() {
-  const { data } = await sb
-    .from('content')
-    .select('*')
-    .eq('county', currentProfile.county)
-    .eq('status', 'published')
-    .order('created_at', { ascending: false });
-
-  document.getElementById('view-content').innerHTML = `
-    <div style="max-width: 1200px;">
-      <div class="section-header">
-        <h2><i class="fas fa-file-alt" style="margin-right: 10px;"></i>Published Content</h2>
-        <span style="color: var(--county-text-light);">${data?.length || 0} published</span>
-      </div>
-      ${data && data.length > 0 ? `
-        <div style="display: grid; gap: 16px;">
-          ${data.slice(0, 10).map(item => `
-            <div style="background: white; padding: 20px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; border-left: 4px solid #10B981;">
-              <div>
-                <h3 style="margin: 0 0 8px 0; color: var(--county-primary);">${item.title}</h3>
-                <p style="margin: 0; color: var(--county-text-light); font-size: 13px;">${formatDate(item.created_at)}</p>
-              </div>
-              <span class="badge approved">Published</span>
-            </div>
-          `).join('')}
-        </div>
-      ` : `
-        <div style="background: white; padding: 40px; text-align: center; border-radius: 8px;">
-          <p style="color: var(--county-text);">No published content yet.</p>
-        </div>
-      `}
-    </div>
-  `;
-}
-
-async function loadContributors() {
-  const { data } = await sb
-    .from('profiles')
-    .select('*')
-    .eq('county', currentProfile.county)
-    .eq('role', 'contributor');
-
-  document.getElementById('view-content').innerHTML = `
-    <div style="max-width: 1200px;">
-      <div class="section-header">
-        <h2><i class="fas fa-users" style="margin-right: 10px;"></i>Contributors</h2>
-        <span style="color: var(--county-text-light);">${data?.length || 0} contributors</span>
-      </div>
-      ${data && data.length > 0 ? `
-        <div style="display: grid; gap: 12px;">
-          ${data.map(contributor => `
-            <div style="background: white; padding: 16px; border-radius: 8px; display: flex; align-items: center; justify-content: space-between;">
-              <div style="display: flex; align-items: center; gap: 12px;">
-                <div style="width: 40px; height: 40px; border-radius: 50%; background: rgba(29, 78, 216, 0.1); display: flex; align-items: center; justify-content: center;">
-                  <i class="fas fa-user"></i>
-                </div>
-                <div>
-                  <p style="margin: 0; font-weight: 600; color: var(--county-primary);">${contributor.full_name}</p>
-                  <p style="margin: 0; font-size: 12px; color: var(--county-text-light);">${contributor.email}</p>
-                </div>
-              </div>
-              <span style="font-size: 12px; color: var(--county-text-light);">Joined ${formatDate(contributor.created_at)}</span>
-            </div>
-          `).join('')}
-        </div>
-      ` : `
-        <div style="background: white; padding: 40px; text-align: center; border-radius: 8px;">
-          <p style="color: var(--county-text);">No contributors yet.</p>
-        </div>
-      `}
-    </div>
-  `;
-}
-
-async function loadAnnouncements() {
-  const { data } = await sb
-    .from('announcements')
-    .select('*')
-    .eq('county', currentProfile.county)
-    .order('created_at', { ascending: false });
-
-  document.getElementById('view-content').innerHTML = `
-    <div style="max-width: 1200px;">
-      <div class="section-header">
-        <h2><i class="fas fa-bullhorn" style="margin-right: 10px;"></i>Announcements</h2>
-        <button class="section-header-action"><i class="fas fa-plus"></i> Create</button>
-      </div>
-      <p style="color: var(--county-text);">Announcements feature - ${data?.length || 0} total</p>
-    </div>
-  `;
-}
-
-async function loadEvents() {
-  const { data } = await sb
-    .from('events')
-    .select('*')
-    .eq('county', currentProfile.county)
-    .order('created_at', { ascending: false });
-
-  document.getElementById('view-content').innerHTML = `
-    <div style="max-width: 1200px;">
-      <div class="section-header">
-        <h2><i class="fas fa-calendar" style="margin-right: 10px;"></i>Events</h2>
-        <button class="section-header-action"><i class="fas fa-plus"></i> Create</button>
-      </div>
-      <p style="color: var(--county-text);">Events feature - ${data?.length || 0} total</p>
-    </div>
-  `;
-}
-
-async function loadOpportunities() {
-  const { data } = await sb
-    .from('opportunities')
-    .select('*')
-    .eq('county', currentProfile.county)
-    .order('created_at', { ascending: false });
-
-  document.getElementById('view-content').innerHTML = `
-    <div style="max-width: 1200px;">
-      <div class="section-header">
-        <h2><i class="fas fa-briefcase" style="margin-right: 10px;"></i>Opportunities</h2>
-        <button class="section-header-action"><i class="fas fa-plus"></i> Create</button>
-      </div>
-      <p style="color: var(--county-text);">Opportunities feature - ${data?.length || 0} total</p>
-    </div>
-  `;
-}
-
-async function loadNotifications() {
-  document.getElementById('view-content').innerHTML = `
-    <div style="max-width: 1200px;">
-      <div class="section-header">
-        <h2><i class="fas fa-bell" style="margin-right: 10px;"></i>Notifications</h2>
-        <button class="section-header-action">Mark All as Read</button>
-      </div>
-      <p style="color: var(--county-text);">Notifications feature coming soon...</p>
-    </div>
-  `;
-}
-
-async function loadSettings() {
-  document.getElementById('view-content').innerHTML = `
-    <div style="max-width: 800px;">
-      <div class="section-header">
-        <h2><i class="fas fa-cog" style="margin-right: 10px;"></i>Settings</h2>
-      </div>
-      <div style="background: white; padding: 24px; border-radius: 8px; border: 1px solid var(--county-border);">
-        <h3 style="margin-top: 0; color: var(--county-primary);">County Settings</h3>
-        <div style="display: grid; gap: 16px;">
-          <div>
-            <label style="display: block; font-weight: 600; color: var(--county-primary); margin-bottom: 6px;">County Name</label>
-            <input type="text" value="${currentProfile?.county || ''}" disabled style="
-              width: 100%;
-              padding: 10px;
-              border: 1px solid var(--county-border);
-              border-radius: 6px;
-              background: #f5f5f5;
-            " />
-          </div>
-          <div>
-            <label style="display: block; font-weight: 600; color: var(--county-primary); margin-bottom: 6px;">Admin Email</label>
-            <input type="email" value="${currentUser?.email || ''}" disabled style="
-              width: 100%;
-              padding: 10px;
-              border: 1px solid var(--county-border);
-              border-radius: 6px;
-              background: #f5f5f5;
-            " />
-          </div>
-        </div>
-      </div>
-    </div>
-  `;
-}
-
-// ─────────────────────────────────────────
-// UI INTERACTIONS
-// ─────────────────────────────────────────
-let sidebarToggleInProgress = false;
-
-function toggleSidebar() {
-  const sidebar = document.getElementById('dashboard-sidebar');
-  if (!sidebar || sidebarToggleInProgress) return;
-
-  sidebarToggleInProgress = true;
-  sidebar.classList.toggle('open');
-  console.log('Sidebar toggled:', sidebar.classList.contains('open'));
-  
-  // Prevent rapid consecutive toggles
-  setTimeout(() => {
-    sidebarToggleInProgress = false;
-  }, 300);
-}
-
-function closeSidebar() {
-  const sidebar = document.getElementById('dashboard-sidebar');
-  if (sidebar) sidebar.classList.remove('open');
-}
-
-function toggleNotifications() {
-  const dropdown = document.getElementById('notifications-dropdown');
-  if (dropdown) {
-    dropdown.style.display = dropdown.style.display === 'flex' ? 'none' : 'flex';
-    // Close sidebar on mobile when opening notifications
-    if (window.innerWidth < 768 && dropdown.style.display === 'flex') {
-      closeSidebar();
-    }
-  }
-}
-
-function closeNotifications() {
-  const dropdown = document.getElementById('notifications-dropdown');
-  if (dropdown) dropdown.style.display = 'none';
-}
-
-function toggleQuickActions() {
-  const menu = document.getElementById('quick-actions-menu');
-  if (menu) {
-    menu.style.display = menu.style.display === 'flex' ? 'none' : 'flex';
-  }
-}
-
-function closeDropdowns(e) {
-  // Check all notification buttons
-  const isNotificationBtn = e.target.closest('[id*="notifications-btn"]');
-  const isNotificationDropdown = e.target.closest('#notifications-dropdown');
-  if (!isNotificationBtn && !isNotificationDropdown) {
-    const notifDropdown = document.getElementById('notifications-dropdown');
-    if (notifDropdown) notifDropdown.style.display = 'none';
-  }
-
-  if (!e.target.closest('#quick-actions-btn') && !e.target.closest('#quick-actions-menu')) {
-    const quickMenu = document.getElementById('quick-actions-menu');
-    if (quickMenu) quickMenu.style.display = 'none';
-  }
-}
-
-function handleQuickAction(e) {
-  const action = e.currentTarget.dataset.action;
-  console.log('Quick action:', action);
-  toggleQuickActions();
-}
-
-function performSearch(query) {
-  console.log('Searching for:', query);
-  // Implement search functionality
-}
-
-// ─────────────────────────────────────────
-// UTILITY FUNCTIONS
-// ─────────────────────────────────────────
-function formatDate(dateString) {
-  if (!dateString) return 'Never';
-  const date = new Date(dateString);
-  return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-}
-
-function formatTimeAgo(dateString) {
-  if (!dateString) return 'Just now';
-  const date = new Date(dateString);
-  const now = new Date();
-  const seconds = Math.floor((now - date) / 1000);
-
-  if (seconds < 60) return 'Just now';
-  if (seconds < 3600) return `${Math.floor(seconds / 60)}m ago`;
-  if (seconds < 86400) return `${Math.floor(seconds / 3600)}h ago`;
-  if (seconds < 604800) return `${Math.floor(seconds / 86400)}d ago`;
-
-  return formatDate(dateString);
-}
-
-async function logout() {
-  try {
-    await sb.auth.signOut();
-    window.location.href = '../auth-page/auth.html';
-  } catch (error) {
-    console.error('Logout error:', error);
+function openModal() {
+  const modalBackdrop = document.getElementById('modal-backdrop');
+  if (modalBackdrop) {
+    modalBackdrop.classList.add('active');
+    document.body.classList.add('no-scroll');
+    modalBackdrop.querySelector('input')?.focus();
   }
 }
 
 function closeModal() {
-  const modal = document.getElementById('review-modal');
-  if (modal) modal.style.display = 'none';
+  const modalBackdrop = document.getElementById('modal-backdrop');
+  if (modalBackdrop) {
+    modalBackdrop.classList.remove('active');
+    document.body.classList.remove('no-scroll');
+    document.getElementById('open-add-modal')?.focus();
+  }
 }
 
-// ─────────────────────────────────────────
-// INITIALIZATION LISTENER
-// ─────────────────────────────────────────
-document.addEventListener('DOMContentLoaded', initDashboard);
+function handleSearch(event) {
+  const query = event.target.value.trim().toLowerCase();
+  const mainContent = document.getElementById('main-content');
+  if (!mainContent) return;
+  const sections = mainContent.querySelectorAll('section');
+  sections.forEach(section => {
+    const text = section.textContent.toLowerCase();
+    section.style.display = text.includes(query) ? '' : 'none';
+  });
+}
+
+function navigateTo(pageName) {
+  const mainContent = document.getElementById('main-content');
+  if (!mainContent) return;
+  const openAddModalBtn = document.getElementById('open-add-modal');
+  if (openAddModalBtn) openAddModalBtn.hidden = pageName !== 'opportunities';
+  document.querySelectorAll('.nav-item').forEach(link => {
+    link.classList.toggle('active', link.getAttribute('data-page') === pageName);
+  });
+  if (pageName === 'overview') {
+    renderCountyAdminOverview();
+    mainContent.scrollTop = 0;
+    return;
+  }
+  if (pageName === 'content-review') {
+    renderContentReviewPage();
+    mainContent.scrollTop = 0;
+    return;
+  }
+  if (countyAdminCollections[pageName]) {
+    renderCountyCollectionPage(pageName);
+    mainContent.scrollTop = 0;
+    return;
+  }
+  if (pageName === 'analytics') {
+    renderCountyAnalyticsPage();
+    mainContent.scrollTop = 0;
+    return;
+  }
+  if (pageName === 'county-settings') {
+    renderCountySettingsPage();
+    mainContent.scrollTop = 0;
+    return;
+  }
+  if (pageName === 'settings') {
+    renderCountyAdminAccount();
+    mainContent.scrollTop = 0;
+    return;
+  }
+  const template = pageTemplates[pageName];
+  if (!template) {
+    mainContent.innerHTML = '<section><h2>Page not found</h2></section>';
+    return;
+  }
+  mainContent.innerHTML = template();
+  applyResponsiveTableLabels(mainContent);
+  enableTableSorting(mainContent);
+  mainContent.scrollTop = 0;
+}
+
+function handleLogout() {
+  if (window.authGuard && typeof window.authGuard.logout === 'function') {
+    window.authGuard.logout();
+  } else {
+    window.location.href = '../auth-page/auth.html';
+  }
+}
+
+async function syncDashboardProfile() {
+  const authGuard = window.authGuard;
+
+  if (authGuard && typeof authGuard.init === 'function') {
+    try {
+      await authGuard.init();
+    } catch (error) {
+      console.error('Failed to initialize auth guard:', error);
+    }
+  }
+
+  const profile = authGuard?.userProfile || null;
+  const user = authGuard?.currentUser || null;
+  const fallbackName = user?.user_metadata?.full_name || user?.user_metadata?.name || user?.email || 'Admin';
+  const fallbackCounty = profile?.county || user?.user_metadata?.county || 'County Admin';
+
+  currentUserProfile = profile || {
+    full_name: fallbackName,
+    county: fallbackCounty
+  };
+
+  const headerUserName = document.getElementById('header-user-name');
+  const headerUserCounty = document.getElementById('header-user-county');
+  if (headerUserName) headerUserName.textContent = currentUserProfile?.full_name || 'Admin';
+  if (headerUserCounty) headerUserCounty.textContent = currentUserProfile?.county || 'County Admin';
+
+  const activePage = document.querySelector('.nav-item.active')?.getAttribute('data-page') || 'overview';
+  navigateTo(activePage);
+}
+
+document.addEventListener('DOMContentLoaded', function () {
+  const hamburgerBtn = document.getElementById('hamburger-btn');
+  const sidebarCloseBtn = document.getElementById('sidebar-close');
+  const overlay = document.getElementById('sidebar-overlay');
+  const openAddModalBtn = document.getElementById('open-add-modal');
+  const closeModalBtn = document.getElementById('close-modal');
+  const cancelModalBtn = document.getElementById('cancel-modal');
+  const modalBackdrop = document.getElementById('modal-backdrop');
+  const opportunityForm = document.getElementById('opportunity-form');
+  const searchInput = document.getElementById('dashboard-search');
+
+  if (hamburgerBtn) hamburgerBtn.addEventListener('click', () => toggleSidebar());
+  if (sidebarCloseBtn) sidebarCloseBtn.addEventListener('click', () => toggleSidebar(false));
+  if (overlay) overlay.addEventListener('click', () => toggleSidebar(false));
+  document.addEventListener('click', handleNavClick);
+
+  if (openAddModalBtn) openAddModalBtn.addEventListener('click', openModal);
+  if (closeModalBtn) closeModalBtn.addEventListener('click', closeModal);
+  if (cancelModalBtn) cancelModalBtn.addEventListener('click', closeModal);
+  if (modalBackdrop) modalBackdrop.addEventListener('click', event => {
+    if (event.target === modalBackdrop) closeModal();
+  });
+
+  if (opportunityForm) {
+    opportunityForm.addEventListener('submit', async function (event) {
+      event.preventDefault();
+      const formData = new FormData(opportunityForm);
+      const status = document.getElementById('opportunity-form-status');
+      const saveButton = opportunityForm.querySelector('[type="submit"]');
+      const currentUser = window.authGuard?.currentUser;
+      const countyId = await getAdminCountyId();
+      const title = formData.get('title')?.toString().trim();
+      const description = formData.get('description')?.toString().trim();
+      if (!title || !description || !countyId || !currentUser?.id) {
+        status.textContent = 'Opportunity details or county authorization are unavailable.';
+        return;
+      }
+
+      saveButton.disabled = true;
+      status.textContent = 'Saving opportunity…';
+      try {
+        const { error } = await window.supabaseClient
+          .from('opportunities')
+          .insert({
+            county_id: countyId,
+            author_id: currentUser.id,
+            title,
+            description,
+            type: formData.get('type'),
+            deadline: formData.get('deadline') || null,
+            status: formData.get('status'),
+            is_published: false
+          });
+        if (error) throw error;
+        opportunityForm.reset();
+        status.textContent = '';
+        closeModal();
+        await renderCountyCollectionPage('opportunities');
+      } catch (error) {
+        console.error('Failed to save county opportunity:', error);
+        status.textContent = 'The opportunity could not be saved. Check your access and try again.';
+      } finally {
+        saveButton.disabled = false;
+      }
+    });
+  }
+
+  if (searchInput) searchInput.addEventListener('input', handleSearch);
+
+  window.addEventListener('resize', () => {
+    if (window.innerWidth >= 1024) {
+      toggleSidebar(false);
+    }
+  });
+
+  syncDashboardProfile();
+});
+
+window.navigateTo = navigateTo;
+window.dashboardApp = { navigateTo, getCurrentUser: () => currentUserProfile };

@@ -411,7 +411,7 @@ export class ProtectedRouter {
   async logout() {
     await this.sb.auth.signOut();
     this.currentUser = null;
-    window.location.href = '/';
+    window.location.href = window.location.origin + '/';
   }
 
   /**

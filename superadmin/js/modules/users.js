@@ -5,6 +5,7 @@
 
 const UserManagement = {
   data: [],
+  currentUserId: null,
 
   async init() {
     const page = document.getElementById('users-page');
@@ -13,6 +14,8 @@ const UserManagement = {
     page.innerHTML = '<div class="text-center py-10">Loading users...</div>';
 
     try {
+      const currentUser = await Auth.getCurrentUser();
+      this.currentUserId = currentUser?.id || null;
       await this.loadUsers();
       this.render();
     } catch (err) {
@@ -163,25 +166,36 @@ const UserManagement = {
       return '<tr><td colspan="6" class="py-8 text-center text-gray-500">No users found</td></tr>';
     }
 
-    return this.data.map(user => `
+    return this.data.map(user => this.renderUserRow(user)).join('');
+  },
+
+  renderUserRow(user) {
+    const isProtected = user.id === this.currentUserId || user.role === 'super_admin';
+    const deleteTitle = user.id === this.currentUserId
+      ? 'You cannot delete your own account'
+      : user.role === 'super_admin'
+        ? 'Super Admin accounts are protected'
+        : 'Delete user';
+
+    return `
       <tr class="border-b border-gray-100 hover:bg-gray-50">
-        <td class="py-5 font-semibold text-gray-900">${user.full_name || '-'}</td>
-        <td class="py-5 text-gray-600">${user.email || '-'}</td>
-        <td class="py-5"><span class="badge badge-primary capitalize">${user.role.replace('_', ' ')}</span></td>
-        <td class="py-5 text-gray-600">${user.counties?.name || '-'}</td>
+        <td class="py-5 font-semibold text-gray-900">${Helpers.escapeHtml(user.full_name || '-')}</td>
+        <td class="py-5 text-gray-600">${Helpers.escapeHtml(user.email || '-')}</td>
+        <td class="py-5"><span class="badge badge-primary capitalize">${Helpers.escapeHtml((user.role || 'unknown').replace(/_/g, ' '))}</span></td>
+        <td class="py-5 text-gray-600">${Helpers.escapeHtml(user.counties?.name || '-')}</td>
         <td class="py-5">${user.verified ? '<span class="badge badge-success">✓ Verified</span>' : '<span class="badge badge-warning">Unverified</span>'}</td>
         <td class="py-5">
           <div class="flex gap-2">
             <button class="btn btn-primary user-edit-btn" data-id="${user.id}" style="padding: 0.5rem 0.75rem; font-size: 0.875rem;">
               Edit
             </button>
-            <button class="btn btn-danger user-delete-btn" data-id="${user.id}" style="padding: 0.5rem 0.75rem; font-size: 0.875rem;">
+            <button class="btn btn-danger user-delete-btn" data-id="${user.id}" ${isProtected ? 'disabled' : ''} title="${deleteTitle}" style="padding: 0.5rem 0.75rem; font-size: 0.875rem; ${isProtected ? 'opacity:0.5;cursor:not-allowed;' : ''}">
               Delete
             </button>
           </div>
         </td>
       </tr>
-    `).join('');
+    `;
   },
 
   applyFilters() {
@@ -210,25 +224,7 @@ const UserManagement = {
     if (tableBody) {
       tableBody.innerHTML = filtered.length === 0
         ? '<tr><td colspan="6" class="py-8 text-center text-gray-500">No users found</td></tr>'
-        : filtered.map(user => `
-          <tr class="border-b border-gray-100 hover:bg-gray-50">
-            <td class="py-5 font-semibold text-gray-900">${user.full_name || '-'}</td>
-            <td class="py-5 text-gray-600">${user.email || '-'}</td>
-            <td class="py-5"><span class="badge badge-primary capitalize">${user.role.replace('_', ' ')}</span></td>
-            <td class="py-5 text-gray-600">${user.counties?.name || '-'}</td>
-            <td class="py-5">${user.verified ? '<span class="badge badge-success">✓ Verified</span>' : '<span class="badge badge-warning">Unverified</span>'}</td>
-            <td class="py-5">
-              <div class="flex gap-2">
-                <button class="btn btn-primary user-edit-btn" data-id="${user.id}" style="padding: 0.5rem 0.75rem; font-size: 0.875rem;">
-                  Edit
-                </button>
-                <button class="btn btn-danger user-delete-btn" data-id="${user.id}" style="padding: 0.5rem 0.75rem; font-size: 0.875rem;">
-                  Delete
-                </button>
-              </div>
-            </td>
-          </tr>
-        `).join('');
+        : filtered.map(user => this.renderUserRow(user)).join('');
     }
   },
 
@@ -443,22 +439,59 @@ const UserManagement = {
   },
 
   async deleteUser(id) {
-    if (!Helpers.confirm('Are you sure you want to delete this user?')) {
+    const user = this.data.find(item => item.id === id);
+    if (!user) {
+      Helpers.showError('The selected user is no longer in the current list. Refresh and try again.');
+      return;
+    }
+    if (id === this.currentUserId) {
+      Helpers.showError('You cannot delete your own Super Admin account.');
+      return;
+    }
+    if (user.role === 'super_admin') {
+      Helpers.showError('Super Admin accounts are protected from dashboard deletion.');
+      return;
+    }
+
+    const confirmedEmail = window.prompt(
+      `This permanently deletes ${user.full_name || 'this user'} and their sign-in account. ` +
+        'Published content and comments will remain with anonymous attribution. ' +
+        `Type ${user.email} to confirm:`,
+    );
+    if (confirmedEmail === null) {
+      return;
+    }
+    if (confirmedEmail.trim().toLowerCase() !== (user.email || '').toLowerCase()) {
+      Helpers.showError('The confirmation email did not match. No account was deleted.');
       return;
     }
 
     try {
-      const { error } = await supabaseClient
-        .from('users')
-        .delete()
-        .eq('id', id);
+      const { data, error } = await supabaseClient.functions.invoke('admin-delete-user', {
+        body: { userId: id, confirmEmail: confirmedEmail.trim() }
+      });
+      if (error) {
+        let message = error.message || 'The account could not be deleted.';
+        if (error.context && typeof error.context.json === 'function') {
+          try {
+            const responseBody = await error.context.json();
+            if (typeof responseBody.error === 'string') message = responseBody.error;
+          } catch (parseError) {
+            console.warn('Could not read the account deletion error response:', parseError);
+          }
+        }
+        throw new Error(message);
+      }
+      if (data?.deleted !== true) {
+        throw new Error('The server did not confirm account deletion. The user list was not changed.');
+      }
 
-      if (error) throw error;
-
+      this.data = this.data.filter(item => item.id !== id);
+      this.applyFilters();
       Helpers.showSuccess('User deleted successfully!');
-      await this.init();
     } catch (err) {
-      Helpers.showError(err.message);
+      console.error('User account deletion failed:', err);
+      Helpers.showError(err.message || 'The account could not be deleted.');
     }
   }
 };

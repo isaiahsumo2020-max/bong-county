@@ -1,0 +1,196 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>County Admin Dashboard</title>
+    <link rel="stylesheet" href="dashboard.css">
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="stylesheet" href="../shared/dashboard-shell.css">
+    <link rel="stylesheet" href="../css/comments-reactions.css">
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <script src="../supabaseClient.js"></script>
+    <script src="../auth-guard.js"></script>
+    <script src="../shared/auth/auth-router.js"></script>
+    <script src="js/county-page-protection.js"></script>
+</head>
+<body class="dashboard-shell" data-dashboard-role="county_admin">
+    <div id="sidebar-overlay" class="sidebar-overlay"></div>
+
+    <aside class="sidebar" aria-label="Admin sidebar">
+        <div class="sidebar-header">
+            <div class="brand">
+                <div class="brand-badge">CS</div>
+                <div>
+                    <h1>CountySphere</h1>
+                    <p>Admin Console</p>
+                </div>
+            </div>
+            <button id="sidebar-close" class="sidebar-close" type="button" aria-label="Close menu">×</button>
+        </div>
+        <nav class="sidebar-nav">
+            <a href="#" data-page="overview" class="nav-item active">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
+                <span>Dashboard Overview</span>
+            </a>
+            <a href="#" data-page="content-review" class="nav-item">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path></svg>
+                <span>Content Review</span>
+            </a>
+            <a href="#" data-page="leaders" class="nav-item">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H2v-2a3 3 0 015.356-1.857M17 20v-2c0-.134-.01-.266-.03-.397m0 0V9a2 2 0 00-2-2H5a2 2 0 00-2 2v6.75m0 0H2v-2a3 3 0 015.356-1.857M2 12h10m-2 8h2"></path></svg>
+                <span>Manage Leaders</span>
+            </a>
+            <a href="#" data-page="contributors" class="nav-item">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm-8 0c1.657 0 3-1.343 3-3S9.657 5 8 5 5 6.343 5 8s1.343 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V20h14v-3.5C13 14.17 8.33 13 6 13zm8 0c-.29 0-.62.02-.97.05C13.67 13.6 15 14.97 15 16.5V20h6v-3.5c0-2.33-4.67-3.5-7-3.5z"></path></svg>
+                <span>Contributors</span>
+            </a>
+            <a href="#" data-page="opportunities" class="nav-item">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.564 23.564 0 0112 15c-3.183 0-6.22-1.04-8.755-2.745M10 19l2-2m0 0l2 2m-2-2v-6.5"></path></svg>
+                <span>Manage Opportunities</span>
+            </a>
+            <a href="#" data-page="events" class="nav-item">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                <span>Manage Events</span>
+            </a>
+            <a href="#" data-page="analytics" class="nav-item">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 8v8m-4-5v5m-4-2v2m-2 4h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                <span>County Analytics</span>
+            </a>
+            <a href="#" data-page="media" class="nav-item">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                <span>Media Library</span>
+            </a>
+            <a href="#" data-page="settings" class="nav-item">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0h4m-4 0h-2M9 12h6m-6 4h6"></path></svg>
+                <span>Profile Settings</span>
+            </a>
+            <a href="#" data-page="county-settings" class="nav-item">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10.5L12 3l9 7.5V21a1 1 0 01-1 1h-4v-6H8v6H4a1 1 0 01-1-1v-10.5z"></path></svg>
+                <span>County Settings</span>
+            </a>
+            <a href="#" data-page="help" class="nav-item">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9.247a4.75 4.75 0 014.75 4.75v.25M12 18h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                <span>Help & Support</span>
+            </a>
+            <a href="#" data-page="logout" class="nav-item danger-link">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
+                <span>Logout</span>
+            </a>
+        </nav>
+        <div class="sidebar-footer">
+            <p>Last synced</p>
+            <strong>Just now</strong>
+        </div>
+    </aside>
+
+    <div class="main-content-wrapper">
+        <header class="topbar">
+            <div class="header-left">
+                <button id="hamburger-btn" class="hamburger-btn" type="button" aria-label="Open menu">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+                </button>
+                <div class="brand-mobile">
+                    <div class="brand-badge">LB</div>
+                    <div class="brand-copy">
+                        <p class="brand-title">ExploreLiberia</p>
+                        <p class="brand-subtitle">Administrator</p>
+                    </div>
+                </div>
+            </div>
+            <div class="search-container">
+                <input id="dashboard-search" type="text" placeholder="Search content...">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+            </div>
+            <div class="header-right">
+                <button id="open-add-modal" class="add-btn" type="button" hidden>
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                    Add Opportunity
+                </button>
+                <div class="user-profile">
+                    <span class="user-avatar" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><circle cx="12" cy="8" r="4"></circle><path d="M4 21a8 8 0 0 1 16 0"></path></svg>
+                    </span>
+                    <div class="user-info">
+                        <p class="user-name" id="header-user-name">Loading...</p>
+                        <p class="user-role" id="header-user-county">County Admin</p>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <main id="main-content" class="content-area"></main>
+    </div>
+
+    <div id="modal-backdrop" class="modal-backdrop" aria-hidden="true">
+        <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+            <div class="modal-header">
+                <h3 id="modal-title">Add Opportunity</h3>
+                <button id="close-modal" class="modal-close" type="button" aria-label="Close dialog">×</button>
+            </div>
+            <form id="opportunity-form" class="modal-form">
+                <label>
+                    <span>Opportunity title</span>
+                    <input name="title" type="text" placeholder="Enter opportunity title" required>
+                </label>
+                <label>
+                    <span>Category</span>
+                    <select name="type" required>
+                        <option value="scholarship">Scholarship</option>
+                        <option value="grant">Grant</option>
+                        <option value="training">Training</option>
+                    </select>
+                </label>
+                <label>
+                    <span>Description</span>
+                    <textarea name="description" rows="4" required></textarea>
+                </label>
+                <label>
+                    <span>Deadline</span>
+                    <input name="deadline" type="date">
+                </label>
+                <label>
+                    <span>Status</span>
+                    <select name="status" required>
+                        <option value="open">Open</option>
+                        <option value="closing_soon">Closing soon</option>
+                        <option value="closed">Closed</option>
+                    </select>
+                </label>
+                <p id="opportunity-form-status" role="status" aria-live="polite"></p>
+                <div class="modal-actions">
+                    <button id="cancel-modal" class="secondary-btn" type="button">Cancel</button>
+                    <button class="primary-btn" type="submit">Save</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            try {
+                let attempts = 0;
+                while (!window.authGuard && attempts < 20) {
+                    await new Promise(resolve => setTimeout(resolve, 100));
+                    attempts += 1;
+                }
+                const profile = window.authGuard?.userProfile;
+                const headerUserName = document.getElementById('header-user-name');
+                const headerUserCounty = document.getElementById('header-user-county');
+                if (headerUserName) headerUserName.textContent = profile?.full_name || 'Admin';
+                if (headerUserCounty) headerUserCounty.textContent = profile?.county || 'County Admin';
+            } catch (error) {
+                console.error('Error initializing dashboard:', error);
+            }
+        });
+    </script>
+    <script src="dashboard.js"></script>
+    <script src="../shared/comments-reactions-api.js"></script>
+    <script src="../shared/reaction-bar.js"></script>
+    <script src="../shared/comment-system.js"></script>
+    <script src="../shared/dashboard-shell.js"></script>
+</body>
+</html>

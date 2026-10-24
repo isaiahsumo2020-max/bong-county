@@ -265,7 +265,7 @@ const CountyBranding = {
 
     try {
       this.applyColorVariables(colors);
-      console.log(`✓ Applied unified branding theme (White, Blue, Red) for: ${slug}`);
+      console.log(` Applied unified branding theme (White, Blue, Red) for: ${slug}`);
       return true;
     } catch (err) {
       console.error('✗ Error applying unified theme:', err);

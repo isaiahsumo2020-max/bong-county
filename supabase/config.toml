@@ -1,0 +1,16 @@
+project_id = "liberia-counties-platform"
+
+[api]
+enabled = true
+schemas = ["public", "graphql_public"]
+extra_search_path = ["public", "extensions"]
+max_rows = 1000
+
+[db]
+port = 54322
+
+[db.migrations]
+enabled = true
+
+[functions.admin-delete-user]
+verify_jwt = true

@@ -990,13 +990,13 @@
       if (confirm('Are you sure you want to delete your account? This cannot be undone.')) {
         alert('Account deletion is being processed. You will be logged out.');
         sb.auth.signOut().then(() => {
-          window.location.href = '../index-page/index.html';
+          window.location.assign('../index.html');
         });
       }
     }
 
     function goHome() {
-      window.location.href = '../index-page/index.html';
+      window.location.assign('../index.html');
     }
 
     // ─────────────────────────────────────────

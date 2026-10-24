@@ -13,17 +13,20 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 
   <!-- Custom Stylesheets -->
   <link rel="stylesheet" href="../css/county-branding.css">
   <link rel="stylesheet" href="./css/styles.css">
   <link rel="stylesheet" href="./css/sidebar.css">
   <link rel="stylesheet" href="./css/responsive.css">
+  <link rel="stylesheet" href="../shared/dashboard-shell.css">
+  <link rel="stylesheet" href="../css/comments-reactions.css">
 
   <!-- County Branding System -->
   <script src="../js/county-branding.js"></script>
 </head>
-<body>
+<body data-dashboard-role="super_admin">
 
   <!-- ================= MAIN WRAPPER ================= -->
   <div class="flex min-h-screen flex-col lg:flex-row">
@@ -34,7 +37,7 @@
         <h1 class="text-2xl text-red-700 font-extrabold">
           County <span class="text-white">Sphere</span><span class="text-blue-500">Liberia</span>
         </h1>
-        <button id="mobileSidebarClose" class="lg:hidden text-white p-1" style="display: none;">
+        <button id="mobileSidebarClose" class="lg:hidden text-white p-1" style="display: none;" aria-label="Close navigation menu">
           <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
           </svg>
@@ -43,40 +46,40 @@
 
       <nav class="flex-1 overflow-y-auto px-5 py-8 space-y-3">
         <button onclick="Navigation.showPage('overview')" class="sidebar-link active-link w-full text-left px-5 py-4 rounded-2xl transition hover:bg-blue-600">
-          Dashboard
+          <span class="material-icons" aria-hidden="true">dashboard</span><span>Dashboard</span>
         </button>
         <button onclick="Navigation.showPage('counties')" class="sidebar-link w-full text-left px-5 py-4 rounded-2xl transition hover:bg-slate-800">
-          Counties
+          <span class="material-icons" aria-hidden="true">map</span><span>Counties</span>
         </button>
         <button onclick="Navigation.showPage('content')" class="sidebar-link w-full text-left px-5 py-4 rounded-2xl transition hover:bg-slate-800">
-          Content
+          <span class="material-icons" aria-hidden="true">article</span><span>Content</span>
         </button>
         <button onclick="Navigation.showPage('tourism')" class="sidebar-link w-full text-left px-5 py-4 rounded-2xl transition hover:bg-slate-800">
-          Tourism Sites
+          <span class="material-icons" aria-hidden="true">travel_explore</span><span>Tourism Sites</span>
         </button>
         <button onclick="Navigation.showPage('events')" class="sidebar-link w-full text-left px-5 py-4 rounded-2xl transition hover:bg-slate-800">
-          Events
+          <span class="material-icons" aria-hidden="true">event</span><span>Events</span>
         </button>
         <button onclick="Navigation.showPage('opportunities')" class="sidebar-link w-full text-left px-5 py-4 rounded-2xl transition hover:bg-slate-800">
-          Opportunities
+          <span class="material-icons" aria-hidden="true">work_outline</span><span>Opportunities</span>
         </button>
         <button onclick="Navigation.showPage('users')" class="sidebar-link w-full text-left px-5 py-4 rounded-2xl transition hover:bg-slate-800">
-          Users
+          <span class="material-icons" aria-hidden="true">group</span><span>Users</span>
         </button>
         <button onclick="Navigation.showPage('districts')" class="sidebar-link w-full text-left px-5 py-4 rounded-2xl transition hover:bg-slate-800">
-          Districts
+          <span class="material-icons" aria-hidden="true">location_city</span><span>Districts</span>
         </button>
         <button onclick="Navigation.showPage('analytics')" class="sidebar-link w-full text-left px-5 py-4 rounded-2xl transition hover:bg-slate-800">
-          Analytics
+          <span class="material-icons" aria-hidden="true">analytics</span><span>Analytics</span>
         </button>
         <button onclick="Navigation.showPage('settings')" class="sidebar-link w-full text-left px-5 py-4 rounded-2xl transition hover:bg-slate-800">
-          Settings
+          <span class="material-icons" aria-hidden="true">settings</span><span>Settings</span>
         </button>
       </nav>
 
       <div class="p-6 border-t border-white/10">
         <button onclick="Auth.logout()" class="w-full bg-red-600 hover:bg-red-500 transition py-4 rounded-2xl font-semibold">
-          Logout
+          <span class="material-icons align-middle mr-2" aria-hidden="true">logout</span>Logout
         </button>
       </div>
     </aside>
@@ -85,7 +88,7 @@
     <main class="flex-1 overflow-hidden w-full lg:ml-0">
 
       <!-- ================= TOPBAR ================= -->
-      <header class="bg-white border-b border-gray-200 px-3 lg:px-10 py-3 lg:py-4 flex items-center justify-between gap-3 lg:gap-4 min-h-16 lg:min-h-20">
+      <header class="topbar bg-white border-b border-gray-200 px-3 lg:px-10 py-3 lg:py-4 flex items-center justify-between gap-3 lg:gap-4 min-h-16 lg:min-h-20">
         <!-- Mobile Menu Toggle -->
         <button id="mobileMenuToggle" class="lg:hidden flex-shrink-0 p-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white transition">
           <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -94,19 +97,19 @@
         </button>
 
         <!-- Admin Section -->
-        <div class="flex items-center gap-2 lg:gap-5 flex-shrink-0 ml-auto">
+        <div id="admin-identity" class="flex items-center gap-2 lg:gap-5 flex-shrink-0 ml-auto">
           <div class="text-right hidden sm:block">
             <h4 id="adminName" class="font-bold text-gray-900 text-xs lg:text-base">Loading...</h4>
             <p class="text-xs text-gray-500">Super Admin</p>
           </div>
-          <div class="w-10 lg:w-14 h-10 lg:h-14 rounded-full bg-blue-600 text-white flex items-center justify-center font-bold text-lg lg:text-xl flex-shrink-0">A</div>
+          <div class="lc-admin-avatar w-10 lg:w-14 h-10 lg:h-14 rounded-full bg-blue-600 text-white flex items-center justify-center font-bold text-lg lg:text-xl flex-shrink-0">A</div>
         </div>
       </header>
 
       <!-- ================= PAGE HEADER ================= -->
       <div class="bg-white border-b border-gray-200 px-3 lg:px-10 py-4 lg:py-6">
-        <h2 class="text-2xl lg:text-3xl font-extrabold text-gray-900">Dashboard Overview</h2>
-        <p class="text-sm lg:text-base text-gray-500 mt-1">Manage Liberia Counties Digital Platform</p>
+        <h2 id="dashboard-page-title" class="text-2xl lg:text-3xl font-extrabold text-gray-900">Dashboard Overview</h2>
+        <p id="dashboard-page-subtitle" class="text-sm lg:text-base text-gray-500 mt-1">Manage Liberia Counties Digital Platform</p>
       </div>
 
       <!-- ================= PAGES CONTAINER ================= -->
@@ -142,6 +145,13 @@
         <!-- SETTINGS PAGE -->
         <section data-page="settings" class="page hidden h-full overflow-y-auto p-6 lg:p-10" id="settings-page"></section>
 
+        <section data-page="lc-community" class="page hidden h-full overflow-y-auto p-6 lg:p-10" id="lc-community-page"></section>
+        <section data-page="lc-feeds" class="page hidden h-full overflow-y-auto p-6 lg:p-10" id="lc-feeds-page"></section>
+        <section data-page="lc-find-people" class="page hidden h-full overflow-y-auto p-6 lg:p-10" id="lc-find-people-page"></section>
+        <section data-page="lc-organizations" class="page hidden h-full overflow-y-auto p-6 lg:p-10" id="lc-organizations-page"></section>
+        <section data-page="lc-messages" class="page hidden h-full overflow-y-auto p-6 lg:p-10" id="lc-messages-page"></section>
+        <section data-page="lc-profile" class="page hidden h-full overflow-y-auto p-6 lg:p-10" id="lc-profile-page"></section>
+
       </div>
     </main>
   </div>
@@ -167,5 +177,9 @@
   <script src="./js/modules/analytics.js"></script>
   <script src="./js/modules/settings.js"></script>
   <script src="./js/app.js"></script>
+  <script src="../shared/comments-reactions-api.js"></script>
+  <script src="../shared/reaction-bar.js"></script>
+  <script src="../shared/comment-system.js"></script>
+  <script src="../shared/dashboard-shell.js"></script>
 </body>
 </html>

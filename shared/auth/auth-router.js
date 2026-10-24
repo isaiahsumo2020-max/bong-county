@@ -24,13 +24,13 @@ class AuthRouter {
    */
   getDashboardUrl(userRole) {
     const dashboardMap = {
-      'super_admin': '../superadmin/superadmin.html',
-      'county_admin': '../county-admin-dashboard/index.html',
-      'contributor': '../contributor-dashboard/index.html',
-      'visitor': '../auth-page/auth.html'
+      super_admin: '/superadmin/superadmin.html',
+      county_admin: '/county-admin-dashboard/county-admin-dashboard.html',
+      contributor: '/contributor-dashboard/contributor-dashboard.html',
+      visitor: '/auth-page/auth.html'
     };
 
-    return dashboardMap[userRole] || '../auth-page/auth.html';
+    return dashboardMap[userRole] || dashboardMap.visitor;
   }
 
   /**
@@ -45,10 +45,10 @@ class AuthRouter {
       const dashboardUrl = this.getDashboardUrl(userRole);
 
       console.log(`✓ Redirecting ${userRole} to ${dashboardUrl}`);
-      window.location.href = dashboardUrl;
+      window.location.assign(dashboardUrl);
     } catch (error) {
       console.error('✗ Error redirecting to dashboard:', error);
-      window.location.href = '../auth-page/auth.html';
+      window.location.assign('/auth-page/auth.html');
     }
   }
 

@@ -101,7 +101,7 @@ const SubmissionHandler = (() => {
   // ─────────────────────────────────────────
   // FETCH SUBMISSIONS
   // ─────────────────────────────────────────
-  async function getSubmissions(userId, filter = 'all') {
+  async function getSubmissions(userId, filter = 'all', countyId = null) {
     try {
       let query = sb
         .from('content')
@@ -110,6 +110,11 @@ const SubmissionHandler = (() => {
 
       if (filter !== 'all') {
         query = query.eq('status', filter);
+      }
+
+      // If a countyId is provided, scope results to that county
+      if (countyId) {
+        query = query.eq('county_id', countyId);
       }
 
       const { data, error } = await query.order('created_at', { ascending: false });
@@ -279,12 +284,16 @@ const SubmissionHandler = (() => {
   // ─────────────────────────────────────────
   // GET STATISTICS
   // ─────────────────────────────────────────
-  async function getStats(userId) {
+  async function getStats(userId, countyId = null) {
     try {
-      const { data: submissions, error } = await sb
+      let q = sb
         .from('content')
         .select('status')
         .eq('author_id', userId);
+
+      if (countyId) q = q.eq('county_id', countyId);
+
+      const { data: submissions, error } = await q;
 
       if (error) throw error;
 

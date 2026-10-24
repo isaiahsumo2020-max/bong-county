@@ -4,6 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <base href="../">
   <title>www.bongcounty</title>
   <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
   <script src="https://unpkg.com/vue-router@4/dist/vue-router.global.js"></script>
@@ -18,8 +19,8 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
   <!-- AUTHENTICATION & PROTECTION -->
-  <script src="../../supabaseClient.js"></script>
-  <script src="js/county-page-protection.js"></script>
+  <script src="../supabaseClient.js"></script>
+  <script src="county-pages/js/county-page-protection.js"></script>
 
   <script>
     tailwind.config = {
@@ -119,8 +120,9 @@
         <div class="hidden md:flex items-center gap-0.5">
           <template v-for="l in nav" :key="l.to">
             <a v-if="l.external" :href="l.to"
-              class="text-white/70 hover:text-white hover:bg-white/10 px-3 py-1.5 rounded-lg text-sm font-medium transition-all duration-200">{{
-              l.label }}</a>
+              class="text-white/70 hover:text-white hover:bg-white/10 px-3 py-1.5 rounded-lg text-sm font-medium transition-all duration-200">{{ l.label }}</a>
+            <a v-else-if="l.action === 'dashboard'" href="javascript:void(0)" @click="goToDashboard()" v-if="authUser"
+              class="text-white/70 hover:text-white hover:bg-white/10 px-3 py-1.5 rounded-lg text-sm font-medium transition-all duration-200">{{ l.label }}</a>
             <router-link v-else :to="l.to"
               class="text-white/70 hover:text-white hover:bg-white/10 px-3 py-1.5 rounded-lg text-sm font-medium transition-all duration-200"
               active-class="nav-active">{{ l.label }}</router-link>
@@ -130,27 +132,16 @@
         <!-- Auth Section -->
         <div class="hidden md:flex items-center gap-2">
           <template v-if="authUser">
-            <button @click="showAuthMenu = !showAuthMenu"
+            <button @click="goToDashboard()"
               class="flex items-center gap-2 px-3 py-1.5 rounded-lg hover:bg-white/10 transition-colors">
               <div
-                class="w-6 h-6 rounded-full bg-forest-light flex items-center justify-center text-white text-xs font-bold">
-                {{ authUser.email?.charAt(0).toUpperCase() }}</div>
-              <span class="text-white text-sm font-medium">{{ authUser.email }}</span>
+                class="w-7 h-7 rounded-full bg-forest-light flex items-center justify-center text-white text-xs font-bold border border-white/20">
+                <i class="material-icons" style="font-size:16px">person</i>
+              </div>
             </button>
-            <div v-if="showAuthMenu"
-              class="absolute top-16 right-6 bg-forest rounded-lg shadow-lg border border-white/10 w-40 z-50">
-              <a href="javascript:void(0)" onclick="goToDashboard()"
-                class="block w-full text-left px-4 py-2 text-white hover:bg-white/10 transition-colors text-sm border-b border-white/10">
-                <i class="fa-dashboard"></i>
-                Dashboard
-              </a>
-              <button @click="doSignOut(); showAuthMenu = false"
-                class="w-full text-left px-4 py-2 text-white hover:bg-white/10 transition-colors text-sm">Sign
-                Out</button>
-            </div>
           </template>
           <template v-else>
-            <a href="../auth-page/auth.html"
+            <a href="auth-page/auth.html"
               class="px-4 py-1.5 bg-forest-light text-white rounded-lg text-sm font-medium hover:bg-forest transition-colors inline-block">Login</a>
           </template>
         </div>
@@ -166,8 +157,9 @@
           @click="mob=false">✕</button>
         <template v-for="l in nav" :key="l.to">
           <a v-if="l.external" :href="l.to" @click="mob=false"
-            class="font-display text-2xl text-white/80 hover:text-forest-light py-4 border-b border-white/10 transition-colors block">{{
-            l.label }}</a>
+            class="font-display text-2xl text-white/80 hover:text-forest-light py-4 border-b border-white/10 transition-colors block">{{ l.label }}</a>
+          <a v-else-if="l.action === 'dashboard'" href="javascript:void(0)" @click="goToDashboard(); mob=false" v-if="authUser"
+            class="font-display text-2xl text-white/80 hover:text-forest-light py-4 border-b border-white/10 transition-colors block">{{ l.label }}</a>
           <router-link v-else :to="l.to"
             class="font-display text-2xl text-white/80 hover:text-forest-light py-4 border-b border-white/10 transition-colors"
             @click="mob=false">{{ l.label }}</router-link>
@@ -195,7 +187,8 @@
 
             <!-- Dashboard Button -->
             <!-- <a
-      href="../dashboard-page/dashboard.html"
+      href="#"
+      @click.prevent="goToDashboard()"
       @click="mob=false"
       class="flex items-center gap-3 w-full px-4 py-3 rounded-xl bg-forest text-white mb-3 hover:bg-forest-light transition-colors"
     >
@@ -222,7 +215,7 @@
           <!-- Not Logged In -->
           <template v-else>
 
-            <a href="../auth-page/auth.html" @click="mob=false"
+            <a href="auth-page/auth.html" @click="mob=false"
               class="block w-full text-center px-4 py-3 rounded-xl bg-forest-light text-white font-medium hover:bg-forest transition-colors">
               Login
             </a>
@@ -270,8 +263,7 @@
     </footer>
   </div>
 
-  <script src="../supabaseClient.js"></script>
-  <script src="bong.js"></script>
+  <script src="county-pages/bong.js"></script>
 </body>
 
 </html>

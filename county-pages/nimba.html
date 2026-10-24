@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Nimba County | Liberia CountySphere</title>
+  <meta name="description" content="County overview and published information for Nimba County.">
+  <link rel="stylesheet" href="county-page.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../supabaseClient.js"></script>
+  <script src="county-profile.js" defer></script>
+</head>
+<body data-county-slug="nimba-county">
+  <header class="site-header"><div class="site-header-inner">
+    <a class="brand" href="../index.html">Liberia CountySphere</a>
+    <nav class="site-nav" aria-label="Main navigation">
+      <a href="../index.html#counties">All counties</a>
+      <a href="../auth-page/auth.html">Sign in</a>
+    </nav>
+  </div></header>
+  <main id="county-main">
+    <div id="county-loading" class="notice" role="status">Loading county information…</div>
+    <section id="county-hero" class="county-hero" hidden aria-labelledby="county-name">
+      <p id="county-status" class="county-tagline"></p>
+      <h1 id="county-name"></h1>
+      <p id="county-tagline" class="county-tagline"></p>
+      <p id="county-description" class="county-description"></p>
+      <ul id="county-facts" class="county-facts"></ul>
+      <img id="county-cover" class="county-cover" alt="" hidden>
+    </section>
+    <div id="county-error" class="notice notice-error" role="alert" hidden></div>
+    <div id="county-resources" class="section-grid"></div>
+  </main>
+  <footer class="site-footer"><div class="site-footer-inner">
+    <a href="../index.html" style="color:inherit">Liberia CountySphere</a>
+    <span>County information and published resources.</span>
+  </div></footer>
+</body>
+</html>

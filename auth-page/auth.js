@@ -13,8 +13,41 @@
 
     const SUPABASE_URL = 'https://choagncxtmsewzvxoncx.supabase.co';
     const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNob2FnbmN4dG1zZXd6dnhvbmN4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgzMzk3NjUsImV4cCI6MjA5MzkxNTc2NX0.hVPjF0_b-5DTXMzeFUPYZ82tL27CrsFBIUQrm-XYonE';
-    const { createClient } = supabase;
-    const sb = createClient(SUPABASE_URL, SUPABASE_ANON);
+
+    let sb = null;
+
+    // Check for file:// protocol which causes CORS issues
+    if (window.location.protocol === 'file:') {
+      console.warn('⚠ WARNING: Running from file:// protocol.');
+      console.warn('This will cause CORS errors with Supabase. You must run a local HTTP server.');
+      console.warn('For VS Code, install "Live Server" extension and right-click index.html → "Open with Live Server"');
+      console.warn('Or run: python -m http.server 8000  (then visit http://localhost:8000)');
+    }
+
+    // Initialize Supabase client with error handling
+    function initSupabaseClient() {
+      try {
+        if (typeof window.supabase === 'undefined' || !window.supabase.createClient) {
+          console.error('❌ Supabase library not loaded. Make sure the CDN script tag is loaded before auth.js');
+          showAlert('login-alert', 'error', 'System error: Supabase library not loaded. Please refresh the page.');
+          return false;
+        }
+
+        const { createClient } = window.supabase;
+        sb = createClient(SUPABASE_URL, SUPABASE_ANON);
+        console.log('✓ Supabase client initialized successfully');
+        console.log('ℹ Origin:', window.location.origin);
+        console.log('ℹ Protocol:', window.location.protocol);
+        return true;
+      } catch (err) {
+        console.error('❌ Failed to initialize Supabase client:', err);
+        showAlert('login-alert', 'error', 'System error: Failed to initialize database connection. Please refresh the page.');
+        return false;
+      }
+    }
+
+    // Initialize on page load
+    initSupabaseClient();
 
     // ─────────────────────────────────────────
     //  STATE
@@ -32,25 +65,22 @@
     //  INIT — load counties into select + check session
     // ─────────────────────────────────────────
     async function init() {
-      // Check for return URL in query params
-      const params = new URLSearchParams(window.location.search);
-      const returnUrl = params.get('return');
-
-      // If user is already logged in, redirect to dashboard or return URL
-      const { data: { session } } = await sb.auth.getSession();
-      if (session) {
-        if (returnUrl) {
-          window.location.href = returnUrl;
-        } else {
-          redirectAfterLogin(session.user);
+      // Route authenticated users using their database role.
+      try {
+        const { data: { session } } = await sb.auth.getSession();
+        if (session && !isPasswordRecovery()) {
+          await redirectAfterLogin(session.user);
+          return;
         }
-        return;
+      } catch (err) {
+        console.warn('⚠ Session check failed (network or CORS issue):', err.message);
+        // Continue with page load even if session check fails
       }
 
       // Load counties for the register dropdown
       const sel = document.getElementById('reg-county');
       let hasLoadedCounties = false;
-      
+
       try {
         const { data, error } = await sb
           .from('counties')
@@ -110,22 +140,17 @@
     //  REDIRECT after login based on role
     // ─────────────────────────────────────────
     async function redirectAfterLogin(user) {
-      // Check for return URL in query params
-      const params = new URLSearchParams(window.location.search);
-      const returnUrl = params.get('return');
-
-      if (returnUrl) {
-        // If there's a specific return URL, use it
-        window.location.href = returnUrl;
-        return;
-      }
-
-      // Otherwise, redirect based on role
-      const { data: profile } = await sb
+      const { data: profile, error } = await sb
         .from('users')
         .select('role, county_id')
         .eq('id', user.id)
         .single();
+
+      if (error) {
+        console.error('Failed to load the authenticated user role:', error);
+        showAlert('login-alert', 'error', 'We could not verify your account role. Please try again.');
+        return;
+      }
 
       if (!profile) {
         window.location.href = '../index.html';
@@ -134,9 +159,9 @@
       if (profile.role === 'super_admin') {
         window.location.href = '../superadmin/superadmin.html';
       }else if (profile.role === 'county_admin') {
-        window.location.href = '../county-admin-dashboard/index.html';
+        window.location.href = '../county-admin-dashboard/county-admin-dashboard.html';
       } else if (profile.role === 'contributor') {
-        window.location.href = '../contributor-dashboard/index.html';
+        window.location.href = '../contributor-dashboard/contributor-dashboard.html';
       } else {
         window.location.href = '../index.html';
       }
@@ -457,82 +482,110 @@
 
       setLoading('registerBtn', true);
 
-      // Get county name for reference
-      const countySelect = document.getElementById('reg-county');
-      const countyName = countySelect.options[countySelect.selectedIndex]?.getAttribute('data-county-name') || null;
-
-      // Sign up via Supabase Auth
-      const { data, error } = await sb.auth.signUp({
-        email,
-        password,
-        options: {
-          data: {
-            full_name:  name,
-            role:       selectedRole,
-            county_id:  selectedCounty && !selectedCounty.startsWith('fallback') ? selectedCounty : null,
-            county_name: countyName, // Store county name as reference
-            phone:      selectedPhone
-          },
-          emailRedirectTo: window.location.origin + '../auth-page/auth.html'
+      try {
+        if (!sb) {
+          throw new Error('Supabase client not initialized. Please refresh the page.');
         }
-      });
 
-      setLoading('registerBtn', false);
+        // Get county name for reference
+        const countySelect = document.getElementById('reg-county');
+        const countyName = countySelect.options[countySelect.selectedIndex]?.getAttribute('data-county-name') || null;
 
-      if (error) {
-        showAlert('reg-step4-alert', 'error', error.message);
-        return;
-      }
-
-      // Prepare data for users table upsert
-      let userData = {
-        id:        data.user.id,
-        email:     email,
-        phone:     selectedPhone || null,
-        phone_verified: false,  // TODO: Implement OTP verification later
-        full_name: name,
-        bio:       bio || null,
-        role:      selectedRole,
-        county_id: selectedCounty && !selectedCounty.startsWith('fallback')
-          ? selectedCounty
-          : null,
-        county_name: countyName, // Store county name as backup reference
-        contributor_kind: selectedContributorKind,
-        profile_visibility: 'public'
-      };
-
-      // Add individual or organization data
-      if (selectedContributorKind === 'individual') {
-        userData.individual_category = selectedIndividualCategory;
-      } else {
-        userData.organization_name = document.getElementById('reg-organization-name').value.trim();
-        userData.institution_type = document.getElementById('reg-institution-type').value.trim();
-        userData.organization_description = document.getElementById('reg-organization-description').value.trim() || null;
-        userData.website_url = document.getElementById('reg-website-url').value.trim() || null;
-      }
-
-      // Update the users table with extra info
-      if (data.user) {
-        try {
-          const { error: updateError } = await sb.from('users').upsert(userData);
-          if (updateError) {
-            console.error('Error updating user profile:', updateError);
-          } else {
-            console.log('✓ User profile saved with county_id:', userData.county_id);
+        // Sign up via Supabase Auth
+        const { data, error } = await sb.auth.signUp({
+          email,
+          password,
+          options: {
+            data: {
+              full_name:  name,
+              role:       selectedRole,
+              county_id:  selectedCounty && !selectedCounty.startsWith('fallback') ? selectedCounty : null,
+              county_name: countyName, // Store county name as reference
+              phone:      selectedPhone
+            },
+            emailRedirectTo: new URL('./auth.html', window.location.href).href
           }
-        } catch (err) {
-          console.error('Exception updating user profile:', err);
-        }
-      }
+        });
 
-      lastRegEmail = email;
-      showVerifyScreen(email);
+        setLoading('registerBtn', false);
+
+        if (error) {
+          showAlert('reg-step4-alert', 'error', error.message);
+          return;
+        }
+
+        if (!data.user) {
+          throw new Error('Signup did not return a user. Please try again.');
+        }
+
+        if (Array.isArray(data.user.identities) && data.user.identities.length === 0) {
+          showAlert(
+            'reg-step4-alert',
+            'error',
+            'An account with this email already exists. Sign in or use Forgot password to recover it.'
+          );
+          return;
+        }
+
+        // Prepare data for users table upsert
+        let userData = {
+          id:        data.user.id,
+          email:     email,
+          phone:     selectedPhone || null,
+          phone_verified: false,  // TODO: Implement OTP verification later
+          full_name: name,
+          bio:       bio || null,
+          role:      selectedRole,
+          county_id: selectedCounty && !selectedCounty.startsWith('fallback')
+            ? selectedCounty
+            : null,
+          county_name: countyName, // Store county name as backup reference
+          contributor_kind: selectedContributorKind,
+          profile_visibility: 'public'
+        };
+
+        // Add individual or organization data
+        if (selectedContributorKind === 'individual') {
+          userData.individual_category = selectedIndividualCategory;
+        } else {
+          userData.organization_name = document.getElementById('reg-organization-name').value.trim();
+          userData.institution_type = document.getElementById('reg-institution-type').value.trim();
+          userData.organization_description = document.getElementById('reg-organization-description').value.trim() || null;
+          userData.website_url = document.getElementById('reg-website-url').value.trim() || null;
+        }
+
+        // Update the users table with extra info
+        if (data.user) {
+          try {
+            const { error: updateError } = await sb.from('users').upsert(userData);
+            if (updateError) {
+              console.error('Error updating user profile:', updateError);
+            } else {
+              console.log('✓ User profile saved with county_id:', userData.county_id);
+            }
+          } catch (err) {
+            console.error('Exception updating user profile:', err);
+          }
+        }
+
+        lastRegEmail = email;
+        if (data.session) {
+          await redirectAfterLogin(data.user);
+          return;
+        }
+        showVerifyScreen(email);
+      } catch (err) {
+        setLoading('registerBtn', false);
+        console.error('Registration error:', err);
+        const errorMsg = err.message || 'Network error. Please check your connection and try again.';
+        showAlert('reg-step4-alert', 'error', errorMsg);
+      }
     }
 
     // ─────────────────────────────────────────
     //  PHONE OTP VERIFICATION - COMMENTED OUT (TODO: Implement later)
     // ─────────────────────────────────────────
-    
+
     /*
     // Store password temporarily during signup flow
     let registrationPassword = null;
@@ -626,37 +679,72 @@
 
       setLoading('loginBtn', true);
 
-      const { data, error } = await sb.auth.signInWithPassword({ email, password });
+      try {
+        if (!sb) {
+          throw new Error('Supabase client not initialized. Please refresh the page.');
+        }
 
-      setLoading('loginBtn', false);
+        const { data, error } = await sb.auth.signInWithPassword({ email, password });
 
-      if (error) {
-        const msg = error.message === 'Invalid login credentials'
-          ? 'Incorrect email or password. Please try again.'
-          : error.message === 'Email not confirmed'
-            ? 'Please verify your email before signing in. Check your inbox.'
-            : error.message;
-        showAlert('login-alert', 'error', msg);
-        document.getElementById('login-password').classList.add('error');
-        return;
+        setLoading('loginBtn', false);
+
+        if (error) {
+          const msg = error.message === 'Invalid login credentials'
+            ? 'Incorrect email or password. Please try again.'
+            : error.message === 'Email not confirmed'
+              ? 'Please verify your email before signing in. Check your inbox.'
+              : error.message;
+          showAlert('login-alert', 'error', msg);
+          document.getElementById('login-password').classList.add('error');
+          return;
+        }
+
+        // Redirect based on role
+        redirectAfterLogin(data.user);
+      } catch (err) {
+        setLoading('loginBtn', false);
+        console.error('Login error:', err);
+
+        let errorMsg = err.message || 'Network error. Please check your connection and try again.';
+
+        // Provide more specific help for network errors
+        if (err.message && err.message.includes('Failed to fetch')) {
+          errorMsg = 'Network error: Cannot connect to authentication server. Please check:\n1. Your internet connection\n2. Firewall/proxy settings\n3. Try again in a moment';
+          console.error('Diagnostics:', {
+            url: 'https://choagncxtmsewzvxoncx.supabase.co',
+            origin: window.location.origin,
+            hasSession: !!localStorage.getItem('supabase.auth.token'),
+            message: 'Likely CORS or network connectivity issue'
+          });
+        }
+
+        showAlert('login-alert', 'error', errorMsg);
       }
-
-      // Redirect based on role
-      redirectAfterLogin(data.user);
     }
 
     // ─────────────────────────────────────────
     //  FORGOT PASSWORD
     // ─────────────────────────────────────────
     function showReset() {
-      document.getElementById('mainAuth').style.display = 'none';
-      document.getElementById('resetPanel').style.display = 'block';
+      const mainAuth = document.getElementById('mainAuth');
+      const resetPanel = document.getElementById('resetPanel');
+      if (!mainAuth || !resetPanel) {
+        console.error('Password reset panel is unavailable.');
+        return;
+      }
+      const loginEmail = document.getElementById('login-email')?.value.trim();
+      if (loginEmail) document.getElementById('reset-email').value = loginEmail;
+      mainAuth.style.display = 'none';
+      document.getElementById('verifyPanel').style.display = 'none';
+      resetPanel.style.display = 'block';
+      document.getElementById('reset-email').focus();
     }
 
     function hideReset() {
       document.getElementById('mainAuth').style.display = 'block';
       document.getElementById('resetPanel').style.display = 'none';
       clearAlerts();
+      switchTab('login');
     }
 
     async function handleReset() {
@@ -669,20 +757,21 @@
 
       setLoading('resetBtn', true);
 
-      const { error } = await sb.auth.resetPasswordForEmail(email, {
-        redirectTo: window.location.origin + '../auth-page/auth.html?type=recovery'
-      });
+      try {
+        if (!sb) throw new Error('Authentication is unavailable. Please refresh and try again.');
+        const redirectTo = new URL('./auth.html?type=recovery', window.location.href).href;
+        const { error } = await sb.auth.resetPasswordForEmail(email, { redirectTo });
+        if (error) throw error;
 
-      setLoading('resetBtn', false);
-
-      if (error) {
-        showAlert('reset-alert-err', 'error', error.message);
-        return;
+        showAlert('reset-alert-ok', 'success',
+          `If an account exists for ${email}, a reset link will arrive shortly. Check your inbox and spam folder.`);
+        document.getElementById('reset-email').value = '';
+      } catch (error) {
+        console.error('Password reset request failed:', error);
+        showAlert('reset-alert-err', 'error', error.message || 'The reset link could not be sent. Please try again.');
+      } finally {
+        setLoading('resetBtn', false);
       }
-
-      showAlert('reset-alert-ok', 'success',
-        `Reset link sent to ${email}. Check your inbox and spam folder.`);
-      document.getElementById('reset-email').value = '';
     }
 
     // ─────────────────────────────────────────
@@ -697,12 +786,25 @@
 
     async function resendVerification() {
       if (!lastRegEmail) return;
-      const { error } = await sb.auth.resend({
-        type: 'signup',
-        email: lastRegEmail
-      });
-      if (!error) {
-        alert('Verification email resent! Check your inbox.');
+      const status = document.getElementById('verify-status');
+      const resendButton = document.getElementById('resend-verification-btn');
+      status.textContent = '';
+      resendButton.disabled = true;
+
+      try {
+        if (!sb) throw new Error('Authentication is unavailable. Please refresh and try again.');
+        const { error } = await sb.auth.resend({
+          type: 'signup',
+          email: lastRegEmail
+        });
+        if (error) throw error;
+
+        status.textContent = 'Resend request accepted. Check your inbox and spam folder. If nothing arrives, the site administrator may need to check email delivery settings.';
+      } catch (error) {
+        console.error('Verification email resend failed:', error);
+        status.textContent = error.message || 'The verification email could not be requested. Please try again later.';
+      } finally {
+        resendButton.disabled = false;
       }
     }
 
@@ -783,8 +885,7 @@
     //  Supabase redirects back here with a hash
     // ─────────────────────────────────────────
     async function checkRecoveryMode() {
-      const hash = window.location.hash;
-      if (hash.includes('type=recovery') || new URLSearchParams(window.location.search).get('type') === 'recovery') {
+      if (isPasswordRecovery()) {
         // Show a new password form
         document.getElementById('mainAuth').innerHTML = `
           <div class="form-title">Set New Password</div>
@@ -817,17 +918,29 @@
       }
     }
 
+    function isPasswordRecovery() {
+      const hashParams = new URLSearchParams(window.location.hash.replace(/^#/, ''));
+      return hashParams.get('type') === 'recovery'
+        || new URLSearchParams(window.location.search).get('type') === 'recovery';
+    }
+
     async function submitNewPassword() {
       const pw = document.getElementById('new-pw').value;
       const confirm = document.getElementById('new-pw-confirm').value;
       if (pw.length < 8) { showAlert('np-err', 'error', 'Password must be at least 8 characters'); return; }
       if (pw !== confirm) { showAlert('np-err', 'error', 'Passwords do not match'); return; }
       setLoading('newPwBtn', true);
-      const { error } = await sb.auth.updateUser({ password: pw });
-      setLoading('newPwBtn', false);
-      if (error) { showAlert('np-err', 'error', error.message); return; }
-      showAlert('np-ok', 'success', 'Password updated! Redirecting to sign in...');
-      setTimeout(() => { window.location.href = '../auth-page/auth.html'; }, 2000);
+      try {
+        const { error } = await sb.auth.updateUser({ password: pw });
+        if (error) throw error;
+        showAlert('np-ok', 'success', 'Password updated. Redirecting to your account...');
+        setTimeout(() => { window.location.href = '../auth-page/auth.html'; }, 2000);
+      } catch (error) {
+        console.error('Password update failed:', error);
+        showAlert('np-err', 'error', error.message || 'The password could not be updated. Please request a new reset link.');
+      } finally {
+        setLoading('newPwBtn', false);
+      }
     }
 
     // ─────────────────────────────────────────
